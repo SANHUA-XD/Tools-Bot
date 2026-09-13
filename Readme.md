@@ -31,7 +31,7 @@ Eldian-Network@Debian~ $ cd Yumekoo
 Eldian-Network@Debian~ $ python3 -m venv myenv
 Eldian-Network@Debian~ $ source myenv/bin/activate
 Eldian-Network@Debian~ $ pip3 install -U -r requirements.txt
-Eldian-Network@Debian~ $ bash start
+Eldian-Network@Debian~ $ bash start.sh
 ```
 
 ## Credits 💖
