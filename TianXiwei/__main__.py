@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timedelta
 from pyrogram import idle, filters , Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery , Message
-from TianXiwei import app, log, telebot, BACKUP_FILE_JSON, ptb, scheduler
+from TianXiwei import app, log, telebot, BACKUP_FILE_JSON, scheduler
 from config import config
 from TianXiwei.Functions.on_start import edit_restart_message, clear_downloads_folder, notify_startup
 from TianXiwei.Group.roleassign import ensure_owner_is_hokage
@@ -412,7 +412,6 @@ if __name__ == "__main__":
             log.info(f"Bot Configured: Name: {bot_details.first_name}, ID: {bot_details.id}, Username: @{bot_details.username}")
 
         loop.run_until_complete(initialize_async_components())
-        ptb.run_polling(timeout=15, drop_pending_updates=True)
         log.info("Bot started. Press Ctrl+C to stop.")
         idle()
 

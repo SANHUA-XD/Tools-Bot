@@ -1,12 +1,9 @@
-from TianXiwei import app , admin_cache_ptb , ptb
-from pyrogram.errors import RPCError
-from pyrogram.enums import MessageEntityType
-from pyrogram.types import Message , ChatPrivileges , ChatPermissions
-from pyrogram.errors import PeerIdInvalid
-from telegram import Update, ChatMember
-from telegram.ext import ContextTypes 
-from telegram.error import BadRequest , Forbidden
-from pyrogram.types import ChatPermissions
+import pyrogram
+from pyrogram.types import Message, ChatPermissions, ChatPrivileges
+from pyrogram.errors import PeerIdInvalid, RPCError
+from pyrogram.enums import MessageEntityType, ChatMemberStatus
+
+from TianXiwei import app
 from threading import RLock
 from time import perf_counter
 from cachetools import TTLCache
@@ -169,84 +166,16 @@ RESTRICT = ChatPermissions(
     can_send_voices = False
 )
 
-
-async def update_admin_cache(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
-
-    try:
-        # Fetch chat administrators
-        admins = await context.bot.get_chat_administrators(chat_id)
-
-        # Iterate through all admins and update the cache
-        for admin in admins:
-            user_id = admin.user.id
-
-            # Cache the admin status (True for OWNER or ADMINISTRATOR)
-            admin_cache_ptb[(chat_id, user_id)] = admin.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]
-
-            # Cache specific rights if the admin is not the OWNER
-            if admin.status == ChatMember.ADMINISTRATOR:
-                rights = [
-                    'can_manage_chat',
-                    'can_delete_messages',
-                    'can_manage_video_chats',
-                    'can_restrict_members',
-                    'can_promote_members',
-                    'can_change_info',
-                    'can_invite_users',
-                ]
-                for right in rights:
-                    admin_cache_ptb[(chat_id, user_id, right)] = getattr(admin, right, False)
-
-            # OWNER has all rights, so set them to True
-            elif admin.status == ChatMember.OWNER:
-                rights = [
-                    'can_manage_chat',
-                    'can_delete_messages',
-                    'can_manage_video_chats',
-                    'can_restrict_members',
-                    'can_promote_members',
-                    'can_change_info',
-                    'can_invite_users',
-                ]
-                for right in rights:
-                    admin_cache_ptb[(chat_id, user_id, right)] = True
-
-    except (BadRequest, Forbidden) as e:
-        # Handle API errors gracefully
-        print(f"Failed to fetch administrators for chat {chat_id}: {e}")
-
-
-
-async def is_user_admin(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int) -> bool:
-
-    chat = update.effective_chat
-
+async def is_user_admin(client, chat_id: int, user_id: int) -> bool:
     with THREAD_LOCK:
-        # try to fetch from cache first.
         try:
-            return user_id in ADMIN_CACHE[chat.id]
+            return user_id in ADMIN_CACHE[chat_id]
         except (KeyError, IndexError):
-            # keyerror happend means cache is deleted,
-            # so query bot api again and return user status
-            # while saving it in cache for future useage...
-            chat_admins = await ptb.bot.getChatAdministrators(chat.id)
-            admin_list = [x.user.id for x in chat_admins]
-            ADMIN_CACHE[chat.id] = admin_list
-
+            admin_list = []
+            async for admin in client.get_chat_members(chat_id, filter=pyrogram.enums.ChatMembersFilter.ADMINISTRATORS):
+                admin_list.append(admin.user.id)
+            ADMIN_CACHE[chat_id] = admin_list
             return user_id in admin_list
-
-async def has_admin_right(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int, right: str) -> bool:
-    chat_id = update.effective_chat.id
-    cache_key = (chat_id, user_id, right)
-
-
-    if cache_key in admin_cache_ptb:
-        return admin_cache_ptb[cache_key]
-
-    # If not cached, update the cache and check again
-    await update_admin_cache(chat_id, context)
-    return admin_cache_ptb.get(cache_key, False)
-
 
 # Define permissions for night mode
 NIGHT_MODE_PERMISSIONS = ChatPermissions(

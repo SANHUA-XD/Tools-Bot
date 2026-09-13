@@ -1,91 +1,75 @@
-from telegram import Update, ChatPermissions, MessageEntity
-from telegram.ext import CallbackQueryHandler, MessageHandler, filters
-from telegram.ext import ContextTypes
-from TianXiwei.Database.lockdb import (
-    set_lock,
-    unset_lock,
-    get_locks,
-)
-from TianXiwei.Database.approve_db import is_user_approved
-from TianXiwei.Functions.user import is_user_admin
-from TianXiwei import ptb , LOCK_GROUP
-from TianXiwei.Functions.handler import MultiCommandHandler
-from TianXiwei.Functions.lock_helper import LOCK_CHAT_RESTRICTION, LOCKABLES, UNLOCK_CHAT_RESTRICTION
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.constants import ChatMemberStatus
+from pyrogram import Client, filters
+from pyrogram.types import Message, ChatPermissions, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from pyrogram.enums import ChatType, ChatMemberStatus
 
+from TianXiwei import app
+from TianXiwei.Database.lock_db import get_locks, set_lock, unset_lock
+from TianXiwei.Functions.lock_helper import get_locks, set_lock, unset_lock, LOCKABLES, LOCK_CHAT_RESTRICTION, UNLOCK_CHAT_RESTRICTION
+from TianXiwei.Functions.user import is_user_admin, is_user_approved
+from config import config
 
-async def lock_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /lock command to enable locks."""
-    chat = update.effective_chat
-    user = update.effective_user  # Assign user directly, even if None
-
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
-
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text("🚫 *Access Denied:* Only admins can configure locks.", parse_mode="Markdown")
+@app.on_message(filters.command("lock", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def lock_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
         return
 
-    lock_types = [lock_type.lower() for lock_type in context.args]  # Convert input to lowercase
-    if not lock_types:
-        await update.message.reply_text("⚙️ *Usage:* Specify the lock type(s) to enable.\n"
-                                        f"Example: `/lock all` or `/lock audio video`", parse_mode="Markdown")
+    if len(message.command) < 2:
+        await message.reply_text("Please specify a lock type. Example: `/lock text`")
         return
 
-    for lock_type in lock_types:
-        if lock_type not in LOCKABLES:
-            await update.message.reply_text(f"⚠️ Invalid lock type: `{lock_type}`\n"
-                                            f"Use `/locktypes` to view available lock types.", parse_mode="Markdown")
-            return
+    lock_type = message.command[1].lower()
 
-        await set_lock(chat.id, lock_type)
-
-        if lock_type == "all":
-            permissions = ChatPermissions(**LOCK_CHAT_RESTRICTION["all"])
-            await context.bot.set_chat_permissions(chat.id, permissions)
-
-    await update.message.reply_text(f"🔒 *Locked:* {', '.join(lock_types)}", parse_mode="Markdown")
-
-
-
-async def unlock_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /unlock command to disable locks."""
-    chat = update.effective_chat
-    user = update.effective_user  # Assign user directly, even if None
-
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
-
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text("🚫 *Access Denied:* Only admins can configure locks.", parse_mode="Markdown")
+    if lock_type not in LOCKABLES and lock_type != "all":
+        await message.reply_text(f"Invalid lock type. Valid types are: {', '.join(LOCKABLES)}")
         return
 
-    lock_types = context.args
-    if not lock_types:
-        await update.message.reply_text("⚙️ *Usage:* Specify the lock type(s) to disable.\n"
-                                        f"Example: `/unlock all` or `/unlock audio video`", parse_mode="Markdown")
+    await set_lock(message.chat.id, lock_type)
+
+    if lock_type == "all":
+        await message.reply_text("All locks have been enabled.")
+    else:
+        await message.reply_text(f"Lock `{lock_type}` has been enabled.")
+
+@app.on_message(filters.command("unlock", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def unlock_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
         return
 
-    for lock_type in lock_types:
-        if lock_type not in LOCKABLES:
-            await update.message.reply_text(f"⚠️ Invalid unlock type: `{lock_type}`\n"
-                                            f"Use `/locktypes` to view available lock types.", parse_mode="Markdown")
-            return
+    if len(message.command) < 2:
+        await message.reply_text("Please specify a lock type. Example: `/unlock text`")
+        return
 
-        await unset_lock(chat.id, lock_type)
+    lock_type = message.command[1].lower()
 
-        if lock_type == "all":
-            permissions = ChatPermissions(**UNLOCK_CHAT_RESTRICTION["all"])
-            await context.bot.set_chat_permissions(chat.id, permissions)
+    if lock_type not in LOCKABLES and lock_type != "all":
+        await message.reply_text(f"Invalid lock type. Valid types are: {', '.join(LOCKABLES)}")
+        return
 
-    await update.message.reply_text(f"🔓 *Unlocked:* {', '.join(lock_types)}", parse_mode="Markdown")
+    await unset_lock(message.chat.id, lock_type)
 
+    if lock_type == "all":
+        await message.reply_text("All locks have been disabled.")
+    else:
+        await message.reply_text(f"Lock `{lock_type}` has been disabled.")
 
-async def locktypes_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /locktypes to list all lockable types with inline buttons."""
+@app.on_message(filters.command("locks", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def locks_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
+        return
+
+    locks = await get_locks(message.chat.id)
+
+    if not locks:
+        await message.reply_text("No locks are enabled in this chat.")
+        return
+
+    await message.reply_text(f"Enabled locks in this chat:\n\n{', '.join(locks)}")
+
+@app.on_message(filters.command("locktypes", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def locktypes_command(client: Client, message: Message):
     lockables = list(LOCKABLES.items())
 
     # Create rows of 3 buttons each
@@ -101,17 +85,13 @@ async def locktypes_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(
+    await message.reply_text(
         "📜 *Available Lock Types:*\nTap a button to view the description.",
         reply_markup=reply_markup,
-        parse_mode="Markdown"
     )
 
-
-async def locktype_description(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show lock type description when an inline button is clicked."""
-    query = update.callback_query
-
+@app.on_callback_query(filters.regex(r"^locktype_"))
+async def locktype_description(client: Client, query: CallbackQuery):
     # Extract lock type from callback data
     lock_type = query.data.split("_", 1)[1]
     description = LOCKABLES.get(lock_type, "No description available.")    
@@ -120,171 +100,75 @@ async def locktype_description(update: Update, context: ContextTypes.DEFAULT_TYP
         text=f"🔒 {lock_type.capitalize()} Lock:\n{description}",
         show_alert=True        
     )
-    
 
-async def locks_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /locks to view active locks in the chat."""
-    chat = update.effective_chat
-    locks = await get_locks(chat.id)
-    if not locks:
-        await update.message.reply_text("🔓 *No locks are currently enabled in this chat.*", parse_mode="Markdown")
-    else:
-        await update.message.reply_text(f"🔒 *Active Locks:*\n`{', '.join(locks)}`", parse_mode="Markdown")
+@app.on_message(filters.group & ~filters.me)
+async def lock_handler(client: Client, message: Message):
+    if not message.from_user:
+        return
 
+    if await is_user_admin(client, message.chat.id, message.from_user.id):
+        return
 
-async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Delete messages violating locks."""
-    chat = update.effective_chat
-    user = update.effective_user  # Assign user directly, even if None
+    locks = await get_locks(message.chat.id)
 
-    # Get active locks
-    locks = await get_locks(chat.id)
     if not locks:
         return
 
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
-
-    # Ignore admin messages
-    if await is_user_admin(update, context, user.id):
-        return
- 
-    if await is_user_approved(chat.id , user.id):
-        return
-
-
-
-    msg = update.effective_message
-    to_delete = False
-
-    # Check lock conditions
     if "all" in locks:
-        to_delete = True  # "all" locks everything
+        await message.delete()
+        return
 
-    if "album" in locks and (msg.media_group_id is not None):
-        to_delete = True
-    if "anonchannel" in locks and (msg.sender_chat and not msg.sender_chat.is_forum):
-        to_delete = True
-    if "audio" in locks and msg.audio:
-        to_delete = True
-    if "bot" in locks and msg.via_bot:
-        to_delete = True
-    if "botlink" in locks and (
-        any(ent.type == MessageEntity.MENTION for ent in msg.entities or [])
-        and "bot" in msg.text.lower()
-    ):
-        to_delete = True
-    if "btn" in locks and msg.reply_markup:
-        to_delete = True
-    if "cjk" in locks and msg.text and any(
-        ord(c) >= 0x4E00 and ord(c) <= 0x9FFF for c in msg.text
-    ):
-        to_delete = True
-    if "command" in locks and msg.text and msg.text.startswith("/"):
-        to_delete = True
-    if "contact" in locks and msg.contact:
-        to_delete = True
-    if "cyrillic" in locks and msg.text and any(
-        ord(c) in range(0x0400, 0x04FF) for c in msg.text
-    ):
-        to_delete = True
-    if "document" in locks and msg.document:
-        to_delete = True
-    if "email" in locks and (
-        any(ent.type == MessageEntity.EMAIL for ent in msg.entities or [])
-    ):
-        to_delete = True
-    if "emoji" in locks and msg.text and any(
-        ord(c) > 0x1F600 for c in msg.text if ord(c) < 0x1F64F
-    ):
-        to_delete = True
-    if "emoji_custom" in locks and (
-        any(ent.type == MessageEntity.CUSTOM_EMOJI for ent in msg.entities or [])
-    ):
-        to_delete = True
-    if "dice" in locks and msg.dice:
-        to_delete = True
-    if "external_reply" in locks and msg.reply_to_message:
-        try:
-            chat_member = await context.bot.get_chat_member(chat.id, msg.reply_to_message.from_user.id)
-            if chat_member.status in (ChatMemberStatus.LEFT, ChatMemberStatus.BANNED):
-                to_delete = True
-        except Exception as e:
-            to_delete = True
-    if "forward" in locks and filters.FORWARDED.filter(msg):  # Use `.filter()` method
-        to_delete = True
-    if "game" in locks and msg.game:
-        to_delete = True
-    if "gif" in locks and msg.animation:
-        to_delete = True
-    if "inline" in locks and msg.via_bot:
-        to_delete = True
-    if "invitelink" in locks and (
-        any(ent.type == MessageEntity.MENTION for ent in msg.entities or [])
-        or any(ent.type == MessageEntity.URL for ent in msg.entities or [])
-    ):
-        to_delete = True
-    if "location" in locks and msg.location:
-        to_delete = True
-    if "phone" in locks and (
-        any(ent.type == MessageEntity.PHONE_NUMBER for ent in msg.entities or [])
-    ):
-        to_delete = True
-    if "photo" in locks and msg.photo:
-        to_delete = True
-    if "poll" in locks and msg.poll:
-        to_delete = True
-    if "rtl" in locks and msg.text and any(
-        ord(c) in range(0x0590, 0x08FF) for c in msg.text
-    ):
-        to_delete = True
-    if "spoiler" in locks and (
-        any(ent.type == MessageEntity.SPOILER for ent in msg.entities or [])
-    ):
-        to_delete = True
-    if "sticker" in locks and msg.sticker:
-        to_delete = True
-    if "animated_sticker" in locks and msg.sticker and msg.sticker.is_animated:
-        to_delete = True
-    if "premium_sticker" in locks and msg.sticker and msg.sticker.premium_animation:
-        to_delete = True
-    if "text" in locks and msg.text:
-        to_delete = True
-    if "url" in locks and (
-        any(ent.type == MessageEntity.URL for ent in msg.entities or [])
-        or any(ent.type == MessageEntity.URL for ent in msg.caption_entities or [])
-    ):  # Added check for `caption_entities`
-        to_delete = True
-    if "video" in locks and msg.video:
-        to_delete = True
-    if "videonote" in locks and msg.video_note:
-        to_delete = True
-    if "voice" in locks and msg.voice:
-        to_delete = True
+    if "text" in locks and message.text:
+        await message.delete()
+        return
 
-    # Delete the message if any lock condition matches
-    if to_delete:
-        try:
-            await msg.delete()
-        except Exception as e:
-            await update.message.reply_text(
-                "⚠️ *Unable to delete message. Please ensure I have the required permissions.*",
-                parse_mode="Markdown"
-            )
+    if "photo" in locks and message.photo:
+        await message.delete()
+        return
 
+    if "video" in locks and message.video:
+        await message.delete()
+        return
 
+    if "audio" in locks and message.audio:
+        await message.delete()
+        return
 
-locktype_desc_handler = CallbackQueryHandler(locktype_description, pattern=r"^locktype_")
+    if "document" in locks and message.document:
+        await message.delete()
+        return
 
-# Register handlers
-ptb.add_handler(MultiCommandHandler("lock", lock_command))
-ptb.add_handler(MultiCommandHandler("unlock", unlock_command))
-ptb.add_handler(MultiCommandHandler("locktypes", locktypes_command))
-ptb.add_handler(MultiCommandHandler("locks", locks_command))
-ptb.add_handler(MessageHandler(filters.ALL & ~filters.StatusUpdate.ALL, message_handler), group=LOCK_GROUP)
-ptb.add_handler(locktype_desc_handler)
+    if "sticker" in locks and message.sticker:
+        await message.delete()
+        return
 
+    if "animation" in locks and message.animation:
+        await message.delete()
+        return
+
+    if "voice" in locks and message.voice:
+        await message.delete()
+        return
+
+    if "video_note" in locks and message.video_note:
+        await message.delete()
+        return
+
+    if "contact" in locks and message.contact:
+        await message.delete()
+        return
+
+    if "location" in locks and message.location:
+        await message.delete()
+        return
+
+    if "poll" in locks and message.poll:
+        await message.delete()
+        return
+
+    if "game" in locks and message.game:
+        await message.delete()
+        return
 
 __module__ = "𝖫𝗈𝖼𝗄𝗌"
 
@@ -304,4 +188,3 @@ __help__ = """🔒 **𝖫𝗈𝖼𝗄𝗌 𝖬𝗈𝖽𝗎𝗅𝖾**:
  - `/𝗎𝗇𝗅𝗈𝖼𝗄 𝗍𝖾𝗑𝗍 𝖼𝗈𝗆𝗆𝖺𝗇𝖽` - 𝖠𝗅𝗅𝗈𝗐 𝗍𝖾𝗑𝗍 𝗆𝖾𝗌𝗌𝖺𝗀𝖾𝗌 𝖺𝗇𝖽 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌.
  
 """
-
