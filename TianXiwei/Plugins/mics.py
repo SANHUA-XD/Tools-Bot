@@ -7,7 +7,6 @@ from TianXiwei import app
 from config import config
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
-from TianXiwei.Functions.ai_provider import get_ai_response
 
 _genius_client = None
 
@@ -69,26 +68,6 @@ async def fetch_lyrics_via_genius(query: str):
     return f"🎵 {song.title}\n🎤 {song.artist}\n\n{lyrics}"
 
 
-async def fetch_song_data_via_ai(query: str, request_type: str):
-    """
-    Uses the multi-provider AI to fetch song lyrics or metadata.
-    This completely avoids Cloudflare blocks, scraping issues, and dead APIs.
-    """
-    if request_type == "lyrics":
-        sys_prompt = "You are a highly accurate music database. Provide ONLY the full, official lyrics for the requested song. Do not add conversational text, disclaimers, or formatting other than the lyrics themselves. Put the Song Title and Artist at the very top."
-        user_prompt = f"Provide the lyrics for the song: {query}"
-    else:
-        sys_prompt = "You are a highly accurate music database. Provide details for the requested song in this exact format:\n🎵 Song: [Title]\n🎤 Artist: [Artist]\n💿 Album: [Album]\n📅 Release Year: [Year]\n🏷️ Genre: [Genre]\n\nDo not add any other conversational text."
-        user_prompt = f"Provide metadata for the song: {query}"
-
-    try:
-        response_text, provider = await get_ai_response(user_prompt, system_prompt=sys_prompt)
-        if not response_text:
-            return {"error": "All AI providers failed to process the request at this moment."}
-        return {"data": response_text}
-    except Exception as e:
-        return {"error": f"An unexpected AI error occurred: {str(e)[:200]}"}
-
 def fetch_gender(name: str):
     """
     Synchronously fetch gender prediction algorithms via the Genderize API.
@@ -121,17 +100,8 @@ async def send_lyrics(client: Client, message: Message):
     lyrics_text = await fetch_lyrics_via_genius(song_name)
 
     if not lyrics_text:
-        # No Genius token configured, or nothing found there - fall back to AI.
-        # (Less reliable: an AI can hallucinate/mismatch songs, which is
-        # exactly why Genius is tried first.)
-        await status_msg.edit_text("🔎 **𝖭𝗈𝗍 𝗈𝗇 𝖦𝖾𝗇𝗂𝗎𝗌, 𝗍𝗋𝗒𝗂𝗇𝗀 𝖠𝖨 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄...**")
-        data = await fetch_song_data_via_ai(song_name, "lyrics")
-        if "error" in data:
-            return await status_msg.edit_text(f"❌ **𝖱𝖾𝗌𝗈𝗅𝗎𝗍𝗂𝗈𝗇 𝖥𝖺𝗂𝗅𝖾𝖽:**\n`{data['error']}`")
-        lyrics_text = data["data"]
+        return await status_msg.edit_text("❌ **𝖱𝖾𝗌𝗈𝗅𝗎𝗍𝗂𝗈𝗇 𝖥𝖺𝗂𝗅𝖾𝖽:**\n`No lyrics found.`")
 
-    # Telegram strictly enforces a 4096 character limit per discrete message entity.
-    # The string must be chunked iteratively to guarantee full transmission of extensive lyrical content.
     if len(lyrics_text) > 4096:
         await status_msg.delete()
         for chunk in [lyrics_text[i:i + 4000] for i in range(0, len(lyrics_text), 4000)]:
@@ -140,22 +110,7 @@ async def send_lyrics(client: Client, message: Message):
     else:
         await status_msg.edit_text(lyrics_text, disable_web_page_preview=True)
     
-@app.on_message(filters.command("searchsong", config.COMMAND_PREFIXES))
-@error
-@save
-async def search_song(client: Client, message: Message):
-    if len(message.command) < 2:
-        return await message.reply_text("⚠️ **𝖲𝗒𝗇𝗍𝖺𝗑 𝖤𝗋𝗋𝗈𝗋:**\n𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗏𝖺𝗅𝗂𝖽 𝗌𝗈𝗇𝗀 𝗇𝖺𝗆𝖾.\n\n📌 `𝖴𝗌𝖺𝗀𝖾: /searchsong [song name]`")
 
-    song_name = " ".join(message.command[1:])
-    status_msg = await message.reply_text("🔎 **𝖰𝗎𝖾𝗋𝗒𝗂𝗇𝗀 𝖠𝖨 𝗆𝗎𝗌𝗂𝖼 𝗆𝖾𝗍𝖺𝖽𝖺𝗍𝖺 𝗋𝖾𝗀𝗂𝗌𝗍𝗋𝗒...**")
-
-    data = await fetch_song_data_via_ai(song_name, "metadata")
-    
-    if "error" in data:
-        return await status_msg.edit_text(f"❌ **𝖱𝖾𝗌𝗈𝗅𝗎𝗍𝗂𝗈𝗇 𝖥𝖺𝗂𝗅𝖾𝖽:**\n`{data['error']}`")
-
-    await status_msg.edit_text(data["data"], disable_web_page_preview=True)
     
 @app.on_message(filters.command("gender", config.COMMAND_PREFIXES))
 @error

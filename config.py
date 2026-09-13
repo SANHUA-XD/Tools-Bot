@@ -1,7 +1,7 @@
 class config:
 
     #Client
-    API_ID = 
+    API_ID = 0
     API_HASH = ""
     BOT_TOKEN = ""
     BOT_NAME = "Shizuka"
@@ -74,36 +74,4 @@ class config:
     Movie_Api = "5d3274c3bb08b4276482436c8444abc0"
     Movie_RAC = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ZDMyNzRjM2JiMDhiNDI3NjQ4MjQzNmM4NDQ0YWJjMCIsIm5iZiI6MTczMzIyMjgxMy42OTQwMDAyLCJzdWIiOiI2NzRlZTE5ZDJjZTRjZTdkZDYwOTU2YjAiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.aXfQw0_CRrKl2iSJd9tFE1TVbWWVYNgysWkUVlwzyRg"
     Pokedex = "https://sugoi-api.vercel.app/pokemon?name={name_or_id}"
-    OPENAI_KEY = "xx" #Get From Open Ai's Website
     LYRICS_GENIUS_TOKEN = ""
-
-    #Multi-AI Provider Failover (used by TianXiwei/helper/ai_provider.py for
-    # /ask and the chatbot module). If a provider fails/rate-limits, the bot
-    # automatically tries the next one in this list.
-    AI_PROVIDER_PRIORITY = "groq,openrouter,cerebras,gemini,together,huggingface,deepseek"
-
-    GROQ_API_KEY = ""  # https://console.groq.com/keys
-    GROQ_MODEL = "llama-3.3-70b-versatile"
-
-    OPENROUTER_API_KEY = ""  # https://openrouter.ai/keys
-    # "openrouter/free" auto-picks whatever model is currently free on OpenRouter,
-    # avoiding 404s when a specific ":free" model ID gets pulled to paid.
-    OPENROUTER_MODEL = "openrouter/free"
-
-    CEREBRAS_API_KEY = ""  # https://cloud.cerebras.ai
-    CEREBRAS_MODEL = "llama-3.3-70b"
-
-    GEMINI_API_KEY = ""  # https://aistudio.google.com/apikey
-    GEMINI_MODEL = "gemini-2.0-flash"
-
-    TOGETHER_API_KEY = ""  # https://api.together.ai
-    TOGETHER_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
-
-    HUGGINGFACE_API_KEY = ""  # https://huggingface.co/settings/tokens
-    HUGGINGFACE_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
-
-    DEEPSEEK_API_KEY = ""  # https://platform.deepseek.com
-    DEEPSEEK_MODEL = "deepseek-chat"
-
-    OPENAI_API_KEY = ""  # optional, paid
-    OPENAI_MODEL = "gpt-4o-mini"

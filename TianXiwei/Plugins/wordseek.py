@@ -22,12 +22,7 @@ from TianXiwei.Database.wordseekdb import (
     record_score_event, get_leaderboard, get_user_totals,
 )
 
-# AI Provider for Smart Hints (Fallback included if AI is down)
-try:
-    from TianXiwei.Functions.ai_provider import get_ai_response
-except ImportError:
-    async def get_ai_response(prompt, system_prompt):
-        return "Think outside the box! I couldn't connect to the AI brain.", "fallback"
+
 
 # ==========================================
 # EXPANDED WORD LISTS & DICTIONARIES
@@ -384,16 +379,7 @@ async def process_guess(client: Client, message: Message):
                 await save_game(chat_id, game)
                 await message.reply(board_text)
 
-                if game["guesses"] >= 15 and game["history"][-1] == f"{feedback} {bold_guess}":
-                    async def fetch_and_send_hint():
-                        target_word = game["word"]
-                        sys_prompt = "You are a fun game master providing cryptic hints."
-                        prompt = f"Give a very short, clever 1-sentence riddle or hint for the word '{target_word}'. DO NOT use the word '{target_word}' itself in the hint."
-                        hint_text, _ = await get_ai_response(prompt, system_prompt=sys_prompt)
-                        current_game = await get_game(chat_id)
-                        if hint_text and current_game and current_game.get("status"):
-                            await client.send_message(chat_id, f"💡 **Smart Hint:**\n{hint_text}", reply_to_message_id=message.id)
-                    asyncio.create_task(fetch_and_send_hint())
+
                 return
 
     raise ContinuePropagation
