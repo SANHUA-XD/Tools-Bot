@@ -95,7 +95,7 @@ def get_main_menu_buttons():
             InlineKeyboardButton("👤 ᴏᴡɴᴇʀ", user_id=config.OWNER_ID)
         ],
         [
-            InlineKeyboardButton("🆘 ʜᴇʟᴘ 🆘", callback_data="yumeko_help"),
+            InlineKeyboardButton("🆘 ʜᴇʟᴘ 🆘", callback_data="TianXiwei_help"),
             InlineKeyboardButton("ᴏᴛʜᴇʀꜱ", callback_data="source_code")
         ]
     ]
@@ -241,7 +241,7 @@ async def source_code(_, clb: CallbackQuery):
     )
 
 
-@app.on_callback_query(filters.regex(r"^yumeko_help$"))
+@app.on_callback_query(filters.regex(r"^TianXiwei_help$"))
 async def show_help_menu(client, query: CallbackQuery):
     prefixes = " ".join(config.COMMAND_PREFIXES)
     await query.message.edit(

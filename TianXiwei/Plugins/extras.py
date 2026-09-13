@@ -46,7 +46,7 @@ async def hyperlink_command(client: Client, message: Message):
         await message.reply_text("⚠️ **𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖿𝗈𝗋𝗆𝖺𝗍!**\n📌 `𝖴𝗌𝖾: /hyperlink <text> <link>`")
 
 @app.on_message(filters.command("joke", prefixes=config.COMMAND_PREFIXES))
-@app.on_message(filters.regex(r"(?i)^Yumeko Ek Joke Sunao$"))
+@app.on_message(filters.regex(r"(?i)^TianXiwei Ek Joke Sunao$"))
 @error
 @save
 async def joke(client: Client, message: Message):
@@ -102,14 +102,14 @@ async def roll(client: Client, message: Message):
     await client.send_dice(message.chat.id, emoji="🎲")
 
 @app.on_message(filters.command("flirt", prefixes=config.COMMAND_PREFIXES))
-@app.on_message(filters.regex(r"(?i)^Yumeko flirt$"))
+@app.on_message(filters.regex(r"(?i)^TianXiwei flirt$"))
 @error
 @save
 async def flirt(client: Client, message: Message):
     await message.reply_text(random.choice(FLIRT_STRINGS))
 
 @app.on_message(filters.command("toss", prefixes=config.COMMAND_PREFIXES))
-@app.on_message(filters.regex(r"(?i)^Yumeko toss$"))
+@app.on_message(filters.regex(r"(?i)^TianXiwei toss$"))
 @error
 @save
 async def toss(client: Client, message: Message):
@@ -139,7 +139,7 @@ async def rlg(client: Client, message: Message):
     await message.reply_text(face)
 
 @app.on_message(filters.command("decide", prefixes=config.COMMAND_PREFIXES))
-@app.on_message(filters.regex(r"(?i)^Yumeko decide$"))
+@app.on_message(filters.regex(r"(?i)^TianXiwei decide$"))
 @error
 @save
 async def decide(client: Client, message: Message):

@@ -10,7 +10,7 @@ from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
 
 @app.on_message(filters.command("update", prefixes=config.COMMAND_PREFIXES) & filters.user(config.OWNER_ID))
-@app.on_message(filters.regex(r"(?i)^Yumeko Update$") & filters.user(config.OWNER_ID))
+@app.on_message(filters.regex(r"(?i)^TianXiwei Update$") & filters.user(config.OWNER_ID))
 @error
 @save
 async def git_pull_command(client, message):
