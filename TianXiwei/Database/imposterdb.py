@@ -7,7 +7,7 @@ async def save_or_check_user(user):
     Saves a user's information or checks for any changes in their info.
 
     Args:
-        user (telegram.User): The user object from the Telegram API.
+        user (pyrogram.types.User): The user object from the Pyrogram API.
 
     Returns:
         list: A list of tuples containing change type, old value, and new value for each change detected.

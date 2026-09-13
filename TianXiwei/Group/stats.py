@@ -9,7 +9,7 @@ from TianXiwei.Functions.time import format_time_delta
 from TianXiwei import app, start_time, start_time_str
 from TianXiwei.Extra.botadmin import botadmin
 from config import config
-import pyrogram , motor , telegram , telethon
+import pyrogram , motor , telethon
 from TianXiwei.Database.blacklistdb import get_blacklist_summary
 from TianXiwei.Database.cleaner_db import count_cleaner_enabled_chats
 from TianXiwei.Database.filtersdb import get_filter_statistics
@@ -75,7 +75,6 @@ async def show_version_stats(client: Client, callback_query : CallbackQuery):
     python_version = platform.python_version()
     pyrogram_version = pyrogram.__version__
     telethon_version = telethon.__version__
-    telegram_version = telegram.__version__
     motor_version = motor.version
 
     # Version Stats Message
@@ -84,7 +83,6 @@ async def show_version_stats(client: Client, callback_query : CallbackQuery):
         f"**🐍 Python:** {python_version}\n"
         f"**🚀 Pyrogram:** {pyrogram_version}\n"
         f"**[📡]({config.STATS_IMG_URL}) Telethon:** {telethon_version}\n"
-        f"**💬 Telegram:** {telegram_version}\n"
         f"**⚡ Motor:** {motor_version}\n"
     )
 

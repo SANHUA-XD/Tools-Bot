@@ -7,7 +7,6 @@ from TianXiwei import app , start_time , start_time_str
 import pyrogram
 import telethon
 import motor
-from telegram import __version__ as ptb_version
 import platform
 
 @app.on_message(filters.command("alive" , config.COMMAND_PREFIXES))
@@ -67,7 +66,6 @@ async def callback_query_handler(client: Client, callback_query):
             f"⚡ Bot Version: {config.BOT_VERSION}\n"
             f"📦 Pyrogram Version: {pyrogram_version}\n"
             f"📦 Telethon Version: {telethon_version}\n"
-            f"📦 PTB Version: {ptb_version}\n"
             f"📦 Motor Version: {motor_version}\n"
             f"🐍 Python Version: {python_version}"
         )

@@ -1,229 +1,170 @@
-from telegram import Update, ChatPermissions
-from telegram.ext import ContextTypes, filters, MessageHandler
-from TianXiwei import ptb , ANTI_FLOOD_GROUP
+from pyrogram import Client, filters
+from pyrogram.types import Message, ChatPermissions
+from pyrogram.enums import ChatType, ChatMemberStatus
+import time
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+from TianXiwei import app, ANTI_FLOOD_GROUP
 from TianXiwei.Database.anti_flooddb import (
-    get_antiflood_settings,
-    set_flood_threshold,
-    set_flood_timer,
-    set_flood_action,
-    set_delete_flood_messages,
-    get_flood_action_duration,
-    set_flood_action_duration
+    get_antiflood_settings, set_flood_threshold, set_flood_action,
+    set_flood_timer, set_delete_flood_messages, set_flood_action_duration,
+    get_flood_action_duration
 )
-from datetime import timedelta
-from TianXiwei.Functions.user import is_user_admin  # Import the function that checks admin status
-from TianXiwei.Functions.anti_flood_helper import *
-from TianXiwei.Functions.handler import MultiCommandHandler
+from TianXiwei.Functions.user import is_user_admin
 from TianXiwei.Database.approve_db import is_user_approved
+from config import config
 
-async def flood_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    settings = await get_antiflood_settings(update.effective_chat.id)
-    user = update.effective_user  # Assign user directly, even if None
+# Add duration parsing function
+def parse_duration(duration_str: str) -> timedelta:
+    import re
+    duration_str = duration_str.lower().strip()
+    match = re.match(r'^(\d+)(d|h|m|s)$', duration_str)
+    if not match:
+        raise ValueError("Invalid duration format. Use e.g. 1d, 2h, 30m, 60s")
 
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
+    value = int(match.group(1))
+    unit = match.group(2)
 
-    # Check if the command issuer is an admin
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text(
-            "*𝖧𝗈𝗅𝖽 𝗎𝗉!* 𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.",
-            parse_mode="Markdown"
-        )
+    if unit == 'd':
+        return timedelta(days=value)
+    elif unit == 'h':
+        return timedelta(hours=value)
+    elif unit == 'm':
+        return timedelta(minutes=value)
+    elif unit == 's':
+        return timedelta(seconds=value)
+    else:
+        raise ValueError("Invalid duration format. Use e.g. 1d, 2h, 30m, 60s")
+
+# Store chat floods
+flood_tracker = defaultdict(lambda: {"count": 0, "timestamps": [], "messages": []})
+
+@app.on_message(filters.command("flood", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def flood_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
         return
 
-    # Check if antiflood is disabled
-    if settings.get("flood_threshold", 0) == 0:
-        await update.message.reply_text(
-            "𝖳𝗁𝗂𝗌 𝖼𝗁𝖺𝗍 𝗂𝗌 𝗇𝗈𝗍 𝖼𝗎𝗋𝗋𝖾𝗇𝗍𝗅𝗒 𝖾𝗇𝖿𝗈𝗋𝖼𝗂𝗇𝗀 𝖿𝗅𝗈𝗈𝖽 𝖼𝗈𝗇𝗍𝗋𝗈𝗅.",
-            parse_mode="Markdown"
-        )
+    settings = await get_antiflood_settings(message.chat.id)
+
+    msg = (f"Flood settings for this chat:\n\n"
+           f"Limit: {settings['flood_threshold'] or 'Disabled'}\n"
+           f"Mode: {settings['flood_action']}\n"
+           f"Timer Count: {settings['flood_timer_count']}\n"
+           f"Timer Duration: {settings['flood_timer_duration']}s")
+    await message.reply_text(msg)
+
+@app.on_message(filters.command("setflood", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def setflood_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
         return
 
-    # Convert the action duration from seconds into a human-readable format
-    action_duration_seconds = settings.get("action_duration", 86400)  # Default: 1 day
-    readable_duration = str(timedelta(seconds=action_duration_seconds))
+    if len(message.command) < 2:
+        await message.reply_text("Please specify a flood limit. Example: `/setflood 5`")
+        return
 
-    await update.message.reply_text(
-        f"**𝖠𝗇𝗍𝗂-𝖥𝗅𝗈𝗈𝖽 𝖲𝖾𝗍𝗍𝗂𝗇𝗀𝗌**\n"
-        f"• **𝖳𝗁𝗋𝖾𝗌𝗁𝗈𝗅𝖽:** {settings['flood_threshold']} messages\n"
-        f"• **𝖳𝗂𝗆𝖾𝖽 𝖥𝗅𝗈𝗈𝖽:** {settings['flood_timer_count']} messages in {settings['flood_timer_duration']} seconds\n"
-        f"• **𝖠𝖼𝗍𝗂𝗈𝗇:** {settings['flood_action'].capitalize()}\n"
-        f"• **𝖠𝖼𝗍𝗂𝗈𝗇 𝖣𝗎𝗋𝖺𝗍𝗂𝗈𝗇:** {readable_duration}\n"
-        f"• **𝖣𝖾𝗅𝖾𝗍𝖾 𝖥𝗅𝗈𝗈𝖽 𝖬𝖾𝗌𝗌𝖺𝗀𝖾𝗌:** {'Enabled' if settings['delete_flood_messages'] else 'Disabled'}",
-        parse_mode="Markdown"
+    limit = message.command[1]
+    
+    if limit.lower() in ("off", "no", "0"):
+        await set_flood_threshold(message.chat.id, 0)
+        await message.reply_text("Flood control has been disabled.")
+        return
+
+    if not limit.isdigit():
+        await message.reply_text("Please specify a valid number.")
+        return
+
+    await set_flood_threshold(message.chat.id, int(limit))
+    await message.reply_text(f"Flood limit has been set to {limit}.")
+
+@app.on_message(filters.command("setfloodtimer", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def setfloodtimer_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
+        return
+
+    if len(message.command) < 3:
+        await message.reply_text("Please specify a flood timer count and duration. Example: `/setfloodtimer 3 10`")
+        return
+
+    count = message.command[1]
+    duration = message.command[2]
+    
+    if not count.isdigit() or not duration.isdigit():
+        await message.reply_text("Please specify valid numbers.")
+        return
+
+    await set_flood_timer(message.chat.id, int(count), int(duration))
+    await message.reply_text(f"Timed Anti-Flood set to {count} messages in {duration} seconds.")
+
+@app.on_message(filters.command("floodmode", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def floodmode_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
+        return
+
+    if len(message.command) < 2:
+        await message.reply_text("Please specify a flood mode (ban, kick, mute, tban, tmute). Example: `/floodmode ban`")
+        return
+
+    mode = message.command[1].lower()
+    valid_modes = ["ban", "kick", "mute", "tban", "tmute"]
+
+    if mode not in valid_modes:
+        await message.reply_text(f"Invalid mode. Valid modes are: {', '.join(valid_modes)}")
+        return
+
+    await set_flood_action(message.chat.id, mode)
+    await message.reply_text(f"Flood mode has been set to {mode}.")
+
+@app.on_message(filters.command("clearflood", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def clearflood_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
+        return
+
+    if len(message.command) < 2:
+        await message.reply_text("Usage: `/clearflood <yes/no>`")
+        return
+
+    delete = message.command[1].lower() in ["yes", "on"]
+    await set_delete_flood_messages(message.chat.id, delete)
+    await message.reply_text(
+        f"Flood messages will {'be deleted' if delete else 'not be deleted'}."
     )
 
-# Command: /setflood - Set message count to trigger flood action
-async def setflood_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    user = update.effective_user  # Assign user directly, even if None
-
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
-
-    # Check if the command issuer is an admin
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text(
-            "*𝖧𝗈𝗅𝖽 𝗎𝗉!* 𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.",
-            parse_mode="Markdown"
-        )
-        return    
-
-    if len(context.args) != 1:
-        await update.message.reply_text("𝖴𝗌𝖺𝗀𝖾: `/𝗌𝖾𝗍𝖿𝗅𝗈𝗈𝖽 <𝗇𝗎𝗆𝖻a𝖾𝗋/𝗈𝖿𝖿>`", parse_mode="Markdown")
-        return
-    arg = context.args[0].lower()
-    if arg in ["off", "no", "0"]:
-        await set_flood_threshold(update.effective_chat.id, 0)
-        await update.message.reply_text("𝖠𝗇𝗍𝗂-𝖥𝗅𝗈𝗈𝖽 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 **𝖽𝗂𝗌𝖺𝖻𝗅𝖾𝖽**.", parse_mode="Markdown")
-    else:
-        try:
-            threshold = int(arg)
-            await set_flood_threshold(update.effective_chat.id, threshold)
-            await update.message.reply_text(
-                f"𝖠𝗇𝗍𝗂-𝖥𝗅𝗈𝗈𝖽 𝗂𝗌 𝗇𝗈𝗐 𝗍𝗋𝗂𝗀𝗀𝖾𝗋𝖾𝖽 𝖺𝖿𝗍𝖾𝗋 **{threshold} 𝗆𝖾𝗌𝗌𝖺𝗀𝖾𝗌**.", parse_mode="Markdown"
-            )
-        except ValueError:
-            await update.message.reply_text("𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 **𝗏𝖺𝗅𝗂𝖽 𝗇𝗎𝗆𝖻𝖾𝗋** 𝖿𝗈𝗋 𝗆𝖾𝗌𝗌𝖺𝗀𝖾 𝗍𝗁𝗋𝖾𝗌𝗁𝗈𝗅𝖽.", parse_mode="Markdown")
-
-# Command: /actionduration - Set the duration for tban or tmute
-async def actionduration_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    
-    user = update.effective_user  # Assign user directly, even if None
-
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
-
-    # Check if the command issuer is an admin
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text(
-            "*𝖧𝗈𝗅𝖽 𝗎𝗉!* 𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.",
-            parse_mode="Markdown"
-        )
+@app.on_message(filters.command("actionduration", prefixes=config.COMMAND_PREFIXES) & filters.group)
+async def actionduration_command(client: Client, message: Message):
+    if not await is_user_admin(client, message.chat.id, message.from_user.id):
+        await message.reply_text("🚫 You must be an administrator to use this command.")
         return
 
-    if not context.args:
-        await update.message.reply_text(
-            "𝖴𝗌𝖺𝗀𝖾: `/𝖺𝖼𝗍𝗂𝗈𝗇𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 <𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇>`\n"
-            "𝖤𝗑𝖺𝗆𝗉𝗅𝖾: `/𝖺𝖼𝗍𝗂𝗈𝗇𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 𝟣𝖽 𝟤𝗁 𝟥𝗆 𝟦𝗌`",
-            parse_mode="Markdown",
-        )
+    if len(message.command) < 2:
+        await message.reply_text("Usage: `/actionduration <duration>`\nExample: `/actionduration 1d`")
         return
 
     try:
-        duration = parse_duration(" ".join(context.args))
-        await set_flood_action_duration(update.effective_chat.id, duration.total_seconds())
-        await update.message.reply_text(
-            f"𝖠𝖼𝗍𝗂𝗈𝗇 𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 𝗌𝖾𝗍 𝗍𝗈 **{str(duration)}**.",
-            parse_mode="Markdown",
+        duration = parse_duration(" ".join(message.command[1:]))
+        await set_flood_action_duration(message.chat.id, duration.total_seconds())
+        await message.reply_text(
+            f"Action duration set to {str(duration)}."
         )
     except ValueError as e:
-        await update.message.reply_text(str(e), parse_mode="Markdown")
+        await message.reply_text(str(e))
 
-# Command: /setfloodtimer - Set timed flood settings
-async def setfloodtimer_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    
-    user = update.effective_user  # Assign user directly, even if None
+@app.on_message(filters.group & ~filters.me, group=ANTI_FLOOD_GROUP)
+async def flood_detection(client: Client, message: Message):
+    chat_id = message.chat.id
+    user = message.from_user
 
-    # Check if user exists
     if not user:
-        return  # Exit if no user is associated with the update
-
-    # Check if the command issuer is an admin
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text(
-            "*𝖧𝗈𝗅𝖽 𝗎𝗉!* 𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.",
-            parse_mode="Markdown"
-        )
         return
-
-    if len(context.args) != 2:
-        await update.message.reply_text(
-            "𝖴𝗌𝖺𝗀𝖾: `/𝗌𝖾𝗍𝖿𝗅𝗈𝗈𝖽𝗍𝗂𝗆𝖾𝗋 <𝖼𝗈𝗎𝗇𝗍> <𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 𝗂𝗇 𝗌𝖾𝖼𝗈𝗇𝖽𝗌>`", parse_mode="Markdown"
-        )
-        return
-    try:
-        count = int(context.args[0])
-        duration = int(context.args[1])
-        await set_flood_timer(update.effective_chat.id, count, duration)
-        await update.message.reply_text(
-            f"𝖳𝗂𝗆𝖾𝖽 𝖠𝗇𝗍𝗂-𝖥𝗅𝗈𝗈𝖽 𝗌𝖾𝗍 𝗍𝗈 **{count} 𝗆𝖾𝗌𝗌𝖺𝗀𝖾𝗌 𝗂𝗇 {duration} 𝗌𝖾𝖼𝗈𝗇𝖽𝗌**.", parse_mode="Markdown"
-        )
-    except ValueError:
-        await update.message.reply_text("𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 **𝗏𝖺𝗅𝗂𝖽 𝗇𝗎𝗆𝖻𝖾𝗋𝗌** 𝖿𝗈𝗋 𝖼𝗈𝗎𝗇𝗍 𝖺𝗇𝖽 𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇.", parse_mode="Markdown")
-
-# Command: /floodmode - Set action for flood detection
-async def floodmode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    user = update.effective_user  # Assign user directly, even if None
-
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
-
-    # Check if the command issuer is an admin
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text(
-            "*𝖧𝗈𝗅𝖽 𝗎𝗉!* 𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.",
-            parse_mode="Markdown"
-        )
-        return
-
-    if not context.args:
-        await update.message.reply_text(
-            "𝖴𝗌𝖺𝗀𝖾: `/𝖿𝗅𝗈𝗈𝖽𝗆𝗈𝖽𝖾 <𝖻𝖺𝗇/𝗆𝗎𝗍𝖾/𝗄𝗂𝖼𝗄/𝗍𝖻𝖺𝗇/𝗍𝗆𝗎𝗍𝖾>`", parse_mode="Markdown"
-        )
-        return
-    action = context.args[0].lower()
-    if action not in ["ban", "mute", "kick", "tban", "tmute"]:
-        await update.message.reply_text(
-            "𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖺𝖼𝗍𝗂𝗈𝗇. 𝖴𝗌𝖾 **𝖻𝖺𝗇/𝗆𝗎𝗍𝖾/𝗄𝗂𝖼𝗄/𝗍𝖻𝖺𝗇/𝗍𝗆𝗎𝗍𝖾**.", parse_mode="Markdown"
-        )
-        return
-    await set_flood_action(update.effective_chat.id, action)
-    await update.message.reply_text(f"𝖥𝗅𝗈𝗈𝖽 𝗆𝗈𝖽𝖾 𝗌𝖾𝗍 𝗍𝗈 **{action}**.", parse_mode="Markdown")
-
-# Command: /clearflood - Set whether to delete flood messages
-async def clearflood_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    user = update.effective_user  # Assign user directly, even if None
-
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
-
-    # Check if the command issuer is an admin
-    if not await is_user_admin(update, context, user.id):
-        await update.message.reply_text(
-            "**𝖧𝗈𝗅𝖽 𝗎𝗉!* 𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.",
-            parse_mode="Markdown"
-        )
-        return
-
-    if not context.args or context.args[0].lower() not in ["yes", "no", "on", "off"]:
-        await update.message.reply_text("𝖴𝗌𝖺𝗀𝖾: `/𝖼𝗅𝖾𝖺𝗋𝖿𝗅𝗈𝗈𝖽 <𝗒𝖾𝗌/𝗇𝗈>`", parse_mode="Markdown")
-        return
-    delete = context.args[0].lower() in ["yes", "on"]
-    await set_delete_flood_messages(update.effective_chat.id, delete)
-    await update.message.reply_text(
-        f"𝖥𝗅𝗈𝗈𝖽 𝗆𝖾𝗌𝗌𝖺𝗀𝖾𝗌 𝗐𝗂𝗅𝗅 **{'𝖻𝖾 𝖽𝖾𝗅𝖾𝗍𝖾𝖽' if delete else '𝗇𝗈𝗍 𝖻𝖾 𝖽𝖾𝗅𝖾𝗍𝖾𝖽'}**.", parse_mode="Markdown"
-    )
-
-# Flood detection logic
-async def flood_detection(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.effective_chat.id
-    user = update.effective_user  # Assign user directly, even if None
 
     settings = await get_antiflood_settings(chat_id)
     if settings["flood_threshold"] == 0:
         return  # Antiflood disabled
-
-    # Check if user exists
-    if not user:
-        return  # Exit if no user is associated with the update
     
     user_id = user.id
     
@@ -231,18 +172,17 @@ async def flood_detection(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # Skip flood detection for admins
-    if await is_user_admin(update, context, user_id):
+    if await is_user_admin(client, chat_id, user_id):
         return
-
 
     # Update user message count and track messages
     flood_tracker[user_id]["count"] += 1
-    flood_tracker[user_id]["timestamps"].append(update.message.date)
-    flood_tracker[user_id]["messages"].append(update.message)
+    flood_tracker[user_id]["timestamps"].append(message.date)
+    flood_tracker[user_id]["messages"].append(message)
 
     # Check regular flood
     if flood_tracker[user_id]["count"] >= settings["flood_threshold"]:
-        await take_flood_action(update, context, settings, user_id)
+        await take_flood_action(client, message, settings, user_id)
         flood_tracker[user_id] = {"count": 0, "timestamps": [], "messages": []}
 
     # Check timed flood
@@ -250,36 +190,36 @@ async def flood_detection(update: Update, context: ContextTypes.DEFAULT_TYPE):
         timestamps = flood_tracker[user_id]["timestamps"]
         if len(timestamps) >= settings["flood_timer_count"] and \
            (timestamps[-1] - timestamps[-settings["flood_timer_count"]]).total_seconds() <= settings["flood_timer_duration"]:
-            await take_flood_action(update, context, settings, user_id)
+            await take_flood_action(client, message, settings, user_id)
             flood_tracker[user_id] = {"count": 0, "timestamps": [], "messages": []}
 
 # Updated take_flood_action to use custom duration
-async def take_flood_action(update: Update, context: ContextTypes.DEFAULT_TYPE, settings, user_id):
+async def take_flood_action(client: Client, message: Message, settings, user_id):
     action = settings["flood_action"]
-    chat_id = update.effective_chat.id
+    chat_id = message.chat.id
     duration_seconds = await get_flood_action_duration(chat_id)
     duration = timedelta(seconds=duration_seconds) if duration_seconds else timedelta(days=3)
 
     # Announcement message
-    user_mention = update.effective_user.mention_html()
+    user_mention = message.from_user.mention
     announcement = (
-        f" <b>Anti-Flood Alert</b> \n\n"
-        f"User {user_mention} has been <b>{action.capitalize()}ed</b> for violating the anti-flood rules."
+        f" **Anti-Flood Alert** \n\n"
+        f"User {user_mention} has been **{action.capitalize()}ed** for violating the anti-flood rules."
     )
-    await update.effective_chat.send_message(announcement, parse_mode="HTML")
+    await message.chat.send_message(announcement)
 
     # Execute the chosen action
     if action == "ban":
-        await context.bot.ban_chat_member(chat_id, user_id)
+        await client.ban_chat_member(chat_id, user_id)
     elif action == "mute":
-        await context.bot.restrict_chat_member(chat_id, user_id, ChatPermissions())
+        await client.restrict_chat_member(chat_id, user_id, ChatPermissions())
     elif action == "kick":
-        await context.bot.ban_chat_member(chat_id, user_id)
-        await context.bot.unban_chat_member(chat_id, user_id)
+        await client.ban_chat_member(chat_id, user_id)
+        await client.unban_chat_member(chat_id, user_id)
     elif action == "tban":
-        await context.bot.ban_chat_member(chat_id, user_id, until_date=update.message.date + duration)
+        await client.ban_chat_member(chat_id, user_id, until_date=message.date + duration)
     elif action == "tmute":
-        await context.bot.restrict_chat_member(chat_id, user_id, ChatPermissions(), until_date=update.message.date + duration)
+        await client.restrict_chat_member(chat_id, user_id, ChatPermissions(), until_date=message.date + duration)
 
     # Delete all flood messages if enabled
     if settings["delete_flood_messages"]:
@@ -288,17 +228,6 @@ async def take_flood_action(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 await msg.delete()
             except:
                 pass
-
-
-# Add handlers
-ptb.add_handler(MultiCommandHandler("flood", flood_command , filters.ChatType.GROUPS | filters.ChatType.SUPERGROUP))
-ptb.add_handler(MultiCommandHandler("setflood", setflood_command , filters.ChatType.GROUPS | filters.ChatType.SUPERGROUP))
-ptb.add_handler(MultiCommandHandler("setfloodtimer", setfloodtimer_command , filters.ChatType.GROUPS | filters.ChatType.SUPERGROUP))
-ptb.add_handler(MultiCommandHandler("floodmode", floodmode_command , filters.ChatType.GROUPS | filters.ChatType.SUPERGROUP))
-ptb.add_handler(MultiCommandHandler("clearflood", clearflood_command , filters.ChatType.GROUPS | filters.ChatType.SUPERGROUP))
-antiflood = MessageHandler(filters.ALL & ~filters.COMMAND, flood_detection)
-ptb.add_handler(MultiCommandHandler("actionduration", actionduration_command , filters.ChatType.GROUPS | filters.ChatType.SUPERGROUP))
-ptb.add_handler(antiflood, group=ANTI_FLOOD_GROUP)
 
 
 __module__ = "𝖠𝗇𝗍𝗂𝖥𝗅𝗈𝗈𝖽"

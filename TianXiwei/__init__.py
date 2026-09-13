@@ -4,7 +4,6 @@ import uvloop
 from cachetools import TTLCache
 import logging
 from telethon import TelegramClient
-from telegram.ext import ApplicationBuilder
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import time 
 from datetime import datetime
@@ -33,7 +32,6 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.ERROR)
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
 logging.getLogger("telethon").setLevel(logging.ERROR)
-logging.getLogger("telegram").setLevel(logging.ERROR)
 
 
 log = logging.getLogger(__name__)
@@ -54,7 +52,6 @@ class App(Client):
 
 app = App()
 
-ptb = ApplicationBuilder().token(config.BOT_TOKEN).build()
 
 telebot = TelegramClient(
     f"{config.BOT_NAME}_LOL",
@@ -67,7 +64,6 @@ telebot = TelegramClient(
 
 
 admin_cache = TTLCache(maxsize=1000000, ttl=300)
-admin_cache_ptb = TTLCache(maxsize=100000 , ttl=300)
 admin_cache_reload = {}
 BACKUP_FILE_JSON = "last_backup.json"  
 
@@ -80,8 +76,8 @@ BACKUP_FILE_JSON = "last_backup.json"
 WATCHER_GROUP = 17
 COMMON_CHAT_WATCHER_GROUP = 100
 GLOBAL_ACTION_WATCHER_GROUP = 1
-LOCK_GROUP = 2 #ptb
-ANTI_FLOOD_GROUP = 3 #ptb
+LOCK_GROUP = 2
+ANTI_FLOOD_GROUP = 3
 BLACKLIST_GROUP = 4
 IMPOSTER_GROUP = 5
 FILTERS_GROUP = 6
