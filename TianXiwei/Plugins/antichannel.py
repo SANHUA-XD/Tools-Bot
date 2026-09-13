@@ -13,7 +13,7 @@ from config import config
 from TianXiwei.Functions.log_helper import send_log, format_log
 from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
-from TianXiwei.yumeko import CHAT_ADMIN_REQUIRED
+from TianXiwei.Script.template import CHAT_ADMIN_REQUIRED
 
 # Command to toggle antichannel status
 @pgram.on_message(filters.command("antichannel" , prefixes=config.COMMAND_PREFIXES) & filters.group)
