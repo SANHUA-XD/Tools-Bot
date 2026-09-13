@@ -79,7 +79,7 @@ def get_random_shayri():
 
 # Command to send Shayri with a button
 @pgram.on_message(filters.command("shayri"  , prefixes=config.COMMAND_PREFIXES))
-@pgram.on_message(filters.regex(r"(?i)^Yumeko Ek Shayri Sunao$") & filters.group)
+@pgram.on_message(filters.regex(r"(?i)^TianXiwei Ek Shayri Sunao$") & filters.group)
 @error
 @save
 async def fetch_shayri(client: Client, message: Message):

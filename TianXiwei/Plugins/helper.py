@@ -54,7 +54,7 @@ def control_user(func):
                 gidtitle = msg['chat']['title']
             await GROUPS.insert_one({"_id": gid, "grp": gidtitle})
             await clog(
-                "#YUMEKO",
+                "#TIANXIWEI",
                 f"Bot added to a new group\n\n{gidtitle}\nID: `{gid}`",
                 "NEW_GROUP"
             )
@@ -77,7 +77,7 @@ def control_user(func):
                                 +"\nElse you will be blacklisted"
                             ),
                         )
-                        await clog('Yumeko', f'UserID: {user}', 'SPAM')
+                        await clog('TianXiwei', f'UserID: {user}', 'SPAM')
                     if USER_WC[user] == 5:
                         await IGNORE.insert_one({'_id': user})
                         await message.reply_text(
@@ -85,10 +85,10 @@ def control_user(func):
                                 "You have been exempted from using this bot "
                                 +"now due to spamming 5 times consecutively!!!"
                                 +"\nTo remove restriction plead to "
-                                +"@YumekoXSupportGc"
+                                +"@TianXiweiXSupportGc"
                             )
                         )
-                        await clog('Yumeko', f'UserID: {user}', 'BAN')
+                        await clog('TianXiwei', f'UserID: {user}', 'BAN')
                         return
                     await asyncio.sleep(USER_WC[user])
                 else:
@@ -109,13 +109,13 @@ def control_user(func):
                 reply_msg = message.reply_to_message
             try:
                 await clog(
-                    'Yumeko',
+                    'TianXiwei',
                     'Message:\n'+msg['text']+'\n\n'+"```"+e+"```", 'COMMAND',
                     msg=message,
                     replied=reply_msg
                 )
             except Exception:
-                await clog('Yumeko', e, 'FAILURE', msg=message)
+                await clog('TianXiwei', e, 'FAILURE', msg=message)
     return wrapper
 
 
@@ -147,7 +147,7 @@ def check_user(func):
                             ),
                             show_alert=True
                         )
-                        await clog('Yumeko', f'UserID: {user}', 'SPAM')
+                        await clog('TianXiwei', f'UserID: {user}', 'SPAM')
                 except KeyError:
                     pass
                 USER_JSON[user] = nt
@@ -164,14 +164,14 @@ def check_user(func):
                     reply_msg = c_q.message.reply_to_message
                 try:
                     await clog(
-                        'Yumeko',
+                        'TianXiwei',
                         'Callback:\n'+cq['data']+'\n\n'+"```"+e+"```",
                         'CALLBACK',
                         cq=c_q,
                         replied=reply_msg
                     )
                 except Exception:
-                    await clog('Yumeko', e, 'FAILURE', cq=c_q)
+                    await clog('TianXiwei', e, 'FAILURE', cq=c_q)
         else:
             if cqowner_is_ch:
                 if user_valid:
@@ -188,14 +188,14 @@ def check_user(func):
                             reply_msg = c_q.message.reply_to_message
                         try:
                             await clog(
-                                'Yumeko',
+                                'TianXiwei',
                                 'Callback:\n'+cq['data']+'\n\n'+"```"+e+"```",
                                 'CALLBACK_ANON',
                                 cq=c_q,
                                 replied=reply_msg
                             )
                         except Exception:
-                            await clog('Yumeko', e, 'FAILURE', cq=c_q)
+                            await clog('TianXiwei', e, 'FAILURE', cq=c_q)
                 else:
                     await c_q.answer(
                         (

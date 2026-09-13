@@ -21,7 +21,7 @@ open("log.txt", "w").close()
 
 logging.basicConfig(
     level=logging.INFO,
-    format="[%(asctime)s - %(levelname)s] - Yumeko - %(message)s",
+    format="[%(asctime)s - %(levelname)s] - TianXiwei - %(message)s",
     datefmt="%d-%b-%y %H:%M:%S",
     handlers=[
         logging.FileHandler("log.txt"),

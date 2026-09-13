@@ -139,7 +139,7 @@ async def anime_cmd(client: Client, message: Message, mdata: dict):
             gid, title_img, caption=finals_, reply_markup=buttons
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', title_img, 'LINK', msg=message)
+        await clog('TianXiwei', title_img, 'LINK', msg=message)
         await client.send_photo(
             gid, failed_pic, caption=finals_, reply_markup=buttons
         )
@@ -216,7 +216,7 @@ async def manga_cmd(client: Client, message: Message, mdata: dict):
             gid, pic, caption=finals_, reply_markup=buttons
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=message)
+        await clog('TianXiwei', pic, 'LINK', msg=message)
         await client.send_photo(
             gid, failed_pic, caption=finals_, reply_markup=buttons
         )
@@ -275,7 +275,7 @@ async def character_cmd(client: Client, message: Message, mdata: dict):
             gid, img, caption=cap_text, reply_markup=buttons
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', img, 'LINK', msg=message)
+        await clog('TianXiwei', img, 'LINK', msg=message)
         await client.send_photo(
             gid, failed_pic, caption=cap_text, reply_markup=buttons
         )
@@ -349,7 +349,7 @@ async def anilist_cmd(client: Client, message: Message, mdata: dict):
     try:
         await client.send_photo(gid, pic, caption=msg, reply_markup=buttons)
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=message)
+        await clog('TianXiwei', pic, 'LINK', msg=message)
         await client.send_photo(
             gid, failed_pic, caption=msg, reply_markup=buttons
         )
@@ -452,7 +452,7 @@ async def airing_cmd(client: Client, message: Message, mdata: dict):
     try:
         await client.send_photo(gid, coverImg, caption=out, reply_markup=btn)
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', coverImg, 'LINK', msg=message)
+        await clog('TianXiwei', coverImg, 'LINK', msg=message)
         await client.send_photo(gid, failed_pic, caption=out, reply_markup=btn)
 
 
@@ -696,7 +696,7 @@ This material is marked 18+ and not allowed in this group"""
             reply_markup=button
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg),
             reply_markup=button
@@ -766,7 +766,7 @@ async def anime_btn(client: Client, cq: CallbackQuery, cdata: dict):
             InputMediaPhoto(pic, caption=msg), reply_markup=btns
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg), reply_markup=btns
         )
@@ -901,7 +901,7 @@ async def flex_btn(client: Client, cq: CallbackQuery, cdata: dict):
             InputMediaPhoto(pic, caption=msg), reply_markup=btns
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg), reply_markup=btns
         )
@@ -946,7 +946,7 @@ async def list_favourites_btn(client: Client, cq: CallbackQuery, cdata: dict):
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
         await clog(
-            'Yumeko',
+            'TianXiwei',
             f"https://img.anili.st/user/{q[1]}?a={time.time()}",
             'LINK',
             msg=cq
@@ -977,7 +977,7 @@ async def favourites_btn(client: Client, cq: CallbackQuery, cdata: dict):
             InputMediaPhoto(pic, caption=msg), reply_markup=btns
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg), reply_markup=btns
         )
@@ -1001,7 +1001,7 @@ async def get_user_back_btn(client: Client, cq: CallbackQuery, cdata: dict):
             InputMediaPhoto(pic, caption=msg), reply_markup=btns
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg),creply_markup=btns
         )
@@ -1129,7 +1129,7 @@ async def toggle_favourites_btn(
             InputMediaPhoto(pic, caption=msg), reply_markup=btns
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg), reply_markup=btns
         )
@@ -1342,7 +1342,7 @@ async def update_anilist_btn(client: Client, cq: CallbackQuery, cdata: dict):
             InputMediaPhoto(pic, caption=msg), reply_markup=btns
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg), reply_markup=btns
         )
@@ -1441,7 +1441,7 @@ async def additional_info_btn(client: Client, cq: CallbackQuery, cdata: dict):
             reply_markup=InlineKeyboardMarkup(button)
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg),
             reply_markup=InlineKeyboardMarkup(button)
@@ -1483,7 +1483,7 @@ async def featured_in_btn(client: Client, cq: CallbackQuery, cdata: dict):
             reply_markup=InlineKeyboardMarkup(button)
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg),
             reply_markup=InlineKeyboardMarkup(button)
@@ -1551,7 +1551,7 @@ async def featured_in_switch_btn(
             reply_markup=InlineKeyboardMarkup(button)
         )
     except (WebpageMediaEmpty, WebpageCurlFailed):
-        await clog('Yumeko', pic, 'LINK', msg=cq)
+        await clog('TianXiwei', pic, 'LINK', msg=cq)
         await cq.edit_message_media(
             InputMediaPhoto(failed_pic, caption=msg),
             reply_markup=InlineKeyboardMarkup(button)
