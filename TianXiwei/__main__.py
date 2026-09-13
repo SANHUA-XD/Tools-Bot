@@ -8,16 +8,16 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQ
 from TianXiwei import app, log, telebot, BACKUP_FILE_JSON, ptb, scheduler
 from config import config
 from TianXiwei.Functions.on_start import edit_restart_message, clear_downloads_folder, notify_startup
-from TianXiwei.admin.roleassign import ensure_owner_is_hokage
+from TianXiwei.Group.roleassign import ensure_owner_is_hokage
 from TianXiwei.Functions.state import initialize_services
 from TianXiwei.Database import setup_indexes, db
 from TianXiwei.Database.wordseekdb import setup_wordseek_indexes
-from TianXiwei.admin.backup import restore_db
+from TianXiwei.Group.backup import restore_db
 from asyncio import sleep
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-MODULES = ["Plugins", "admin", "Extra"]
+MODULES = ["Plugins", "Group", "Extra"]
 LOADED_MODULES = {}
 
 import hashlib

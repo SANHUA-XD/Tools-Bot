@@ -1,6 +1,6 @@
 from functools import wraps
 from pyrogram.types import Message, CallbackQuery
-from TianXiwei.admin.roleassign import load_roles
+from TianXiwei.Group.roleassign import load_roles
 
 # Define the role hierarchy
 ROLE_HIERARCHY = {
