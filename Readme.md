@@ -1,8 +1,8 @@
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
-<p align="center">Nobara ♡ </p>
+<p align="center">TianXiwei ♡ </p>
 
-- Nobara is a powerful and feature-rich Telegram bot designed to help you manage your groups effortlessly.
+- TianXiwei is a powerful and feature-rich Telegram bot designed to help you manage your groups effortlessly.
 
 <p align="center"><a href="https://t.me/Rare_Bots_Hub"><img src="https://envs.sh/s-n.jpeg" width="300"></a></p>
 <p align="center">
@@ -10,7 +10,7 @@
 
 ## Repo Stats
 
-![github card](https://github-readme-stats.vercel.app/api/pin/?username=Eldian-Network&repo=Nobara&theme=dark)
+![github card](https://github-readme-stats.vercel.app/api/pin/?username=Eldian-Network&repo=TianXiwei&theme=dark)
 
 
 

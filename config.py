@@ -77,7 +77,7 @@ class config:
     OPENAI_KEY = "xx" #Get From Open Ai's Website
     LYRICS_GENIUS_TOKEN = ""
 
-    #Multi-AI Provider Failover (used by Nobara/helper/ai_provider.py for
+    #Multi-AI Provider Failover (used by TianXiwei/helper/ai_provider.py for
     # /ask and the chatbot module). If a provider fails/rate-limits, the bot
     # automatically tries the next one in this list.
     AI_PROVIDER_PRIORITY = "groq,openrouter,cerebras,gemini,together,huggingface,deepseek"
