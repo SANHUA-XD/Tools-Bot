@@ -17,7 +17,7 @@ from config import config
 
 OWNER = config.OWNER_ID
 BOT_USERNAME = config.BOT_USERNAME
-from TianXiwei.anime.data_parser import (
+from TianXiwei.Plugins.data_parser import (
     get_all_genres,
     get_all_tags,
     get_studio_animes,
@@ -43,7 +43,7 @@ from TianXiwei.anime.data_parser import (
     STUDIO_DB,
     GUI
 )
-from TianXiwei.anime.helper import (
+from TianXiwei.Plugins.helper import (
     clog,
     check_user,
     get_btns,
