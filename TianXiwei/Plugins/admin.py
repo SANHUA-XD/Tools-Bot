@@ -13,7 +13,7 @@ from TianXiwei.Functions.log_helper import send_log, format_log
 from TianXiwei.Functions.link_share import encode_chat_id
 from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
-from TianXiwei.yumeko import CHAT_ADMIN_REQUIRED , USER_ALREADY_PROMOTED , USER_ALREADY_DEMOTED , USER_IS_OWNER
+from TianXiwei.Script.template import CHAT_ADMIN_REQUIRED , USER_ALREADY_PROMOTED , USER_ALREADY_DEMOTED , USER_IS_OWNER
 
 
 @app.on_message(filters.command(["reload" , "admincache"] , prefixes=c.COMMAND_PREFIXES) & filters.group)

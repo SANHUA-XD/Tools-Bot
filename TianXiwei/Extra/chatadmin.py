@@ -4,7 +4,7 @@ from functools import wraps
 from TianXiwei import app , admin_cache , log
 from pyrogram.errors import RPCError
 import json
-from TianXiwei.yumeko import USER_NOT_ADMIN
+from TianXiwei.Script.template import USER_NOT_ADMIN
 
 def load_sudoers():
     """Load the sudoers.json file dynamically."""

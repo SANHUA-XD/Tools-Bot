@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from TianXiwei.Functions.log_helper import send_log, format_log
 from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
-from TianXiwei.yumeko import CHAT_ADMIN_REQUIRED , USER_ALREADY_BANNED , USER_NOT_MUTED , USER_ALREADY_MUTED , USER_NOT_BANNED , USER_IS_ADMIN , USER_IS_OWNER
+from TianXiwei.Script.template import CHAT_ADMIN_REQUIRED , USER_ALREADY_BANNED , USER_NOT_MUTED , USER_ALREADY_MUTED , USER_NOT_BANNED , USER_IS_ADMIN , USER_IS_OWNER
 import json
 
 def load_sudoers():
