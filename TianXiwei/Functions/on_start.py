@@ -5,7 +5,6 @@ from TianXiwei import app
 from config import config
 
 RESTART_DATA_FILE = "restart_data.json"
-SUDOERS_FILE = "sudoers.json"
 
 def save_restart_data(chat_id, message_id):
     """Save the chat and message ID to a file."""

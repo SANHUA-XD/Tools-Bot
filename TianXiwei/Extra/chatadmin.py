@@ -3,21 +3,15 @@ from pyrogram.enums import ChatMemberStatus , ChatMembersFilter
 from functools import wraps
 from TianXiwei import app , admin_cache , log
 from pyrogram.errors import RPCError
-import json
+from config import config
 from TianXiwei.Script.template import USER_NOT_ADMIN
-
-def load_sudoers():
-    """Load the sudoers.json file dynamically."""
-    with open("sudoers.json", "r") as f:
-        return json.load(f)
 
 def get_privileged_users():
     """Combine all privileged user IDs into one list dynamically."""
-    sudoers = load_sudoers()
     return (
-        sudoers.get("Hokages", []) +
-        sudoers.get("Jonins", []) +
-        sudoers.get("Chunins", [])
+        config.Hokages +
+        config.Jonins +
+        config.Chunins
     )
 
 async def cache_all_admin(chat_id):
