@@ -7,7 +7,7 @@ from pyrogram.types import Message
 from pyrogram.enums import ParseMode
 
 from TianXiwei import app
-from TianXiwei.vars import FLIRT as FLIRT_STRINGS, TOSS as TOSS_STRINGS, EYES, MOUTHS, EARS, DECIDE as DECIDE_STRINGS, weebyfont, normiefont
+from TianXiwei.Script.script import FLIRT as FLIRT_STRINGS, TOSS as TOSS_STRINGS, EYES, MOUTHS, EARS, DECIDE as DECIDE_STRINGS, weebyfont, normiefont
 from config import config
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error

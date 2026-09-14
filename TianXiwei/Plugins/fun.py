@@ -3,10 +3,10 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.enums import ParseMode
 from TianXiwei import app as bot
-from TianXiwei.vars import HUG_IMAGES , SLAP_IMAGES , KICK_IMAGES , KILL_IMAGES , KISS_IMAGES , PAT_IMAGES , SEX_IMAGES # Assuming you have a similar list of hug images as for kiss images
+from TianXiwei.Script.script import HUG_IMAGES , SLAP_IMAGES , KICK_IMAGES , KILL_IMAGES , KISS_IMAGES , PAT_IMAGES , SEX_IMAGES # Assuming you have a similar list of hug images as for kiss images
 import httpx
-from TianXiwei.vars import command_to_category
-from TianXiwei.vars import CATEGORY_IMAGE_POOLS
+from TianXiwei.Script.script import command_to_category
+from TianXiwei.Script.script import CATEGORY_IMAGE_POOLS
 from httpx import RequestError
 from config import config 
 from TianXiwei.Extra.save import save
@@ -457,7 +457,7 @@ async def _fetch_from_nekosbest(category: str):
 
 async def fetch_image(category: str) -> str:
     """Return an image for `category`: a random local pool image first (if any
-    have been added in TianXiwei/vars.py's CATEGORY_IMAGE_POOLS), else
+    have been added in TianXiwei/Script/script.py's CATEGORY_IMAGE_POOLS), else
     waifu.pics, then nekos.best as a second fallback if waifu.pics fails."""
     local_pool = CATEGORY_IMAGE_POOLS.get(category)
     if local_pool:

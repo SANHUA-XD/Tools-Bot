@@ -4,7 +4,7 @@ from datetime import datetime
 from TianXiwei import app , AFK_REPLY_GROUP , AFK_RETURN_GROUP
 from TianXiwei.Database.afk_db import get_afk, set_afk, clear_afk , get_afk_by_username, is_afk_cached, any_afk_cached
 from TianXiwei.Functions.user import resolve_user_for_afk
-from TianXiwei.vars import random_afk_message , random_afk_reply_message , random_back_online_message
+from TianXiwei.Script.script import random_afk_message , random_afk_reply_message , random_back_online_message
 import random
 from TianXiwei.Functions.time import format_time_delta
 from pyrogram.enums import ParseMode

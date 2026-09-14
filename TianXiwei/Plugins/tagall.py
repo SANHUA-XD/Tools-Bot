@@ -5,7 +5,7 @@ from telethon.errors import UserNotParticipantError
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
 from TianXiwei import telebot
-from TianXiwei.vars import emojis
+from TianXiwei.Script.script import emojis
 
 spam_chats = []
 

@@ -1,7 +1,7 @@
 import random
 from telethon import events
 from TianXiwei import telebot
-from TianXiwei.vars import GIF
+from TianXiwei.Script.script import GIF
 
 @telebot.on(events.NewMessage(pattern="/wish ?(.*)$"))
 async def wish(e):
