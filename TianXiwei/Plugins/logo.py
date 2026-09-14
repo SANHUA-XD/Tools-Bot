@@ -7,7 +7,7 @@ import requests
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from TianXiwei import app as pgram
-from TianXiwei.vars import LOGO_LINKS
+from TianXiwei.Script.script import LOGO_LINKS
 from pyrogram.enums import ParseMode
 import os
 from TianXiwei.Functions.logohelper import generate , blackpink

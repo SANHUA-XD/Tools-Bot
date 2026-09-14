@@ -3,7 +3,7 @@ from pyrogram import filters , Client
 from pyrogram.types import Message , CallbackQuery
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from TianXiwei import app as pgram
-from TianXiwei.vars import quotes , QUOTES_IMG
+from TianXiwei.Script.script import quotes , QUOTES_IMG
 from pyrogram.enums import ParseMode
 from pyrogram.types import InputMediaPhoto
 import requests
