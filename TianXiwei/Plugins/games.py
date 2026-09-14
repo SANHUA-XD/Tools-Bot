@@ -10,16 +10,12 @@ from config import config
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# Load Sudoers JSON
-with open("sudoers.json", "r") as f:
-    SUDOERS = json.load(f)
-
 # Combine all roles into SUPREME_USERS
 SUPREME_USERS = (
-    SUDOERS.get("Hokages", [])
-    + SUDOERS.get("Jonins", [])
-    + SUDOERS.get("Chunins", [])
-    + SUDOERS.get("Genins", [])
+    config.Hokages
+    + config.Jonins
+    + config.Chunins
+    + config.Genins
 )
 
 def get_readable_time(seconds: int) -> str:

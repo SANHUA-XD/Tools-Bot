@@ -1,5 +1,3 @@
-import json
-import os
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 from TianXiwei import app as pgram
@@ -9,23 +7,18 @@ from TianXiwei.Extra.save import save
 
 OWNER_ID = config.OWNER_ID
 
-# Path to the sudoers.json file
-sudoers_file = "sudoers.json"
-
-# Ensure the JSON file exists
-if not os.path.exists(sudoers_file):
-    with open(sudoers_file, "w") as f:
-        json.dump({"Hokages": [], "Jonins": [], "Chunins": [], "Genins": []}, f, indent=4)
-
 # Function to load roles from the file
 def load_roles():
-    with open(sudoers_file, "r") as f:
-        return json.load(f)
+    return {
+        "Hokages": config.Hokages,
+        "Jonins": config.Jonins,
+        "Chunins": config.Chunins,
+        "Genins": config.Genins
+    }
 
 # Function to save roles to the file
 def save_roles(data):
-    with open(sudoers_file, "w") as f:
-        json.dump(data, f, indent=4)
+    pass
 
 # Ensure OWNER_ID is in Hokages
 def ensure_owner_is_hokage():

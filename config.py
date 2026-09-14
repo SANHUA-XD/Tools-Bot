@@ -21,6 +21,12 @@ class config:
     BOT_VERSION = "x"
     OWNER_ID = 6163647625
     OWNER_USERNAME = "Sourov_Nobita"
+
+    # Sudoers
+    Hokages = [6163647625]
+    Jonins = []
+    Chunins = []
+    Genins = []
     SUPPORT_CHAT = -1002357831293
     SUPPORT_CHAT_USERNAME = "Rare_Bots_Support"
     SUPPORT_CHAT_LINK = "https://t.me/Rare_Bots_Support"

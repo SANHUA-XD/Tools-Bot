@@ -11,20 +11,13 @@ from TianXiwei.Functions.log_helper import send_log, format_log
 from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
 from TianXiwei.Script.template import CHAT_ADMIN_REQUIRED , USER_ALREADY_BANNED , USER_NOT_MUTED , USER_ALREADY_MUTED , USER_NOT_BANNED , USER_IS_ADMIN , USER_IS_OWNER
-import json
-
-def load_sudoers():
-    """Load the sudoers.json file dynamically."""
-    with open("sudoers.json", "r") as f:
-        return json.load(f)
 
 def get_privileged_users():
     """Combine all privileged user IDs into one list dynamically."""
-    sudoers = load_sudoers()
     return (
-        sudoers.get("Hokages", []) +
-        sudoers.get("Jonins", []) +
-        sudoers.get("Chunins", [])
+        c.Hokages +
+        c.Jonins +
+        c.Chunins
     )
 
 
