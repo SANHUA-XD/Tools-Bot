@@ -2,7 +2,7 @@ import requests
 import time
 import os
 from bs4 import BeautifulSoup
-from .db import get_collection
+from TianXiwei.Database.anime_db import get_collection
 from .google_trans_new import google_translator
 from .helper import (
     cflag,
