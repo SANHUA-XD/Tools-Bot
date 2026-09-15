@@ -125,7 +125,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
         await message.reply(f"𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝖯𝗋𝗈𝗆𝗈𝗍𝖾 𝗍𝗁𝖾 𝗎𝗌𝖾𝗋: {e}")
 
 
-@app.on_callback_query(filters.regex("^unban:(\d+)$"))
+@app.on_callback_query(filters.regex(r"^unban:(\d+)$"))
 @can_restrict_members
 @error
 async def demote_user(client: app, callback_query: CallbackQuery): # type: ignore
@@ -818,7 +818,7 @@ async def unmute_user(client: app, message: Message):  # type: ignore
     except Exception as e:
         await message.reply(f"𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝖴𝗇𝗆𝗎𝗍𝖾 𝗍𝗁𝖾 𝗎𝗌𝖾𝗋: {e}")
 
-@app.on_callback_query(filters.regex("^unmute:(\d+)$"))
+@app.on_callback_query(filters.regex(r"^unmute:(\d+)$"))
 @can_restrict_members
 @error
 async def demote_user(client: app, callback_query: CallbackQuery): # type: ignore
