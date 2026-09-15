@@ -3,9 +3,10 @@ from pyrogram.types import Message, ChatPermissions, InlineKeyboardButton, Inlin
 from pyrogram.enums import ChatType, ChatMemberStatus
 
 from TianXiwei import app
-from TianXiwei.Database.lock_db import get_locks, set_lock, unset_lock
-from TianXiwei.Functions.lock_helper import get_locks, set_lock, unset_lock, LOCKABLES, LOCK_CHAT_RESTRICTION, UNLOCK_CHAT_RESTRICTION
-from TianXiwei.Functions.user import is_user_admin, is_user_approved
+from TianXiwei.Database.lockdb import get_locks, set_lock, unset_lock
+from TianXiwei.Functions.lock_helper import LOCKABLES, LOCK_CHAT_RESTRICTION, UNLOCK_CHAT_RESTRICTION
+from TianXiwei.Database.approve_db import is_user_approved
+from TianXiwei.Functions.user import is_user_admin
 from config import config
 
 @app.on_message(filters.command("lock", prefixes=config.COMMAND_PREFIXES) & filters.group)
