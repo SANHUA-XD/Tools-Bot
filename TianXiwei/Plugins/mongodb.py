@@ -24,10 +24,10 @@ from config import config
 PAGE_SIZE = 5
 PING_TIMEOUT_MS = 8000
 SWEEP_CONCURRENCY = 5
-SWEEP_INTERVAL_HOURS = 6  # Atlas free-tier clusters pause after ~60 days of
-                          # zero activity - checking every few hours is
-                          # already massive overkill margin, kept low mainly
-                          # so /mongolive's "Live?" status stays fresh.
+SWEEP_INTERVAL_HOURS = 6
+
+
+
 
 
 def _parse_db_name(uri: str):
@@ -58,13 +58,13 @@ async def ping_uri(uri: str, db_name):
             client.close()
 
 
-# ——————————————————————————————————————————————————————————————
-# Quick one-off connection tester: /mongo <url>
-#
-# (Rewritten to use the async Motor client instead of a synchronous
-# pymongo.MongoClient().server_info() call - that was blocking the entire
-# bot's event loop for the whole timeout window on every use.)
-# ——————————————————————————————————————————————————————————————
+
+
+
+
+
+
+
 
 @app.on_message(filters.command("mongo", prefixes=config.COMMAND_PREFIXES))
 @error
@@ -92,11 +92,11 @@ async def mongo_command(client, message: Message):
         await status.edit_text(f"❌ **𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗈𝗇𝗇𝖾𝖼𝗍:**\n`{err}`")
 
 
-# ——————————————————————————————————————————————————————————————
-# MongoDB Live: /mongolive - unlimited monitored URLs, kept alive with a
-# periodic background ping so free-tier clusters never go idle long enough
-# to be auto-paused/deleted. Never touches the user's actual data.
-# ——————————————————————————————————————————————————————————————
+
+
+
+
+
 
 def _status_emoji(entry) -> str:
     return {"live": "✅", "down": "❌"}.get(entry.get("last_status", "unknown"), "⚪")
@@ -330,7 +330,7 @@ async def mgl_add_cb(client, query):
         return await client.send_message(chat_id, "⌛ 𝖳𝗂𝗆𝖾𝖽 𝗈𝗎𝗍. 𝖳𝖺𝗉 ➕ 𝖠𝖽𝖽 𝖣𝖺𝗍𝖺𝖻𝖺𝗌𝖾 𝖺𝗀𝖺𝗂𝗇 𝗐𝗁𝖾𝗇 𝗋𝖾𝖺𝖽𝗒.")
 
     raw_uri = uri_msg.text.strip()
-    # Best-effort: scrub the raw credential out of the visible chat history.
+
     try:
         await uri_msg.delete()
     except Exception:
@@ -400,8 +400,8 @@ async def _keepalive_sweep():
     await asyncio.gather(*[_check(e) for e in entries], return_exceptions=True)
 
 
-# Registered at import time - same pattern as the other periodic jobs in
-# this codebase (see log_helper.py, nightmode.py, backup.py).
+
+
 scheduler.add_job(
     _keepalive_sweep,
     "interval",

@@ -12,12 +12,12 @@ from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
 
-# Anime quotes
+
 def anime_quote():
     quote, character, anime = random.choice(quotes)
     return quote, character, anime
 
-# Command: /quote - Sends a text-based anime quote
+
 @pgram.on_message(filters.command(["animequote" , "aquote"]  , prefixes=config.COMMAND_PREFIXES))
 @error
 @save
@@ -29,7 +29,7 @@ async def text_quote(_, message):
     )
     await message.reply_text(text, reply_markup=keyboard, parse_mode=ParseMode.HTML)
 
-# Command: /animequotes - Sends an image-based anime quote
+
 @pgram.on_message(filters.command("iaquotes"  , prefixes=config.COMMAND_PREFIXES))
 @error
 @save
@@ -40,7 +40,7 @@ async def image_quote(_, message):
     )
     await message.reply_photo(photo=random_image, reply_markup=keyboard)
 
-# Callback query for changing text-based quotes
+
 @pgram.on_callback_query(filters.regex("change_quote"))
 @error
 async def change_text_quote(_, callback_query):
@@ -63,7 +63,7 @@ async def change_image_quote(_, callback_query):
         reply_markup=keyboard
     )
 
-# Function to fetch Shayri from the API
+
 def get_random_shayri():
     try:
         response = requests.get(config.shayri_api_url)
@@ -77,7 +77,7 @@ def get_random_shayri():
     except Exception as e:
         return f"⚠️ त्रुटि: {str(e)}", None
 
-# Command to send Shayri with a button
+
 @pgram.on_message(filters.command("shayri"  , prefixes=config.COMMAND_PREFIXES))
 @pgram.on_message(filters.regex(r"(?i)^TianXiwei Ek Shayri Sunao$") & filters.group)
 @error
@@ -96,7 +96,7 @@ async def fetch_shayri(client: Client, message: Message):
     else:
         await message.reply_text(shayri)
 
-# Callback to change Shayri
+
 @pgram.on_callback_query(filters.regex("change_shayri"))
 @error
 async def change_shayri(client: Client, callback_query: CallbackQuery):

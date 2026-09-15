@@ -7,26 +7,26 @@ from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from TianXiwei import app
 from config import config
 
-# Separate Telegraph account just for this module (TianXiwei/Plugins/paste.py
-# already creates its own account/instance for /paste, /nekobin - kept
-# independent here so the two modules don't share mutable state).
+
+
+
 telegraph = Telegraph()
 telegraph.create_account(short_name="TgtUploaderBot")
 
 
 class Upload:
     def __init__(self):
-        # ImgBB API URL
+
         self.imgbb_url = "https://api.imgbb.com/1/upload"
 
-        # config.py তে IMGBB_API_KEY থাকলে সেটি নেবে
+
         self.imgbb_api_key = getattr(config, "IMGBB_API_KEY", "")
 
     def upload_to_imgbb(self, file_bytes):
         payload = {
             "key": self.imgbb_api_key
         }
-        # মেমরি (RAM) থেকে সরাসরি ছবি পাঠানো হচ্ছে
+
         files = {
             "image": ("image.jpg", file_bytes, "image/jpeg")
         }
@@ -70,7 +70,7 @@ class Upload:
 
 uploader = Upload()
 
-# /tgm command: Reply to an image and upload to ImgBB
+
 @app.on_message(filters.command("tgm", prefixes=config.COMMAND_PREFIXES))
 async def upload_to_imgbb_cmd(client: Client, message: Message):
     if not message.reply_to_message or not (message.reply_to_message.photo or message.reply_to_message.document or message.reply_to_message.animation):
@@ -87,7 +87,7 @@ async def upload_to_imgbb_cmd(client: Client, message: Message):
     a = await message.reply_text("𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝖳𝗁𝖾 𝖥𝗂𝗅𝖾...")
 
     try:
-        # in_memory=True ব্যবহার করা হয়েছে যাতে .temp এরর না দেয় এবং সার্ভারের স্টোরেজ বাঁচে
+
         file_obj = await message.reply_to_message.download(in_memory=True)
         if not file_obj:
             await a.edit_text("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗍𝗁𝖾 𝖿𝗂𝗅𝖾.")
@@ -97,7 +97,7 @@ async def upload_to_imgbb_cmd(client: Client, message: Message):
 
         await a.edit_text("𝖳𝗋𝗒𝗂𝗇𝗀 𝖳𝗈 𝖴𝗉𝗅𝗈𝖺𝖽 𝖳𝗈 𝖨𝗆𝗀𝖡𝖡....")
 
-        # Asyncio.to_thread দিয়ে আপলোড যাতে বট ফ্রিজ না হয়
+
         imgbb_link = await asyncio.to_thread(uploader.upload_to_imgbb, file_bytes)
         share_url = f"https://telegram.me/share/url?url={imgbb_link}"
 
@@ -105,7 +105,7 @@ async def upload_to_imgbb_cmd(client: Client, message: Message):
             [[InlineKeyboardButton("🔗 𝖲𝗁𝖺𝗋𝖾 𝖫𝗂𝗇𝗄", url=share_url)]]
         )
 
-        # Tap to copy এর জন্য লিংকটি ` ` এর ভেতরে দেওয়া হয়েছে
+
         text = f"**𝖥𝗂𝗅𝖾 𝗎𝗉𝗅𝗈𝖺𝖽𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒!**\n\n**📥 𝖳𝖺𝗉 𝖳𝗈 𝖢𝗈𝗉𝗒 𝖫𝗂𝗇𝗄:**\n`{imgbb_link}`"
 
         await a.edit_text(text, disable_web_page_preview=True, reply_markup=buttons)
@@ -114,7 +114,7 @@ async def upload_to_imgbb_cmd(client: Client, message: Message):
         await a.edit_text(f"𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗎𝗉𝗅𝗈𝖺𝖽: {str(e)}\n\n*(Check your ImgBB API Key in config)*")
 
 
-# /tgt command: Reply to a text and upload it (Telegraph, Nekobin fallback)
+
 @app.on_message(filters.command("tgt", prefixes=config.COMMAND_PREFIXES))
 async def upload_to_pastebin_cmd(client: Client, message: Message):
     if message.reply_to_message and message.reply_to_message.text:
@@ -136,7 +136,7 @@ async def upload_to_pastebin_cmd(client: Client, message: Message):
             [[InlineKeyboardButton("🔗 𝖲𝗁𝖺𝗋𝖾 𝖫𝗂𝗇𝗄", url=share_url)]]
         )
 
-        # Tap to copy এর জন্য লিংকটি ` ` এর ভেতরে দেওয়া হয়েছে
+
         text = f"**𝖳𝖾𝗑𝗍 𝗎𝗉𝗅𝗈𝖺𝖽𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒!**\n\n**📥 𝖳𝖺𝗉 𝖳𝗈 𝖢𝗈𝗉𝗒 𝖫𝗂𝗇𝗄:**\n`{link}`"
 
         await a.edit_text(text, disable_web_page_preview=True, reply_markup=buttons)

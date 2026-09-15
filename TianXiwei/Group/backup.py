@@ -14,11 +14,11 @@ from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
 
 
-# NOTE: This used to shell out to the "mongodump"/"mongorestore" CLI tools via
-# subprocess. Those aren't installed on Heroku (they're a separate MongoDB
-# Database Tools package, not part of the Python buildpack), which crashed
-# every scheduled backup with FileNotFoundError: 'mongodump'. Backups are now
-# done in pure Python via pymongo, so no external binary is required anywhere.
+
+
+
+
+
 
 def _dump_database(mongo_db, out_dir: str):
     """Dumps every collection in a pymongo Database into JSON files."""
@@ -42,8 +42,8 @@ def _restore_database(mongo_db, in_dir: str):
             mongo_db[coll_name].insert_many(docs)
 
 
-# Database backup function - dumps the main DB, and the dedicated filter DB
-# too (if it's actually a separate cluster/database from the main one).
+
+
 def backup_db(path: str) -> str:
     try:
         if os.path.exists(path):
@@ -99,8 +99,8 @@ async def handle_backup(client: Client, message: Message):
     zip_path = await asyncio.to_thread(backup_db, path)
     if zip_path.endswith(".zip"):
         await client.send_document(chat_id=config.OWNER_ID, document=zip_path)
-        shutil.rmtree(path, ignore_errors=True)  # Clean up the backup directory
-        os.remove(zip_path)  # Clean up the zip file
+        shutil.rmtree(path, ignore_errors=True)
+        os.remove(zip_path)
         response = "Backup successful!"
     else:
         response = zip_path
@@ -114,7 +114,7 @@ async def handle_restore(client: Client, message: Message):
     document = message.reply_to_message.document
     file_path = await client.download_media(document.file_id)
     response = await asyncio.to_thread(restore_db, file_path)
-    os.remove(file_path)  # Clean up the downloaded zip file
+    os.remove(file_path)
     await message.reply_text(response)
 
 @app.on_message(filters.command("backup", prefixes=config.COMMAND_PREFIXES) & filters.user(config.OWNER_ID))
@@ -129,17 +129,17 @@ async def backup_command(client: Client, message: Message):
 async def restore_command(client: Client, message: Message):
     await handle_restore(client, message)
 
-# Automatic backup function
+
 async def scheduled_backup():
     path = f"./backup/{config.BOT_NAME}"
     try:
         zip_path = await asyncio.to_thread(backup_db, path)
         if zip_path.endswith(".zip"):
             message = await app.send_document(chat_id=config.LOG_CHANNEL, document=zip_path)
-            shutil.rmtree(path, ignore_errors=True)  # Clean up the backup directory
-            os.remove(zip_path)  # Clean up the zip file
+            shutil.rmtree(path, ignore_errors=True)
+            os.remove(zip_path)
 
-            # Save the file ID to a JSON file
+
             with open(BACKUP_FILE_JSON, "w") as f:
                 json.dump({"file_id": message.document.file_id}, f)
 

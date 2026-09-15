@@ -72,7 +72,7 @@ async def get_ui_text(case):
 
 
 
-#### Anilist part ####
+
 
 ANIME_TEMPLATE = """{name}
 
@@ -87,7 +87,7 @@ ANIME_TEMPLATE = """{name}
 {additional}"""
 
 
-# GraphQL Queries.
+
 ANIME_QUERY = """
 query ($id: Int, $idMal:Int, $search: String) {
     Media (id: $id, idMal: $idMal, search: $search, type: ANIME) {
@@ -1200,8 +1200,8 @@ async def get_anime(
 
     data = result["data"]["Media"]
 
-    # Data of all fields in returned json
-    # pylint: disable=possibly-unused-variable
+
+
     idm = data.get("id")
     idmal = data.get("idMal")
     romaji = data["title"]["romaji"]
@@ -1326,8 +1326,8 @@ async def get_anilist(
         return [f"No results Found"]
 
     data = result["data"]["Page"]["media"][0]
-    # Data of all fields in returned json
-    # pylint: disable=possibly-unused-variable
+
+
     idm = data.get("id")
     bot = BOT_USERNAME.replace("@", "")
     idmal = data.get("idMal")
@@ -1450,7 +1450,7 @@ async def get_character(query, page, auth: bool = False, user: int = None):
     if len(result['data']['Page']['characters'])==0:
         return [f"No results Found"]
     data = result["data"]["Page"]["characters"][0]
-    # Character Data
+
     id_ = data["id"]
     name = data["name"]["full"]
     native = data["name"]["native"]
@@ -1509,8 +1509,8 @@ async def get_manga(
         return [f"No results Found"]
     data = result["data"]["Page"]["media"][0]
 
-    # Data of all fields in returned json
-    # pylint: disable=possibly-unused-variable
+
+
     idm = data.get("id")
     romaji = data["title"]["romaji"]
     english = data["title"]["english"]
@@ -1594,7 +1594,7 @@ async def get_airing(qry, ind: int, auth: bool = False, user: int = None):
         data = result["data"]["Page"]["media"][0]
     except IndexError:
         return ["No results Found"]
-    # Airing Details
+
     mid = data.get("id")
     romaji = data["title"]["romaji"]
     english = data["title"]["english"]
@@ -1745,9 +1745,9 @@ async def check_if_adult(id_):
     else:
         return "False"
 
-####       END        ####
 
-#### Jikanpy part ####
+
+
 
 async def get_scheduled(x: int = 9):
     base_url = "https://api.jikan.moe/v4/schedules/"
@@ -1763,9 +1763,9 @@ async def get_scheduled(x: int = 9):
         out += f"• `{title}`\n"
     return out, x if x!=9 else datetime.now().weekday()
 
-####     END      ####
 
-#### chiaki part ####
+
+
 
 def get_wols(x: str):
     data = requests.get(
@@ -1792,9 +1792,9 @@ def get_wo(x: int, page: int):
     out_ = "".join(out[:50])
     return msg+out_, total
 
-####     END     ####
 
-##### Anime Fillers Part #####
+
+
 
 def search_filler(query):
     html = requests.get("https://www.animefillerlist.com/shows").text

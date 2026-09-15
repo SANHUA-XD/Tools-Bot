@@ -1,7 +1,7 @@
 from TianXiwei.Database import user_collection
 from typing import Optional
 
-# Function to save user information
+
 async def save_user(user_id: int, first_name: str, last_name: Optional[str], username: Optional[str]):
     """
     Save or update user data in MongoDB.
@@ -16,7 +16,7 @@ async def save_user(user_id: int, first_name: str, last_name: Optional[str], use
     }
     await user_collection.update_one(query, update, upsert=True)
 
-# Function to get user information by username
+
 async def get_user_by_username(username: str) -> Optional[dict]:
     """
     Retrieve user data by username from MongoDB.
@@ -25,7 +25,7 @@ async def get_user_by_username(username: str) -> Optional[dict]:
     user = await user_collection.find_one(query)
     return user
 
-# Function to get user information by user ID
+
 async def get_user_by_user_id(user_id: int) -> Optional[dict]:
     """
     Retrieve user data by user ID from MongoDB.

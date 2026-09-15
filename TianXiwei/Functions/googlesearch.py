@@ -54,12 +54,12 @@ class GoogleReverseImageSearch:
         soup = BeautifulSoup(response.text, "html.parser")
         result = {"similar": response.url, "output": ""}
 
-        # Google's result-snippet CSS class names are short, obfuscated
-        # strings that Google regenerates periodically - hardcoding a single
-        # one (like the old "r5a77d") silently breaks the moment Google
-        # changes it. Try a few known/likely selectors as a best-effort, but
-        # never let a failed scrape here block the actual search link below
-        # (that's the part that matters and doesn't depend on this at all).
+
+
+
+
+
+
         for selector in (
             {"class": "r5a77d"},
             {"class": "fKDtNb"},
@@ -74,9 +74,9 @@ class GoogleReverseImageSearch:
                 break
 
         if not result["output"]:
-            # Fall back to the page <title>, which Google almost always sets
-            # to something like "<guess> - Google Search" - still useful,
-            # and far less likely to break than a specific CSS class.
+
+
+
             if soup.title and soup.title.string:
                 title = soup.title.string.replace("- Google Search", "").strip()
                 if title:

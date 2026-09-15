@@ -16,17 +16,17 @@ async def snipe_message(client: Client, message: Message):
 
         chat_id = args[1]  
         
-        # If replying to a message
+
         if message.reply_to_message:
             await message.reply_to_message.copy(chat_id=chat_id)
             await message.reply_text(f"Replied message sent to {chat_id}.", quote=True)
         else:
-            # Check if the message has text to send
+
             if len(args) < 3:
                 await message.reply_text("Please provide a message text to send.", quote=True)
                 return
             
-            text = args[2]  # Text is the second argument
+            text = args[2]
             await client.send_message(chat_id=chat_id, text=text)
             await message.reply_text(f"Message sent to {chat_id}.", quote=True)
     except Exception as e:

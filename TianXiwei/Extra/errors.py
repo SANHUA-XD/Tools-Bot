@@ -8,24 +8,24 @@ from TianXiwei import log , app
 
 def error(func):
     @wraps(func)
-    async def wrapper(client, update, *args, **kwargs):  # 'update' can be a Message or InlineQuery
+    async def wrapper(client, update, *args, **kwargs):
         try:
-            # Call the actual function
+
             return await func(client, update, *args, **kwargs)
         except (ContinuePropagation, StopPropagation):
-            # These are pyrogram's normal flow-control signals (e.g. a
-            # message-matching handler saying "not for me, try the next
-            # handler"), NOT errors. They were previously falling through
-            # to the generic `except Exception` below, which logged every
-            # single ordinary chat message that didn't match a game/filter
-            # as a bogus "Unexpected error: " (with an empty message, since
-            # these exceptions carry no text) to the error log channel -
-            # that's exactly the message-log spam this was causing.
+
+
+
+
+
+
+
+
             raise
         except FloodWait as e:
             log.warning(f"Flood wait for {e.value} seconds.")
             await asyncio.sleep(e.value)
-            # Retry the function after the wait
+
             return await func(client, update, *args, **kwargs)
         except BadRequest as e:
             log.error(f"Bad request error: {e}")
@@ -69,17 +69,17 @@ def error(func):
 
     return wrapper
 
-# Function to send error logs to the log channel
+
 async def log_error(client, error_message, update):
     log_text = f"**Error Occurred**\n**Error:** `{error_message}`\n"
 
-    if isinstance(update, Message):  # If it's a message object
+    if isinstance(update, Message):
         log_text += (
             f"**Chat:** {update.chat.title or 'Private Chat'} (`{update.chat.id}`)\n"
             f"**User:** {update.from_user.first_name} (`{update.from_user.id}`)\n"
             f"**Message:** {update.text or 'No text content'}\n"
         )
-    elif isinstance(update, InlineQuery):  # If it's an inline query
+    elif isinstance(update, InlineQuery):
         log_text += (
             f"**User:** {update.from_user.first_name} (`{update.from_user.id}`)\n"
             f"**Inline Query:** {update.query or 'No query content'}\n"

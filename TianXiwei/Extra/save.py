@@ -10,19 +10,19 @@ from pyrogram.enums import ChatType
 def save(func: Callable):
     @wraps(func)
     async def wrapper(client: Client, update, *args, **kwargs):
-        # Proceed to the original handler function first
+
         result = await func(client, update, *args, **kwargs)
 
-        # Check if the update is a Message or CallbackQuery
+
         if isinstance(update, Message):
-            # Handle saving user and chat for a Message
+
             if update.from_user:
                 user_id = update.from_user.id
                 first_name = update.from_user.first_name
                 username = f"@{update.from_user.username}" if update.from_user.username else f"[User](tg://user?id={user_id})"
                 if not await is_user_in_db(user_id):
                     await save_user(user_id, first_name, username)
-                    # Log the new user
+
                     await app.send_message(
                         chat_id=config.LOG_CHANNEL,
                         text=(
@@ -37,11 +37,11 @@ def save(func: Callable):
                 chat_id = update.chat.id
                 chat_title = update.chat.title
                 if not await is_chat_in_db(chat_id):
-                    # Fetch chat details for logging
+
                     chat = await client.get_chat(chat_id)
                     member_count = chat.members_count or "Unknown"
                     await save_chat(chat_id, chat_title)
-                    # Log the new chat
+
                     await app.send_message(
                         chat_id=config.LOG_CHANNEL,
                         text=(
@@ -54,14 +54,14 @@ def save(func: Callable):
                     )
 
         elif isinstance(update, CallbackQuery):
-            # Handle saving user and chat for a CallbackQuery
+
             if update.from_user:
                 user_id = update.from_user.id
                 first_name = update.from_user.first_name
                 username = f"@{update.from_user.username}" if update.from_user.username else f"[User](tg://user?id={user_id})"
                 if not await is_user_in_db(user_id):
                     await save_user(user_id, first_name, username)
-                    # Log the new user
+
                     await app.send_message(
                         chat_id=config.LOG_CHANNEL,
                         text=(
@@ -76,11 +76,11 @@ def save(func: Callable):
                 chat_id = update.message.chat.id
                 chat_title = update.message.chat.title
                 if not await is_chat_in_db(chat_id):
-                    # Fetch chat details for logging
+
                     chat = await client.get_chat(chat_id)
                     member_count = chat.members_count or "Unknown"
                     await save_chat(chat_id, chat_title)
-                    # Log the new chat
+
                     await app.send_message(
                         chat_id=config.LOG_CHANNEL,
                         text=(
@@ -92,7 +92,7 @@ def save(func: Callable):
                         disable_web_page_preview=True,
                     )
 
-        # Return the result of the original function
+
         return result
 
     return wrapper

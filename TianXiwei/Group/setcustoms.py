@@ -22,7 +22,7 @@ async def set_custom_title(client: Client, message: Message):
 
     user_id = user.id
 
-    # Save the custom title
+
     await save_user_info(user_id=user_id, custom_title=custom_title)
     await message.reply_text(f"Custom title set for {user.first_name}.")
 
@@ -43,6 +43,6 @@ async def set_custom_bio(client: Client, message: Message):
 
     user_id = user.id
 
-    # Save the custom bio
+
     await save_user_info(user_id=user_id, custom_bio=custom_bio)
     await message.reply_text(f"Custom bio set for {user.first_name}.")

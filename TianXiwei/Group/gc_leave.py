@@ -14,9 +14,9 @@ from TianXiwei.Database.total_user_chat_db import remove_chat
 
 log = logging.getLogger(__name__)
 
-# ==========================================
-# 🚫 ব্ল্যাকলিস্টেড গ্রুপ লিভ প্রসেস (INSTANT)
-# ==========================================
+
+
+
 
 async def process_leave_blocked_group(client: Client, chat_id: int):
     """ব্ল্যাকলিস্টেড গ্রুপ থেকে কন্ট্যাক্ট-বাটনসহ মেসেজ দিয়ে সাথে সাথে লিভ নেয়"""
@@ -42,9 +42,9 @@ async def process_leave_blocked_group(client: Client, chat_id: int):
         log.error(f"Leave error for blocked group {chat_id}: {e}")
 
 
-# ——————————————————————————————————————————————————————————————
-# 🚫 নতুন গ্রুপে অ্যাড হলে সাথে সাথে চেক করে - ব্ল্যাকলিস্টেড হলে লিভ
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 @app.on_message(filters.group & filters.new_chat_members)
 @error
@@ -58,9 +58,9 @@ async def instant_leave_blocked_groups(client: Client, message: Message):
             break
 
 
-# ——————————————————————————————————————————————————————————————
-# 🛠 বট-ওনার/হোকাগে-অনলি কমান্ডস
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 @app.on_message(filters.command("leave", prefixes=config.COMMAND_PREFIXES))
 @hokage

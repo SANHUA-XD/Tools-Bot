@@ -12,7 +12,7 @@ from TianXiwei.Extra.chatadmin import chatadmin
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# Command to toggle imposter status
+
 @app.on_message(filters.command("imposter", prefixes=config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -21,7 +21,7 @@ async def imposter_handler(client: Client, message: Message):
     chat_id = message.chat.id
 
     if await is_imposter_enabled(chat_id):
-        # If already enabled, send a button to disable
+
         button = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("🔴 Disable 𝖨𝗆𝗉𝗈𝗌𝗍𝖾𝗋", callback_data=f"disable_imposter:{chat_id}")],
@@ -30,7 +30,7 @@ async def imposter_handler(client: Client, message: Message):
         )
         await message.reply_text("**📢 𝖨𝗆𝗉𝗈𝗌𝗍𝖾𝗋 is enabled in this chat.**", reply_markup=button)
     else:
-        # If not enabled, send a button to enable
+
         button = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("🟢 Enable 𝖨𝗆𝗉𝗈𝗌𝗍𝖾𝗋", callback_data=f"enable_imposter:{chat_id}")],
@@ -40,7 +40,7 @@ async def imposter_handler(client: Client, message: Message):
         await message.reply_text("**📢 𝖨𝗆𝗉𝗈𝗌𝗍𝖾𝗋 is disabled in this chat.**", reply_markup=button)
 
 
-# Callback query handler for enabling/disabling imposter
+
 @app.on_callback_query(filters.regex("^(enable_imposter|disable_imposter):"))
 @chatadmin
 @error
@@ -57,25 +57,25 @@ async def toggle_imposters(client: Client, callback_query: CallbackQuery):
         await callback_query.message.edit_text("**🔴 𝖨𝗆𝗉𝗈𝗌𝗍𝖾𝗋 has been enabled for this chat.**")
 
 
-# Text message handler to save or announce changes in user details
+
 @app.on_message(filters.group, group=IMPOSTER_GROUP)
 @error
 @save
 async def imposter_text_handler(client: Client, message: Message):
     chat_id = message.chat.id
 
-    # Check if imposter is enabled in this chat
+
     if not await is_imposter_enabled(chat_id):
         return
 
     user = message.from_user
     if not user:
-        return  # Skip if there's no user info
+        return
 
-    # Save or check user details
+
     changes = await save_or_check_user(user)
     if changes:
-        # Create a professional announcement for multiple changes
+
         change_details = "\n".join(
             f"• **{field.capitalize()}:**\n"
             f"   - **𝖯𝗋𝖾𝗏𝗂𝗈𝗎𝗌:** {old if old else 'None'}\n"
@@ -89,7 +89,7 @@ async def imposter_text_handler(client: Client, message: Message):
             f"{change_details}"
         )
         
-        # Send the announcement in the chat
+
         await message.reply_text(announcement, disable_web_page_preview=True)
 
 

@@ -6,9 +6,9 @@ from config import config
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# ==========================================
-# Keyboard Layout for Calculator
-# ==========================================
+
+
+
 def get_calc_keyboard():
     return InlineKeyboardMarkup([
         [
@@ -46,9 +46,9 @@ def get_calc_keyboard():
         ]
     ])
 
-# ==========================================
-# 1. Direct Calculate Command (/calculate)
-# ==========================================
+
+
+
 @app.on_message(filters.command(["calculate", "calc"], prefixes=config.COMMAND_PREFIXES))
 @error
 @save
@@ -59,7 +59,7 @@ async def direct_calc(client: Client, message: Message):
     
     expr = "".join(message.command[1:])
     
-    # নিরাপত্তা নিশ্চিত করতে শুধুমাত্র সংখ্যা এবং গাণিতিক চিহ্ন অ্যালাও করা হয়েছে
+
     clean_expr = re.sub(r'[^0-9\+\-\*\/\.\(\)\%]', '', expr)
     
     try:
@@ -68,7 +68,7 @@ async def direct_calc(client: Client, message: Message):
         
         result = eval(clean_expr)
         
-        # দশমিকের পর যদি শুধু 0 থাকে (.0) তাহলে সেটি সরিয়ে পূর্ণসংখ্যা দেখাবে
+
         if isinstance(result, float) and result.is_integer():
             result = int(result)
             
@@ -78,9 +78,9 @@ async def direct_calc(client: Client, message: Message):
     except Exception:
         await message.reply("**❌ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖤𝗑𝗉𝗋𝖾𝗌𝗌𝗂𝗈𝗇!**")
 
-# ==========================================
-# 2. Interactive Calculator Command (/calculator)
-# ==========================================
+
+
+
 @app.on_message(filters.command("calculator", prefixes=config.COMMAND_PREFIXES))
 @error
 @save
@@ -88,36 +88,36 @@ async def interactive_calc(client: Client, message: Message):
     text = "🧮 **𝖨𝗇𝗍𝖾𝗋𝖺𝖼𝗍𝗂𝗏𝖾 𝖢𝖺𝗅𝖼𝗎𝗅𝖺𝗍𝗈𝗋**\n\n**𝖣𝗂𝗌𝗉𝗅𝖺𝗒:**\n`0`"
     await message.reply(text, reply_markup=get_calc_keyboard())
 
-# ==========================================
-# 3. Callback Handler for Button Clicks
-# ==========================================
+
+
+
 @app.on_callback_query(filters.regex(r"^calc_"))
 @error
 async def calc_callback(client: Client, query: CallbackQuery):
     button_data = query.data.split("_")[1]
     
-    # বর্তমান মেসেজ থেকে ডিসপ্লের লেখাটি বের করা
+
     message_text = query.message.text
     lines = message_text.split("\n")
     current_expr = lines[-1].strip()
     
-    # যদি Error বা 0 থাকে, তাহলে টাইপ করার সময় সেটি মুছে যাবে
+
     if current_expr in ["0", "Error", "Error (Div by 0)"]:
         current_expr = ""
         
-    # যদি আগের হিসেবের রেজাল্ট ডিসপ্লেতে থাকে (যেমন: 10 + 10 = 20)
+
     if "=" in current_expr:
         result_value = current_expr.split("=")[-1].strip()
         if button_data in ["+", "-", "*", "/", "%"]:
-            # অপারেটর চাপলে আগের রেজাল্টের সাথেই হিসাব শুরু হবে
+
             current_expr = result_value
         elif button_data in ["C", "DEL", "="]:
             current_expr = result_value
         else:
-            # সংখ্যা চাপলে একদম নতুন করে হিসাব শুরু হবে
+
             current_expr = ""
 
-    # বাটন অনুযায়ী ডিসপ্লে আপডেট করা
+
     if button_data == "C":
         current_expr = "0"
         
@@ -129,14 +129,14 @@ async def calc_callback(client: Client, query: CallbackQuery):
             current_expr = "0"
         else:
             try:
-                # সিকিউরিটির জন্য শুধুমাত্র গাণিতিক চিহ্ন অ্যালাও
+
                 clean_expr = re.sub(r'[^0-9\+\-\*\/\.\(\)\%]', '', current_expr)
                 res = eval(clean_expr)
                 
-                # ফ্লোট নাম্বার সুন্দরভাবে দেখানোর জন্য
+
                 if isinstance(res, float) and res.is_integer():
                     res = int(res)
-                # ডিসপ্লেতে আগের হিসেব এবং নতুন রেজাল্ট সেট করা 
+
                 current_expr = f"{current_expr} = {res}"
             except ZeroDivisionError:
                 current_expr = "Error (Div by 0)"
@@ -144,16 +144,16 @@ async def calc_callback(client: Client, query: CallbackQuery):
                 current_expr = "Error"
                 
     else:
-        # সংখ্যা বা অপারেটর হলে সেটি ডিসপ্লেতে যুক্ত হবে
+
         current_expr += button_data
         
-    # যদি পুরো ডিসপ্লে ফাঁকা হয়ে যায়
+
     if current_expr == "":
         current_expr = "0"
         
     new_text = f"🧮 **𝖨𝗇𝗍𝖾𝗋𝖺𝖼𝗍𝗂𝗏𝖾 𝖢𝖺𝗅𝖼𝗎𝗅𝖺𝗍𝗈𝗋**\n\n**𝖣𝗂𝗌𝗉𝗅𝖺𝗒:**\n`{current_expr}`"
     
-    # শুধুমাত্র চেঞ্জ হলেই মেসেজ এডিট করবে (Telegram Error এড়াতে)
+
     if new_text != message_text:
         await query.message.edit_text(new_text, reply_markup=get_calc_keyboard())
         

@@ -54,8 +54,8 @@ async def set_active_pack(user_id: int, short_name: str) -> None:
     doc = await stickerpack_collection.find_one({"user_id": user_id, "short_name": short_name})
     if not doc:
         return
-    # Only one active pack per kind (static / video / animated) at a time,
-    # since that's what /kang uses to decide where an un-numbered kang goes.
+
+
     await stickerpack_collection.update_many(
         {"user_id": user_id, "kind": doc["kind"]}, {"$set": {"active": False}}
     )

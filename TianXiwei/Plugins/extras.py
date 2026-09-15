@@ -12,7 +12,7 @@ from config import config
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# Helper function for API requests
+
 async def fetch_from_api(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, timeout=5) as response:
@@ -50,7 +50,7 @@ async def hyperlink_command(client: Client, message: Message):
 @error
 @save
 async def joke(client: Client, message: Message):
-    # Fixed using pyjokes (Offline and 100% reliable)
+
     joke_text = pyjokes.get_joke()
     await message.reply_text(f"😂 **𝖧𝖾𝗋𝖾'𝗌 𝖺 𝗃𝗈𝗄𝖾 𝖿𝗈𝗋 𝗒𝗈𝗎:**\n\n👉 `{joke_text}`", parse_mode=ParseMode.MARKDOWN)
 
@@ -69,7 +69,7 @@ async def truth(client: Client, message: Message):
         truth_question = await fetch_from_api("https://api.truthordarebot.xyz/v1/truth")
         q = truth_question["question"]
     except Exception:
-        # Auto Fallback to local list if API is down
+
         q = random.choice(local_truths)
         
     await message.reply_text(f"🗣️ **𝖳𝗋𝗎𝗍𝗁:**\n\n👉 `{q}`", parse_mode=ParseMode.MARKDOWN)
@@ -89,7 +89,7 @@ async def dare(client: Client, message: Message):
         dare_question = await fetch_from_api("https://api.truthordarebot.xyz/v1/dare")
         q = dare_question["question"]
     except Exception:
-        # Auto Fallback to local list if API is down
+
         q = random.choice(local_dares)
         
     await message.reply_text(f"🔥 **𝖣𝖺𝗋𝖾:**\n\n👉 `{q}`", parse_mode=ParseMode.MARKDOWN)
@@ -98,7 +98,7 @@ async def dare(client: Client, message: Message):
 @error
 @save
 async def roll(client: Client, message: Message):
-    # Upgraded: Sends Native Telegram Dice Animation
+
     await client.send_dice(message.chat.id, emoji="🎲")
 
 @app.on_message(filters.command("flirt", prefixes=config.COMMAND_PREFIXES))

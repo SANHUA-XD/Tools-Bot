@@ -16,12 +16,12 @@ async def gmute_gban_watcher(client, message: Message):
     if not user or not chat:
         return
 
-    # Check if the user is globally banned
+
     if await is_user_gbanned(user.id):
         try:
             await app.ban_chat_member(chat.id, user.id)
             await save_banned_chats(user.id , chat.id)
-            # Notify the group
+
             try:
                 await message.reply_text(
                     f"{user.mention} 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝗀𝗅𝗈𝖻𝖺𝗅𝗅𝗒 𝖻𝖺𝗇𝗇𝖾𝖽 𝖺𝗇𝖽 𝗋𝖾𝗆𝗈𝗏𝖾𝖽 𝖿𝗋𝗈𝗆 𝗍𝗁𝗂𝗌 𝗀𝗋𝗈𝗎𝗉. "
@@ -30,7 +30,7 @@ async def gmute_gban_watcher(client, message: Message):
             except Exception:
                 pass
 
-            # Notify the user via private message
+
             try:
                 await app.send_message(
                     user.id,
@@ -44,7 +44,7 @@ async def gmute_gban_watcher(client, message: Message):
         except Exception:
             return
 
-    # Check if the user is globally muted
+
     if await is_user_gmuted(user.id):
         try:
             await message.delete()

@@ -10,7 +10,7 @@ from config import config
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# Combine all roles into SUPREME_USERS
+
 SUPREME_USERS = (
     config.Hokages
     + config.Jonins
@@ -390,7 +390,7 @@ async def _top(client,message):
         if counter == 11:
             break
             
-        # KeyError fix
+
         coins = i.get("coins", 0)
         if coins == 0:
             continue

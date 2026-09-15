@@ -20,10 +20,10 @@ async def set_log_channel_command(client: Client, message: Message):
     chat_id = message.chat.id
     user_id = message.from_user.id
 
-    # Check if a log channel is already set
+
     current_log_channel = await get_log_channel(chat_id)
     if current_log_channel:
-        # Fetch the title of the current log channel
+
         log_channel_title = await get_chat_title(client, current_log_channel)
         await message.reply_text(
             f"𝖠 𝗅𝗈𝗀 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝗂𝗌 𝖺𝗅𝗋𝖾𝖺𝖽𝗒 𝖼𝗈𝗇𝖿𝗂𝗀𝗎𝗋𝖾𝖽 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝗀𝗋𝗈𝗎𝗉: **{log_channel_title}**.\n\n"
@@ -31,9 +31,9 @@ async def set_log_channel_command(client: Client, message: Message):
         )
         return
 
-    # Easier path: /setlog @channelusername or /setlog -100xxxxxxxxxx,
-    # skips the whole forward-a-message flow entirely if the bot's already
-    # an admin there.
+
+
+
     if len(message.command) > 1:
         target = message.command[1]
         try:
@@ -52,7 +52,7 @@ async def set_log_channel_command(client: Client, message: Message):
             )
         return
 
-    # Add user to log channel setup state
+
     logchannelsetting_state[(chat_id, user_id)] = True
 
     await message.reply_text(
@@ -71,7 +71,7 @@ async def get_chat_title(client: Client, chat_id: int) -> str:
         return "Unknown Chat"
 
 
-# Listener for forwarded messages to detect log channel
+
 @app.on_message(filters.forwarded & filters.group , group=LOG_GROUP)
 @error
 @save
@@ -82,7 +82,7 @@ async def detect_log_channel(client: Client, message: Message):
     if not message.from_user :
         return
 
-    # Check if the user is in log channel setting state
+
     if not logchannelsetting_state.get((chat_id, user_id)):
         return
 
@@ -91,7 +91,7 @@ async def detect_log_channel(client: Client, message: Message):
         await message.reply_text("𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝗅𝗈𝗀 𝖼𝗁𝖺𝗇𝗇𝖾𝗅. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.")
         return
 
-    # Verify bot is an admin in the channel
+
     try:
         member = await client.get_chat_member(original_chat_id, "me")
         if not member.privileges.can_post_messages:
@@ -103,14 +103,14 @@ async def detect_log_channel(client: Client, message: Message):
         await message.reply_text(f"Error: {e}")
         return
 
-    # Save the log channel ID to the database
+
     await set_log_channel(chat_id, original_chat_id)
-    del logchannelsetting_state[(chat_id, user_id)]  # Remove from state
+    del logchannelsetting_state[(chat_id, user_id)]
     await message.reply_text(
         f"𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗌𝖾𝗍 𝗍𝗁𝖾 𝗅𝗈𝗀 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍 𝗍𝗈 {message.forward_from_chat.title}."
     )
 
-# Command to clear log channel
+
 @app.on_message(filters.command("clearlog" , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @can_change_info
 @error
@@ -118,13 +118,13 @@ async def detect_log_channel(client: Client, message: Message):
 async def clear_log_channel_command(client: Client, message: Message):
     chat_id = message.chat.id
 
-    # Check if log channel is set
+
     current_log_channel = await get_log_channel(chat_id)
     if not current_log_channel:
         await message.reply_text("𝖭𝗈 𝗅𝗈𝗀 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝗂𝗌 𝖼𝗎𝗋𝗋𝖾𝗇𝗍𝗅𝗒 𝗌𝖾𝗍 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.")
         return
 
-    # Clear the log channel
+
     await remove_log_channel(chat_id)
     await message.reply_text("𝖳𝗁𝖾 𝗅𝗈𝗀 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝖼𝗅𝖾𝖺𝗋𝖾𝖽. 𝖸𝗈𝗎 𝖼𝖺𝗇 𝗌𝖾𝗍 𝖺 𝗇𝖾𝗐 𝗈𝗇𝖾 𝗎𝗌𝗂𝗇𝗀 /𝗌𝖾𝗍𝗅𝗈𝗀.")
 
@@ -136,17 +136,17 @@ async def log_chat_member_updates(client: Client, chat_member_updated: ChatMembe
     try :
             chat_id = chat_member_updated.chat.id
         
-            # Get the log channel ID
+
             log_channel_id = await get_log_channel(chat_id)
             if not log_channel_id:
-                return  # No log channel set, skip logging
+                return
         
-            # Determine if the event is a join or leave
+
             old_status = chat_member_updated.old_chat_member.status if chat_member_updated.old_chat_member else None
             new_status = chat_member_updated.new_chat_member.status
         
             if old_status in {None, ChatMemberStatus.LEFT} and new_status == ChatMemberStatus.MEMBER:
-                # User joined or rejoined the chat
+
                 user = chat_member_updated.new_chat_member.user
                 log_message = await format_log(
                     tag="JOINED",
@@ -155,7 +155,7 @@ async def log_chat_member_updates(client: Client, chat_member_updated: ChatMembe
                 )
             
             elif old_status == ChatMemberStatus.MEMBER and new_status in {ChatMemberStatus.LEFT, None}:
-                # User left the chat
+
                 user = chat_member_updated.old_chat_member.user
                 log_message = await format_log(
                     tag="LEFT",
@@ -163,16 +163,16 @@ async def log_chat_member_updates(client: Client, chat_member_updated: ChatMembe
                     user=(user.first_name or "User", user.id),
                 )
             else:
-                return  # No relevant status change, skip logging
+                return
         
-            # Queue the log message (batched + rate-limit-safe, see log_helper.py)
+
             await send_log(chat_id, log_message)
     except Exception:
         return
 
 
-# A few more common, generic group events - these apply to every group
-# regardless of which other modules are active, so they live here directly.
+
+
 @app.on_message(filters.new_chat_title & filters.group)
 @error
 async def log_title_change(client: Client, message: Message):

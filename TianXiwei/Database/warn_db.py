@@ -3,7 +3,7 @@ from pyrogram.errors import RPCError , ChatAdminRequired
 from TianXiwei.Database import warnings_collection
 from TianXiwei import app
 
-MAX_WARNS = 3  # Threshold for banning a user
+MAX_WARNS = 3
 
 async def add_warn(chat_id: int, user_id: int, reason: None, client: Client):
     """
@@ -22,7 +22,7 @@ async def add_warn(chat_id: int, user_id: int, reason: None, client: Client):
         upsert=True
     )
 
-    # Check if the user has reached the maximum warning count
+
     if warn_data["warn_count"] >= MAX_WARNS:
         await ban_user(chat_id, user_id, client)
 

@@ -1,6 +1,6 @@
 class config:
 
-    #Client
+
     API_ID = 0
     API_HASH = ""
     BOT_TOKEN = ""
@@ -12,17 +12,17 @@ class config:
     MAX_CONCURRENT_TRANSMISSIONS = 10
     
      
-    #Git
+
     GIT_USERNAME = ""
     GIT_URL_WITH_TOKEN = "" 
 
 
-    #Info
+
     BOT_VERSION = "x"
     OWNER_ID = 6163647625
     OWNER_USERNAME = "Sourov_Nobita"
 
-    # Sudoers
+
     Hokages = [6163647625]
     Jonins = []
     Chunins = []
@@ -40,30 +40,30 @@ class config:
     HELP_IMG_URL = "https://files.catbox.moe/5vj9jh.mp4"
     ALIVE_IMG_URL = "https://files.catbox.moe/ugd0i7.mp4"
 
-    # Photos shown on the /link deep-link page (random.choice picks one each
-    # time). Add as many as you want.
+
+
     LINK_PICS = [
         "https://files.catbox.moe/wybrme.jpg",
     ]
     
     
-    #Database
-    MONGODB_URI = "mongodb+srv://:@cluster0.r4kozye.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" # Use Local Hosted Or Atlas !!
+
+    MONGODB_URI = "mongodb+srv://:@cluster0.r4kozye.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
     DATABASE_NAME = "Shizuka"
 
-    # Separate, dedicated MongoDB just for filters. Filters (especially with
-    # media file_ids and buttons) can grow fast and eat into a free-tier
-    # cluster's storage/connection limits, so they get their own cluster/db
-    # here instead of sharing the main one. Leave FILTER_MONGODB_URI empty
-    # ("") to just reuse MONGODB_URI above.
+
+
+
+
+
     FILTER_MONGODB_URI = "mongodb+srv://:@cluster0.e4ug2jy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
     FILTER_DATABASE_NAME = "ShizukaFilters"
 
-    #API
-    IMGBB_API_KEY = ""  # Get a free key at https://api.imgbb.com/
-    TMDB_API_KEY = ""  # https://www.themoviedb.org/settings/api - used for filter genre-tagging
 
-    #Donate (used by /donate in mics.py) - fill in your own wallet addresses
+    IMGBB_API_KEY = ""
+    TMDB_API_KEY = ""
+
+
     DONATE_BTC_ADDRESS = ""
     DONATE_USDT_TRC20_ADDRESS = ""
     DONATE_ETH_ADDRESS = ""

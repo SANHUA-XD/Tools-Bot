@@ -10,7 +10,7 @@ async def show_karma(client: Client, message: Message):
     user_id = message.from_user.id
     chat_id = message.chat.id
 
-    # Get the user's karma points
+
     user_karma = await karma_db.get_karma(user_id, chat_id)
     await message.reply_text(f"Your current karma points is  **{user_karma}** ")
 
@@ -19,7 +19,7 @@ async def show_top_karma(client: Client, message: Message):
     """Show the top users with the highest karma in the group."""
     chat_id = message.chat.id
 
-    # Get the top karma users
+
     top_users = await karma_db.top_karma(chat_id)
     if not top_users:
         await message.reply_text("No karma data available for this group.")
@@ -38,7 +38,7 @@ async def increase_karma_handler(client: Client, message: Message):
     chat_id = message.chat.id
     name = message.reply_to_message.from_user.first_name
 
-    # Increase the target user's karma points
+
     await karma_db.increase_karma(target_user_id, name , chat_id)
     await message.reply_text(f"Increased karma for **{message.reply_to_message.from_user.mention}**")
 
@@ -49,6 +49,6 @@ async def decrease_karma_handler(client: Client, message: Message):
     chat_id = message.chat.id
     name = message.reply_to_message.from_user.first_name
 
-    # Decrease the target user's karma points
+
     await karma_db.decrease_karma(target_user_id, name , chat_id)
     await message.reply_text(f"Decreased karma for **{message.reply_to_message.from_user.mention}**")

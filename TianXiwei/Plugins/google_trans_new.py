@@ -212,9 +212,9 @@ class google_new_transError(Exception):
             premise = "Failed to connect"
 
             return "{}. Probable cause: {}".format(premise, "timeout")
-            # if tts.tld != 'com':
-            #     host = _translate_url(tld=tts.tld)
-            #     cause = "Host '{}' is not reachable".format(host)
+
+
+
 
         else:
             status = rsp.status_code
@@ -271,7 +271,7 @@ class google_translator:
         escaped_parameter = json.dumps(parameter, separators=(',', ':'))
         rpc = [[[random.choice(GOOGLE_TTS_RPC), escaped_parameter, None, "generic"]]]
         espaced_rpc = json.dumps(rpc, separators=(',', ':'))
-        # text_urldecode = quote(text.strip())
+
         freq_initial = "f.req={}&".format(quote(espaced_rpc))
         freq = freq_initial
         return freq
@@ -325,7 +325,7 @@ class google_translator:
                         if len(response) == 1:
                             if len(response[0]) > 5:
                                 sentences = response[0][5]
-                            else: ## only url
+                            else:
                                 sentences = response[0][0]
                                 if pronounce is False:
                                     return sentences
@@ -358,10 +358,10 @@ class google_translator:
         except requests.exceptions.ConnectTimeout as e:
             raise e
         except requests.exceptions.HTTPError as e:
-            # Request successful, bad response
+
             raise google_new_transError(tts=self, response=r)
         except requests.exceptions.RequestException as e:
-            # Request failed
+
             raise google_new_transError(tts=self)
 
     def detect(self, text):
@@ -395,9 +395,9 @@ class google_translator:
             for line in r.iter_lines(chunk_size=1024):
                 decoded_line = line.decode('utf-8')
                 if "MkEWBc" in decoded_line:
-                    # regex_str = r"\[\[\"wrb.fr\",\"MkEWBc\",\"\[\[(.*).*?,\[\[\["
+
                     try:
-                        # data_got = re.search(regex_str,decoded_line).group(1)
+
                         response = (decoded_line)
                         response = json.loads(response)
                         response = list(response)
@@ -406,14 +406,14 @@ class google_translator:
                         detect_lang = response[0][2]
                     except Exception:
                         raise Exception
-                    # data_got = data_got.split('\\\"]')[0]
+
                     return [detect_lang, LANGUAGES[detect_lang.lower()]]
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            # Request successful, bad response
+
             log.debug(str(e))
             raise google_new_transError(tts=self, response=r)
         except requests.exceptions.RequestException as e:
-            # Request failed
+
             log.debug(str(e))
             raise google_new_transError(tts=self)

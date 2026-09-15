@@ -15,7 +15,7 @@ from TianXiwei.Functions.user import is_user_admin
 from TianXiwei.Database.approve_db import is_user_approved
 from config import config
 
-# Add duration parsing function
+
 def parse_duration(duration_str: str) -> timedelta:
     import re
     duration_str = duration_str.lower().strip()
@@ -37,7 +37,7 @@ def parse_duration(duration_str: str) -> timedelta:
     else:
         raise ValueError("Invalid duration format. Use e.g. 1d, 2h, 30m, 60s")
 
-# Store chat floods
+
 flood_tracker = defaultdict(lambda: {"count": 0, "timestamps": [], "messages": []})
 
 @app.on_message(filters.command("flood", prefixes=config.COMMAND_PREFIXES) & filters.group)
@@ -164,43 +164,42 @@ async def flood_detection(client: Client, message: Message):
 
     settings = await get_antiflood_settings(chat_id)
     if settings["flood_threshold"] == 0:
-        return  # Antiflood disabled
+        return
     
     user_id = user.id
     
     if await is_user_approved(chat_id , user_id):
         return
 
-    # Skip flood detection for admins
+
     if await is_user_admin(client, chat_id, user_id):
         return
 
-    # Update user message count and track messages
+
     flood_tracker[user_id]["count"] += 1
     flood_tracker[user_id]["timestamps"].append(message.date)
     flood_tracker[user_id]["messages"].append(message)
 
-    # Check regular flood
+
     if flood_tracker[user_id]["count"] >= settings["flood_threshold"]:
         await take_flood_action(client, message, settings, user_id)
         flood_tracker[user_id] = {"count": 0, "timestamps": [], "messages": []}
 
-    # Check timed flood
+
     elif settings["flood_timer_count"] > 0:
         timestamps = flood_tracker[user_id]["timestamps"]
-        if len(timestamps) >= settings["flood_timer_count"] and \
-           (timestamps[-1] - timestamps[-settings["flood_timer_count"]]).total_seconds() <= settings["flood_timer_duration"]:
+        if len(timestamps) >= settings["flood_timer_count"] and           (timestamps[-1] - timestamps[-settings["flood_timer_count"]]).total_seconds() <= settings["flood_timer_duration"]:
             await take_flood_action(client, message, settings, user_id)
             flood_tracker[user_id] = {"count": 0, "timestamps": [], "messages": []}
 
-# Updated take_flood_action to use custom duration
+
 async def take_flood_action(client: Client, message: Message, settings, user_id):
     action = settings["flood_action"]
     chat_id = message.chat.id
     duration_seconds = await get_flood_action_duration(chat_id)
     duration = timedelta(seconds=duration_seconds) if duration_seconds else timedelta(days=3)
 
-    # Announcement message
+
     user_mention = message.from_user.mention
     announcement = (
         f" **Anti-Flood Alert** \n\n"
@@ -208,7 +207,7 @@ async def take_flood_action(client: Client, message: Message, settings, user_id)
     )
     await message.chat.send_message(announcement)
 
-    # Execute the chosen action
+
     if action == "ban":
         await client.ban_chat_member(chat_id, user_id)
     elif action == "mute":
@@ -221,7 +220,7 @@ async def take_flood_action(client: Client, message: Message, settings, user_id)
     elif action == "tmute":
         await client.restrict_chat_member(chat_id, user_id, ChatPermissions(), until_date=message.date + duration)
 
-    # Delete all flood messages if enabled
+
     if settings["delete_flood_messages"]:
         for msg in flood_tracker[user_id]["messages"]:
             try:

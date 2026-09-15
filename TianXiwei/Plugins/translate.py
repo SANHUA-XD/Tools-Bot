@@ -21,7 +21,7 @@ async def translate_handler(client: Client, message: Message):
         )
         return
 
-    # Determine the text to translate
+
     to_translate = reply_msg.caption or reply_msg.text
     if not to_translate:
         await message.reply_text(
@@ -29,19 +29,19 @@ async def translate_handler(client: Client, message: Message):
         )
         return
 
-    # Parse the command arguments
+
     try:
         args = message.text.split()[1] if len(message.command) > 1 else None
         if args and "//" in args:
             source, dest = args.split("//")
         else:
-            source = await trans.detect(to_translate)  # Returns the detected language code
-            dest = args or "en"  # Default to English if no target language is specified
+            source = await trans.detect(to_translate)
+            dest = args or "en"
     except Exception as e:
         await message.reply_text(f"𝖤𝗋𝗋𝗈𝗋 𝗉𝖺𝗋𝗌𝗂𝗇𝗀 𝖺𝗋𝗀𝗎𝗆𝖾𝗇𝗍𝗌: {e}")
         return
 
-    # Perform the translation
+
     try:
         translation = await trans.translate(
             to_translate, sourcelang=source, targetlang=dest
@@ -68,7 +68,7 @@ async def languages_handler(client: Client, message: Message):
     )
 
 
-# Module information
+
 __module__ = "𝖳𝗋𝖺𝗇𝗌𝗅𝖺𝗍𝗂𝗈𝗇"
 
 __help__ = """**𝖴𝗌𝖾𝗋 𝖢𝗈𝗆𝗆𝖺𝗇𝖽𝗌:**

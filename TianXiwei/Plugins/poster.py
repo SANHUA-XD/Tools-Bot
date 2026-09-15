@@ -12,10 +12,10 @@ from TianXiwei.Extra.errors import error
 
 logger = logging.getLogger(__name__)
 
-# TMDB API Key
+
 TMDB_API_KEY = "4b061466449ce519d5884948a9671e63"
 
-# Helper function for async API calls
+
 async def fetch_json(url):
     try:
         async with aiohttp.ClientSession() as session:
@@ -35,7 +35,7 @@ async def get_poster_menu(client, message):
         return await message.reply_text("<b>⚠️ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗆𝗈𝗏𝗂𝖾 𝗈𝗋 𝖳𝖵 𝗌𝗁𝗈𝗐 𝗇𝖺𝗆𝖾.\n\n📌 𝖤𝗑𝖺𝗆𝗉𝗅𝖾:</b> `/poster naruto`", parse_mode=ParseMode.HTML)
 
     query = " ".join(message.command[1:])
-    # Short query for callback data (max 20 chars to fit 64-byte limit)
+
     short_query = query[:20].replace(" ", "-").replace("_", "-")
     safe_query = urllib.parse.quote_plus(query)
     
@@ -66,7 +66,7 @@ async def get_poster_menu(client, message):
             m_type_str = "𝖳𝖵" if media_type == "tv" else "𝖬𝗈𝗏𝗂𝖾"
             btn_text = f"{m_icon} {title} ({year}) [{m_type_str}]"
             
-            # Pass short_query to support the Back to Search button
+
             buttons.append([InlineKeyboardButton(btn_text, callback_data=f"p_menu_{media_type}_{tmdb_id}_{short_query}")])
             
         buttons.append([InlineKeyboardButton("❌ 𝖢𝗅𝗈𝗌𝖾", callback_data="poster_close_data")])
@@ -82,7 +82,7 @@ async def get_poster_menu(client, message):
         await msg.edit_text(f"<b>⚠️ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽:</b> `{e}`", parse_mode=ParseMode.HTML)
 
 
-# Handler for "Back to Search Results" button
+
 @app.on_callback_query(filters.regex(r"^p_search_"))
 @error
 async def handle_back_to_search(client, callback_query):
@@ -145,7 +145,7 @@ async def handle_back_to_search(client, callback_query):
         await callback_query.answer(f"⚠️ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽!", show_alert=True)
 
 
-# Main Menu for Poster Categories
+
 @app.on_callback_query(filters.regex(r"^p_menu_"))
 @error
 async def show_poster_categories(client, callback_query):
@@ -174,14 +174,14 @@ async def show_poster_categories(client, callback_query):
         posters = images.get("posters", [])
         logos = images.get("logos", [])
 
-        # Filter: Landscape (with language/text) vs Clean Landscape (No language/textless)
+
         landscape = [img for img in backdrops if img.get("iso_639_1") not in (None, "xx")]
-        # Sort Landscape: English first, then alphabetical by language code
+
         landscape.sort(key=lambda x: (0 if x.get("iso_639_1") == 'en' else 1, x.get("iso_639_1", "")))
         
         clean_landscape = [img for img in backdrops if img.get("iso_639_1") in (None, "xx")]
 
-        # Use w1280 for stable telegram loading instead of original
+
         main_poster_path = details.get('poster_path') or (posters[0]['file_path'] if posters else None)
         main_poster = f"https://image.tmdb.org/t/p/w1280{main_poster_path}" if main_poster_path else "https://via.placeholder.com/800x1200?text=No+Poster"
 
@@ -228,7 +228,7 @@ async def show_poster_categories(client, callback_query):
                 reply_markup=InlineKeyboardMarkup(buttons),
                 parse_mode=ParseMode.HTML
             )
-            # Safe delete logic
+
             try:
                 await callback_query.message.delete()
             except Exception:
@@ -239,7 +239,7 @@ async def show_poster_categories(client, callback_query):
         await callback_query.answer(f"𝖤𝗋𝗋𝗈𝗋: 𝖲𝗈𝗆𝖾𝗍𝗁𝗂𝗇𝗀 𝗐𝖾𝗇𝗍 𝗐𝗋𝗈𝗇𝗀!", show_alert=True)
 
 
-# Viewer for Posters, Landscapes, Logos
+
 @app.on_callback_query(filters.regex(r"^p_view_"))
 @error
 async def handle_poster_viewer(client, callback_query):
@@ -262,7 +262,7 @@ async def handle_poster_viewer(client, callback_query):
         backdrops = response.get("backdrops", [])
         if p_type == "land":
             images = [img for img in backdrops if img.get("iso_639_1") not in (None, "xx")]
-            # Ensure English is priority in viewing as well
+
             images.sort(key=lambda x: (0 if x.get("iso_639_1") == 'en' else 1, x.get("iso_639_1", "")))
             type_name = "𝖫𝖺𝗇𝖽𝗌𝖼𝖺𝗉𝖾"
         elif p_type == "port":
@@ -280,12 +280,12 @@ async def handle_poster_viewer(client, callback_query):
         if not images:
             return await callback_query.answer(f"⚠️ 𝖭𝗈 {p_type.upper()} 𝖿𝗈𝗎𝗇𝖽 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌!", show_alert=True)
 
-        # Loop around if index is out of range
+
         if current_index >= len(images): current_index = 0
         if current_index < 0: current_index = len(images) - 1
 
         img = images[current_index]
-        # Use w1280 for stable loading on Telegram servers
+
         img_url = f"https://image.tmdb.org/t/p/w1280{img['file_path']}"
         original_url = f"https://image.tmdb.org/t/p/original{img['file_path']}"
         
@@ -329,7 +329,7 @@ async def handle_poster_viewer(client, callback_query):
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
         except Exception:
-            # Fallback for CURL failure: try a smaller size if 1280 also fails
+
             small_img_url = f"https://image.tmdb.org/t/p/w780{img['file_path']}"
             await callback_query.message.edit_media(
                 media=InputMediaPhoto(media=small_img_url, caption=caption),
@@ -341,14 +341,14 @@ async def handle_poster_viewer(client, callback_query):
         await callback_query.answer(f"𝖤𝗋𝗋𝗈𝗋: 𝖲𝗈𝗆𝖾𝗍𝗁𝗂𝗇𝗀 𝗐𝖾𝗇𝗍 𝗐𝗋𝗈𝗇𝗀!", show_alert=True)
 
 
-# Ignored button handler (e.g., for "1 / 10" indicator)
+
 @app.on_callback_query(filters.regex(r"^poster_none_data$"))
 @error
 async def ignore_callback(client, callback_query):
     await callback_query.answer()
 
 
-# Close button handler specifically for poster module to avoid global conflicts
+
 @app.on_callback_query(filters.regex(r"^poster_close_data$"))
 @error
 async def close_callback(client, callback_query):

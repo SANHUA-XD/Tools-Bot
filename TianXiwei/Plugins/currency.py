@@ -6,7 +6,7 @@ from config import config
 from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
 
-# Free and open exchange rate API (No key required)
+
 API_URL = "https://open.er-api.com/v6/latest/{}"
 
 async def fetch_exchange_rates(base_currency: str):
@@ -26,7 +26,7 @@ async def fetch_exchange_rates(base_currency: str):
 async def currency_converter(client: Client, message: Message):
     args = message.command[1:]
     
-    # If no arguments provided
+
     if not args:
         return await message.reply_text(
             "⚠️ **𝖲𝗒𝗇𝗍𝖺𝗑 𝖤𝗋𝗋𝗈𝗋:**\n"
@@ -35,7 +35,7 @@ async def currency_converter(client: Client, message: Message):
             "📌 `𝖴𝗌𝖺𝗀𝖾: /currency list` (𝖳𝗈 𝗌𝖾𝖾 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖼𝗎𝗋𝗋𝖾𝗇𝖼𝗂𝖾𝗌)"
         )
         
-    # Handling '/currency list'
+
     if args[0].lower() == "list":
         status_msg = await message.reply_text("🔎 **𝖥𝖾𝗍𝖼𝗁𝗂𝗇𝗀 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖼𝗎𝗋𝗋𝖾𝗇𝖼𝗂𝖾𝗌...**")
         data = await fetch_exchange_rates("USD")
@@ -44,7 +44,7 @@ async def currency_converter(client: Client, message: Message):
             return await status_msg.edit_text("❌ **𝖤𝗋𝗋𝗈𝗋:** 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖿𝖾𝗍𝖼𝗁 𝖼𝗎𝗋𝗋𝖾𝗇𝖼𝗒 𝗅𝗂𝗌𝗍 𝖺𝗍 𝗍𝗁𝗂𝗌 𝗆𝗈𝗆𝖾𝗇𝗍.")
             
         currencies = list(data["rates"].keys())
-        # Format the list nicely
+
         formatted_list = ", ".join(f"`{c}`" for c in currencies)
         
         text = f"**🌍 𝖠𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖢𝗎𝗋𝗋𝖾𝗇𝖼𝗂𝖾𝗌 ({len(currencies)}):**\n\n{formatted_list}"
@@ -54,7 +54,7 @@ async def currency_converter(client: Client, message: Message):
             
         return await status_msg.edit_text(text)
         
-    # Ensure correct format for conversion
+
     if len(args) != 3:
         return await message.reply_text(
             "⚠️ **𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖥𝗈𝗋𝗆𝖺𝗍!**\n"
@@ -62,7 +62,7 @@ async def currency_converter(client: Client, message: Message):
         )
         
     try:
-        # Support commas in numbers (e.g., 1,000)
+
         amount_str = args[0].replace(",", "")
         amount = float(amount_str)
     except ValueError:
@@ -73,7 +73,7 @@ async def currency_converter(client: Client, message: Message):
     
     status_msg = await message.reply_text("🔄 **𝖢𝗈𝗇𝗏𝖾𝗋𝗍𝗂𝗇𝗀 𝖢𝗎𝗋𝗋𝖾𝗇𝖼𝗒...**")
     
-    # Fetch real-time rates
+
     data = await fetch_exchange_rates(from_curr)
     
     if not data or data.get("result") != "success":

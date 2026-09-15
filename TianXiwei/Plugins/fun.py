@@ -3,7 +3,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.enums import ParseMode
 from TianXiwei import app as bot
-from TianXiwei.Script.script import HUG_IMAGES , SLAP_IMAGES , KICK_IMAGES , KILL_IMAGES , KISS_IMAGES , PAT_IMAGES , SEX_IMAGES # Assuming you have a similar list of hug images as for kiss images
+from TianXiwei.Script.script import HUG_IMAGES , SLAP_IMAGES , KICK_IMAGES , KILL_IMAGES , KISS_IMAGES , PAT_IMAGES , SEX_IMAGES
 import httpx
 from TianXiwei.Script.script import command_to_category
 from TianXiwei.Script.script import CATEGORY_IMAGE_POOLS
@@ -14,7 +14,7 @@ from TianXiwei.Extra.errors import error
 
 
 BASE_URL = config.BASE_URL
-# Command handler for /hug
+
 @bot.on_message(filters.command("hug" , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -35,7 +35,7 @@ async def hug_command(client: Client, message: Message):
             await message.reply_text(f"𝗖𝗼𝘂𝗹𝗱 𝗻𝗼𝘁 𝗳𝗶𝗻𝗱 𝘂𝘀𝗲𝗿 {username}.")
             return
 
-    # Check if the bot is replying to its own message
+
     bot_id = (await client.get_me()).id
     if user_b.id == bot_id:
         await message.reply_text("𝑁𝑜 𝑡ℎ𝑎𝑛𝑘𝑠, 𝐼 𝑑𝑜𝑛'𝑡 𝑛𝑒𝑒𝑑 𝑎 ℎ𝑢𝑔 𝑟𝑖𝑔ℎ𝑡 𝑛𝑜𝑤.")
@@ -45,14 +45,14 @@ async def hug_command(client: Client, message: Message):
         await message.reply_text("𝑌𝑜𝑢 𝑐𝑎𝑛𝑛𝑜𝑡 𝑠𝑒𝑛𝑑 𝑎 ℎ𝑢𝑔 𝑟𝑒𝑞𝑢𝑒𝑠𝑡 𝑡𝑜 𝑦𝑜𝑢𝑟𝑠𝑒𝑙𝑓.")
         return
 
-    # Create inline button for User B to accept
+
     inline_keyboard = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("𝗔𝗰𝗰𝗲𝗽𝘁", callback_data=f"accept_hug:{user_a.id}:{user_b.id}")]
         ]
     )
 
-    # Send the hug request message
+
     await message.reply_text(
         f"🤗 **[{user_b.first_name}](tg://user?id={user_b.id})**, **[{user_a.first_name}](tg://user?id={user_a.id})** wants to send you a hug! 🤗\n\n"
         "Will you accept the hug?",
@@ -60,7 +60,7 @@ async def hug_command(client: Client, message: Message):
         parse_mode=ParseMode.MARKDOWN
     )
 
-# Callback handler for accepting the hug
+
 @bot.on_callback_query(filters.regex(r"^accept_hug:(\d+):(\d+)$"))
 @error
 async def accept_hug_callback(client: Client, callback_query):
@@ -75,13 +75,13 @@ async def accept_hug_callback(client: Client, callback_query):
         await callback_query.answer("𝗕𝘀𝗱𝗸 𝗼𝗻𝗹𝘆 𝘁𝗵𝗲 𝗿𝗲𝗰𝗶𝗽𝗶𝗲𝗻𝘁 𝗰𝗮𝗻 𝗮𝗰𝗰𝗲𝗽𝘁 𝘁𝗵𝗶𝘀 𝗵𝘂𝗴 𝗿𝗲𝗾𝘂𝗲𝘀𝘁.", show_alert=True)
         return
 
-    # Get a random hug image URL
+
     hug_image_url = random.choice(HUG_IMAGES)
 
-    # Delete the acceptance message with the inline button
+
     await callback_query.message.delete()
 
-    # Send the hug accepted message with the image
+
     await client.send_photo(
         chat_id=callback_query.message.chat.id,
         photo=hug_image_url,
@@ -91,7 +91,7 @@ async def accept_hug_callback(client: Client, callback_query):
 
     await callback_query.answer()
 
-# Command handler for /kickk
+
 @bot.on_message(filters.command("kickk" , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -112,7 +112,7 @@ async def kick_command(client: Client, message: Message):
             await message.reply_text(f"Could not find user {username}.")
             return
 
-    # Check if the bot is being kicked
+
     bot_id = (await client.get_me()).id
     if user_b.id == bot_id:
         await message.reply_text("Ouch! Kicking a bot is not nice.")
@@ -122,10 +122,10 @@ async def kick_command(client: Client, message: Message):
         await message.reply_text("You cannot kick yourself. That's just silly.")
         return
 
-    # Get a random kick image URL
+
     kick_image_url = random.choice(KICK_IMAGES)
 
-    # Send the kick message with the image
+
     await client.send_photo(
         chat_id=message.chat.id,
         photo=kick_image_url,
@@ -133,7 +133,7 @@ async def kick_command(client: Client, message: Message):
         parse_mode=ParseMode.MARKDOWN
     )
 
-# Command handler for /kill
+
 @bot.on_message(filters.command("kill"  , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -154,7 +154,7 @@ async def kill_command(client: Client, message: Message):
             await message.reply_text(f"Could not find user {username}.")
             return
 
-    # Check if the bot is being killed
+
     bot_id = (await client.get_me()).id
     if user_b.id == bot_id:
         await message.reply_text("You can't kill a bot! 🛡️")
@@ -164,10 +164,10 @@ async def kill_command(client: Client, message: Message):
         await message.reply_text("You can't kill yourself. That's a bit dramatic.")
         return
 
-    # Get a random kill image URL
+
     kill_image_url = random.choice(KILL_IMAGES)
 
-    # Send the kill message with the image
+
     await client.send_photo(
         chat_id=message.chat.id,
         photo=kill_image_url,
@@ -175,7 +175,7 @@ async def kill_command(client: Client, message: Message):
         parse_mode=ParseMode.MARKDOWN
     )
 
-# Command handler for /kiss
+
 @bot.on_message(filters.command("kiss"  , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -196,7 +196,7 @@ async def kiss_command(client: Client, message: Message):
             await message.reply_text(f"Could not find user {username}.")
             return
 
-    # Check if the bot is replying to its own message
+
     bot_id = (await client.get_me()).id
     if user_b.id == bot_id:
         await message.reply_text("Fuck off, I don't want a kiss from you.")
@@ -206,14 +206,14 @@ async def kiss_command(client: Client, message: Message):
         await message.reply_text("Why are you single? You know, nowadays everyone is committed except you!")
         return
 
-    # Create inline button for User B to accept
+
     inline_keyboard = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("𝗔𝗰𝗰𝗲𝗽𝘁", callback_data=f"accept_kiss:{user_a.id}:{user_b.id}")]
         ]
     )
 
-    # Send the kiss request message
+
     await message.reply_text(
         f"💞 **[{user_b.first_name}](tg://user?id={user_b.id})** see **[{user_a.first_name}](tg://user?id={user_a.id})** wants to kiss you! 💞\n\n"
         "Will you accept the kiss?",
@@ -221,7 +221,7 @@ async def kiss_command(client: Client, message: Message):
         parse_mode=ParseMode.MARKDOWN
     )
 
-# Callback handler for accepting the kiss
+
 @bot.on_callback_query(filters.regex(r"^accept_kiss:(\d+):(\d+)$"))
 @error
 async def accept_kiss_callback(client: Client, callback_query):
@@ -236,13 +236,13 @@ async def accept_kiss_callback(client: Client, callback_query):
         await callback_query.answer("𝗕𝘀𝗱𝗸 𝗼𝗻𝗹𝘆 𝘁𝗵𝗲 𝗿𝗲𝗰𝗶𝗽𝗶𝗲𝗻𝘁 𝗰𝗮𝗻 𝗮𝗰𝗰𝗲𝗽𝘁 𝘁𝗵𝗶𝘀 𝗸𝗶𝘀𝘀 𝗿𝗲𝗾𝘂𝗲𝘀𝘁.", show_alert=True)
         return
 
-    # Get a random kiss image URL
+
     kiss_image_url = random.choice(KISS_IMAGES)
 
-    # Delete the acceptance message with the inline button
+
     await callback_query.message.delete()
 
-    # Send the kiss accepted message with the image
+
     await client.send_photo(
         chat_id=callback_query.message.chat.id,
         photo=kiss_image_url,
@@ -252,7 +252,7 @@ async def accept_kiss_callback(client: Client, callback_query):
 
     await callback_query.answer()
 
-# Command handler for /pat
+
 @bot.on_message(filters.command("pat"  , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -273,7 +273,7 @@ async def pat_command(client: Client, message: Message):
             await message.reply_text(f"Could not find user {username}.")
             return
 
-    # Check if the bot is being patted
+
     bot_id = (await client.get_me()).id
     if user_b.id == bot_id:
         await message.reply_text("You can't pat a bot, but thanks for the gesture! 🤖")
@@ -283,10 +283,10 @@ async def pat_command(client: Client, message: Message):
         await message.reply_text("You can't pat yourself. You deserve pats from others!")
         return
 
-    # Get a random pat image URL
+
     pat_image_url = random.choice(PAT_IMAGES)
 
-    # Send the pat message with the image
+
     await client.send_photo(
         chat_id=message.chat.id,
         photo=pat_image_url,
@@ -295,7 +295,7 @@ async def pat_command(client: Client, message: Message):
     )
 
 
-# Command handler for /sex
+
 @bot.on_message(filters.command("sex"  , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -316,7 +316,7 @@ async def sex_command(client: Client, message: Message):
             await message.reply_text(f"Could not find user {username}.")
             return
 
-    # Check if the bot is the target of the request
+
     bot_id = (await client.get_me()).id
     if user_b.id == bot_id:
         await message.reply_text("Fuck off, I don't want to have sex with you.")
@@ -326,14 +326,14 @@ async def sex_command(client: Client, message: Message):
         await message.reply_text("Why are you single? You know, nowadays everyone is committed except you!")
         return
 
-    # Create inline button for User B to accept
+
     inline_keyboard = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("𝗔𝗰𝗰𝗲𝗽𝘁", callback_data=f"accept_sex:{user_a.id}:{user_b.id}")]
         ]
     )
 
-    # Send the sex request message
+
     await message.reply_text(
         f"💞 **[{user_b.first_name}](tg://user?id={user_b.id})** see **[{user_a.first_name}](tg://user?id={user_a.id})** wants to have sex with you! 💞\n\n"
         "Will you accept?",
@@ -341,7 +341,7 @@ async def sex_command(client: Client, message: Message):
         parse_mode=ParseMode.MARKDOWN
     )
 
-# Callback handler for accepting the sex request
+
 @bot.on_callback_query(filters.regex(r"^accept_sex:(\d+):(\d+)$"))
 @error
 async def accept_sex_callback(client: Client, callback_query):
@@ -356,13 +356,13 @@ async def accept_sex_callback(client: Client, callback_query):
         await callback_query.answer("Only the recipient can accept this sex request.", show_alert=True)
         return
 
-    # Get a random sex image URL
+
     sex_image_url = random.choice(SEX_IMAGES)
 
-    # Delete the acceptance message with the inline button
+
     await callback_query.message.delete()
 
-    # Send the sex accepted message with the image
+
     await client.send_photo(
         chat_id=callback_query.message.chat.id,
         photo=sex_image_url,
@@ -374,7 +374,7 @@ async def accept_sex_callback(client: Client, callback_query):
 
 
 
-# Command handler for /slap
+
 @bot.on_message(filters.command("slap"  , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -395,7 +395,7 @@ async def slap_command(client: Client, message: Message):
             await message.reply_text(f"𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖿𝗂𝗇𝖽 𝗎𝗌𝖾𝗋{username}.")
             return
 
-    # Check if the bot is being slapped
+
     bot_id = (await client.get_me()).id
     if user_b.id == bot_id:
         await message.reply_text("𝖧𝖾𝗒, 𝖽𝗈𝗇'𝗍 𝗌𝗅𝖺𝗉 𝗆𝖾! 𝖨'𝗆 𝗃𝗎𝗌𝗍 𝖺 𝖻𝗈𝗍.")
@@ -405,10 +405,10 @@ async def slap_command(client: Client, message: Message):
         await message.reply_text("𝖸𝗈𝗎 𝖼𝖺𝗇𝗇𝗈𝗍 𝗌𝗅𝖺𝗉 𝗒𝗈𝗎𝗋𝗌𝖾𝗅𝖿. 𝖳𝗁𝖺𝗍'𝗌 𝗐𝖾𝗂𝗋𝖽.")
         return
 
-    # Get a random slap image URL
+
     slap_image_url = random.choice(SLAP_IMAGES)
 
-    # Send the slap message with the image
+
     await client.send_photo(
         chat_id=message.chat.id,
         photo=slap_image_url,
@@ -417,12 +417,12 @@ async def slap_command(client: Client, message: Message):
     )
     
 
-# Function to fetch the image from the API
-# Categories nekos.best supports, mapped from the waifu.pics category name
-# used elsewhere in this file. Used as a second fallback API when
-# waifu.pics fails/is down - not all categories have an equivalent there
-# (nekos.best doesn't have themed ones like neko/shinobu/megumin/waifu, or
-# bonk/lick/nom/glomp/cringe/kill), so those just have one fewer fallback.
+
+
+
+
+
+
 NEKOSBEST_CATEGORY_MAP = {
     "hug": "hug", "cry": "cry", "cuddle": "cuddle", "kiss": "kiss",
     "pat": "pat", "smug": "smug", "yeet": "yeet", "blush": "blush",
@@ -473,9 +473,9 @@ async def fetch_image(category: str) -> str:
 
     return None
 
-# Commands that already have their own dedicated handlers above (with accept/reject
-# flow). They stay in `command_to_category` so they still show up correctly in
-# /help, but we don't want to register them a second time here.
+
+
+
 _DEDICATED_COMMANDS = {"hug", "kickk", "kill", "kiss", "pat", "slap"}
 _GENERIC_COMMANDS = [c for c in command_to_category.keys() if c not in _DEDICATED_COMMANDS]
 
@@ -484,14 +484,14 @@ _GENERIC_COMMANDS = [c for c in command_to_category.keys() if c not in _DEDICATE
 @save
 async def send_waifu_image(client: Client, message: Message):
     """Send an image for the requested category."""
-    # Use Pyrogram's own command parser instead of manually stripping the prefix
-    # from message.text. message.text.strip("/") broke on:
-    #   - other prefixes (!, ., #, etc.)
-    #   - bot-mention suffixes like "/neko@YourBotUsername" (common in groups)
-    #   - any extra text typed after the command
-    # message.command already strips prefix + @mention and splits on whitespace.
+
+
+
+
+
+
     command = message.command[0].lower()
-    category = command_to_category.get(command, command)  # Get mapped category or fallback to the command itself
+    category = command_to_category.get(command, command)
 
     try:
         image_url = await fetch_image(category)

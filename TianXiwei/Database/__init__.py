@@ -7,11 +7,11 @@ db = client[config.DATABASE_NAME]
 MCL = MongoClient(config.MONGODB_URI)
 MDB = MCL[config.DATABASE_NAME]
 
-# Filters get their own dedicated MongoDB client/database (separate cluster if
-# FILTER_MONGODB_URI is set in config.py, otherwise it just points back at the
-# main one). This keeps a busy chat's filters - especially media/button-heavy
-# ones - from eating into the main cluster's free-tier storage/connection
-# limits.
+
+
+
+
+
 _filter_uri = config.FILTER_MONGODB_URI or config.MONGODB_URI
 _filter_db_name = config.FILTER_DATABASE_NAME or config.DATABASE_NAME
 filter_client = AsyncIOMotorClient(_filter_uri)
@@ -111,33 +111,33 @@ class MongoDB:
     def __init__(self, collection) -> None:
         self.collection = MDB[collection]
 
-    # Insert one entry into collection
+
     def insert_one(self, document):
         result = self.collection.insert_one(document)
         return repr(result.inserted_id)
 
-    # Find one entry from collection
+
     def find_one(self, query):
         return result if (result := self.collection.find_one(query)) else False
 
-    # Find entries from collection
+
     def find_all(self, query=None):
         if query is None:
             query = {}
         return list(self.collection.find(query))
 
-    # Count entries from collection
+
     def count(self, query=None):
         if query is None:
             query = {}
         return self.collection.count_documents(query)
 
-    # Delete entry/entries from collection
+
     def delete_one(self, query):
         self.collection.delete_many(query)
         return self.collection.count_documents({})
 
-    # Replace one entry in collection
+
     def replace(self, query, new_data):
         old = self.collection.find_one(query)
         _id = old["_id"]
@@ -145,7 +145,7 @@ class MongoDB:
         new = self.collection.find_one({"_id": _id})
         return old, new
 
-    # Update one entry from collection
+
     def update(self, query, update):
         result = self.collection.update_one(query, {"$set": update})
         new_document = self.collection.find_one(query)

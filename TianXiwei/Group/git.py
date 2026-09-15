@@ -14,12 +14,12 @@ from TianXiwei.Extra.save import save
 @error
 @save
 async def git_pull_command(client, message):
-    # Heroku's Python buildpack dyno doesn't ship the "git" binary at runtime
-    # (it's only present during the build step), so a plain `git pull` inside
-    # the running bot always failed with FileNotFoundError there. Since this
-    # bot is deployed by pushing a new zip to GitHub (which Heroku then
-    # auto-deploys on its own), an in-dyno git pull isn't meaningful on that
-    # setup anyway - so we detect that case and explain it instead of crashing.
+
+
+
+
+
+
     if shutil.which("git") is None:
         await message.reply(
             "❌ **`git` 𝗂𝗌 𝗇𝗈𝗍 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝗈𝗇 𝗍𝗁𝗂𝗌 𝗁𝗈𝗌𝗍.**\n\n"
@@ -30,7 +30,7 @@ async def git_pull_command(client, message):
         return
 
     try:
-        # Stash local changes to prevent merge conflicts
+
         subprocess.run(["git", "stash"], check=True)
 
         result = subprocess.run(
@@ -49,7 +49,7 @@ async def git_pull_command(client, message):
         await message.reply(f"Gɪᴛ ᴘᴜʟʟ ғᴀɪʟᴇᴅ ᴡɪᴛʜ ᴇʀʀᴏʀ: {e.stderr}")
 
 async def restart_bot():
-    args = [sys.executable, "-m", "TianXiwei"]  # Adjust this line as needed
+    args = [sys.executable, "-m", "TianXiwei"]
     os.execle(sys.executable, *args, os.environ)
     sys.exit()
 

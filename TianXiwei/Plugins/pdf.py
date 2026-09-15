@@ -18,36 +18,36 @@ from config import config
 from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
 
-# ==========================================
-# CONSTANTS & CONFIGURATION
-# ==========================================
+
+
+
 PDF_TEMP_DIR = "downloads/pdf_temp"
-FONTS_DIR = "downloads/pdf_fonts"  # separate from TianXiwei/fonts/ (used by fonts.py/tiny.py) to avoid any interference
+FONTS_DIR = "downloads/pdf_fonts"
 os.makedirs(PDF_TEMP_DIR, exist_ok=True)
 os.makedirs(FONTS_DIR, exist_ok=True)
 
-# We use Noto Sans as a base Unicode font if available.
+
 DEFAULT_FONT_PATH = os.path.join(FONTS_DIR, "NotoSans-Regular.ttf")
 
-# Dictionary to store active PDF sessions per user
-# Structure: { user_id: {"type": "text"|"image", "items": [], "state": "collecting", "main_msg": Message, "pdf_name": "", "password": ""} }
+
+
 user_sessions = {}
 
-# ==========================================
-# CUSTOM PDF CLASS (Clean Layout)
-# ==========================================
+
+
+
 class CustomPDF(FPDF):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Add Unicode Font if exists, otherwise fallback to Arial/Helvetica
+
         if os.path.exists(DEFAULT_FONT_PATH):
             self.add_font("CustomFont", "", DEFAULT_FONT_PATH, uni=True)
             self.font_family_name = "CustomFont"
         else:
             self.font_family_name = "Helvetica"
 
-    # Header and Footer are intentionally left empty to ensure a clean PDF layout
+
     def header(self):
         pass
 
@@ -55,9 +55,9 @@ class CustomPDF(FPDF):
         pass
 
 
-# ==========================================
-# ASYNC HELPER FUNCTIONS
-# ==========================================
+
+
+
 async def encrypt_pdf(input_path: str, output_path: str, password: str):
     """Encrypts a PDF file with a password."""
     try:
@@ -100,19 +100,19 @@ async def images_to_pdf_async(image_paths: list, output_path: str):
         for img_path in image_paths:
             try:
                 img = Image.open(img_path)
-                # Convert RGBA/Palette to RGB for PDF compatibility
+
                 if img.mode in ("RGBA", "P"):
                     img = img.convert("RGB")
                     img.save(img_path)
                 
                 pdf.add_page()
-                # Calculate dimensions to fit A4 (210 x 297 mm) keeping aspect ratio
+
                 page_w, page_h = 190, 277
                 img_w, img_h = img.size
                 ratio = min(page_w / img_w, page_h / img_h)
                 new_w, new_h = img_w * ratio, img_h * ratio
                 
-                # Center the image
+
                 x = 10 + (page_w - new_w) / 2
                 y = 10 + (page_h - new_h) / 2
                 
@@ -163,7 +163,7 @@ async def generate_final_pdf(client: Client, user_id: int):
     final_path = output_path
 
     try:
-        # Generate raw PDF
+
         if session["type"] == "text":
             await text_to_pdf_async(session["items"], output_path)
         elif session["type"] == "merge":
@@ -174,7 +174,7 @@ async def generate_final_pdf(client: Client, user_id: int):
         if not os.path.exists(output_path):
             raise Exception("PDF generation failed inside rendering thread.")
 
-        # Apply Password if requested
+
         if password:
             await main_msg.edit_text("🔐 `Applying Password Encryption...`")
             success = await encrypt_pdf(output_path, enc_path, password)
@@ -183,7 +183,7 @@ async def generate_final_pdf(client: Client, user_id: int):
 
         await main_msg.edit_text("📤 `Uploading Final PDF...`")
         
-        # Get Bot Details for Caption
+
         me = await client.get_me()
         bot_username = me.username if me.username else "Bot"
         
@@ -209,9 +209,9 @@ async def generate_final_pdf(client: Client, user_id: int):
                 except: pass
 
 
-# ==========================================
-# INTERACTIVE QUEUE HANDLERS
-# ==========================================
+
+
+
 
 @app.on_message(filters.command("topdf", prefixes=config.COMMAND_PREFIXES))
 @error
@@ -224,7 +224,7 @@ async def topdf_cmd(client: Client, message: Message):
         
     text = message.reply_to_message.text if message.reply_to_message.text else message.reply_to_message.caption
 
-    # Init or validate session
+
     if user_id in user_sessions:
         if user_sessions[user_id]["type"] != "text":
             return await message.reply_text("❌ You have an active Image-to-PDF session. Please complete or cancel it first.")
@@ -233,7 +233,7 @@ async def topdf_cmd(client: Client, message: Message):
     else:
         user_sessions[user_id] = {"type": "text", "items": [], "state": "collecting"}
 
-    # Add text
+
     user_sessions[user_id]["items"].append(text)
     count = len(user_sessions[user_id]["items"])
 
@@ -256,7 +256,7 @@ async def img2pdf_cmd(client: Client, message: Message):
     if not message.reply_to_message or not message.reply_to_message.photo:
         return await message.reply_text("❌ Please **reply to a photo** (or media group) to add to the PDF queue.")
 
-    # Init or validate session
+
     if user_id in user_sessions:
         if user_sessions[user_id]["type"] != "image":
             return await message.reply_text("❌ You have an active Text-to-PDF session. Please complete or cancel it first.")
@@ -338,9 +338,9 @@ async def pdfmerge_cmd(client: Client, message: Message):
     user_sessions[user_id]["main_msg"] = msg
 
 
-# ==========================================
-# CALLBACK HANDLERS
-# ==========================================
+
+
+
 @app.on_callback_query(filters.regex(r"^pdf_"))
 @error
 async def pdf_callbacks(client: Client, query: CallbackQuery):
@@ -402,9 +402,9 @@ async def pdf_callbacks(client: Client, query: CallbackQuery):
         await generate_final_pdf(client, owner_id)
 
 
-# ==========================================
-# TEXT INPUT LISTENER (For Name & Password)
-# ==========================================
+
+
+
 @app.on_message(filters.text & ~filters.command(config.COMMAND_PREFIXES), group=PDF_INPUT_GROUP)
 @error
 async def pdf_input_listener(client: Client, message: Message):
@@ -416,7 +416,7 @@ async def pdf_input_listener(client: Client, message: Message):
     state = session.get("state")
     
     if state == "waiting_name":
-        # Delete the user's name message for privacy & clean chat
+
         try: await message.delete()
         except: pass
         
@@ -434,10 +434,10 @@ async def pdf_input_listener(client: Client, message: Message):
         ])
         
         await session["main_msg"].edit_text(f"📝 **PDF Name Saved:** `{pdf_name}`\n\nDo you want to protect this PDF with a password?", reply_markup=btns)
-        return # Prevent passing to other modules
+        return
         
     elif state == "waiting_password":
-        # Delete the user's password message immediately for privacy
+
         try: await message.delete()
         except: pass
         
@@ -451,9 +451,9 @@ async def pdf_input_listener(client: Client, message: Message):
     raise ContinuePropagation
 
 
-# ==========================================
-# LEGACY PDF PASS HANDLER (Single File)
-# ==========================================
+
+
+
 @app.on_message(filters.command("pdfpass", prefixes=config.COMMAND_PREFIXES))
 @error
 @save
@@ -470,9 +470,9 @@ async def pdfpass_cmd(client: Client, message: Message):
 
     password = message.text.split(None, 1)[1]
 
-    # The user's own command message contains the plaintext password - if
-    # we're in a group and the bot can delete messages, remove it so it
-    # doesn't linger visible in the chat history.
+
+
+
     if message.chat.type.name != "PRIVATE":
         try:
             await message.delete()
@@ -502,9 +502,9 @@ async def pdfpass_cmd(client: Client, message: Message):
                 f"🤖 **Created by:** @{bot_username}"
             )
 
-            # Privacy: never show the password in a group chat where anyone
-            # can see it - the encrypted PDF + password always goes to the
-            # requester's DM instead. The group only gets a short notice.
+
+
+
             if message.chat.type.name == "PRIVATE":
                 await message.reply_document(document=output_path, caption=caption, quote=True)
             else:

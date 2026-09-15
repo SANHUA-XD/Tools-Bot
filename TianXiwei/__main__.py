@@ -30,7 +30,7 @@ def _module_id(name: str) -> str:
     correctly even after modules are added/removed in a later deploy."""
     return hashlib.md5(name.encode("utf-8")).hexdigest()[:8]
 
-# Load modules and extract __module__ and __help__
+
 def load_modules_from_folder(folder_name):
     folder_path = os.path.join(os.path.dirname(__file__), folder_name)
     for filename in os.listdir(folder_path):
@@ -47,7 +47,7 @@ def load_all_modules():
         load_modules_from_folder(folder)
     log.info(f"Loaded {len(LOADED_MODULES)} modules: {', '.join(sorted(LOADED_MODULES.keys()))}")
 
-# Pagination Logic
+
 def get_paginated_buttons(page=1, items_per_page=15):
     modules = sorted(LOADED_MODULES.keys())
     total_pages = (len(modules) + items_per_page - 1) // items_per_page
@@ -64,8 +64,8 @@ def get_paginated_buttons(page=1, items_per_page=15):
     ]
     button_rows = [buttons[i:i + 3] for i in range(0, len(buttons), 3)]
 
-    # Navigation buttons logic: ⬅️ Prev | ❌ Close | Next ➡️ on one row, always
-    # with Close in the middle regardless of whether Prev/Next exist.
+
+
     nav_buttons = []
     if page > 1:
         nav_buttons.append(InlineKeyboardButton("⬅️ 𝖯𝗋𝖾𝗏", callback_data=f"area_{page - 1}"))
@@ -75,14 +75,14 @@ def get_paginated_buttons(page=1, items_per_page=15):
 
     button_rows.append(nav_buttons)
 
-    # Back button gets its own row underneath
+
     button_rows.append([
         InlineKeyboardButton("🔙 𝖡𝖺𝖼𝗄", callback_data="st_back")
     ])
 
     return InlineKeyboardMarkup(button_rows)
 
-# Helper to generate the main menu buttons
+
 def get_main_menu_buttons():
     buttons = [
         [
@@ -106,12 +106,12 @@ def get_main_menu_buttons():
 @save
 async def start_cmd(_, message : Message):
     
-    # Check for parameters passed with the start command
+
     if len(message.command) > 1 and message.command[1] == "help":
         await help_command(Client, message)
         return
 
-    # /link deep link: https://t.me/Bot?start=req_<base64(chat_id)>
+
     if len(message.command) > 1 and message.command[1].startswith("req_"):
         encoded = message.command[1][4:]
         chat_id = decode_chat_id(encoded)
@@ -128,11 +128,11 @@ async def start_cmd(_, message : Message):
             )
 
             async def _revoke_after_expiry(chat_id=chat_id, link=invite.invite_link):
-                # Telegram's `expire_date` alone just stops NEW joins after
-                # that time - the link can still linger around as "expired"
-                # instead of being fully revoked. Explicitly revoke it too,
-                # at the same 10-minute mark, so it's both expired AND
-                # revoked together as requested.
+
+
+
+
+
                 await asyncio.sleep(600)
                 try:
                     await app.revoke_chat_invite_link(chat_id, link)
@@ -183,7 +183,7 @@ async def start_cmd(_, message : Message):
         invert_media = True
     )
 
-# Handler for the "Back" button across the bot
+
 @app.on_callback_query(filters.regex(r"^st_back$"))
 @error
 async def st_back_callback(client, query: CallbackQuery):
@@ -254,19 +254,19 @@ async def show_help_menu(client, query: CallbackQuery):
         invert_media=True
     )
 
-# Callback query handler for module help
+
 @app.on_callback_query(filters.regex(r"^help_[0-9a-f]+_\d+$"))
 async def handle_help_callback(client, query: CallbackQuery):
     data = query.data
     try:
-        # Extract the module id and page from the callback data
+
         parts = data.split("_")
         module_id = parts[1]
         current_page = int(parts[2])
 
-        # Look the module up by its stable hash id, not by position - so this
-        # keeps working even if modules were added/removed since this
-        # /help message was originally sent (e.g. after a redeploy).
+
+
+
         module_name = next((name for name in LOADED_MODULES if _module_id(name) == module_id), None)
         if module_name is None:
             await query.answer("This module no longer exists (the bot may have been updated). Please run /help again.", show_alert=True)
@@ -274,7 +274,7 @@ async def handle_help_callback(client, query: CallbackQuery):
 
         help_text = LOADED_MODULES.get(module_name, "No help available for this module.")
 
-        # Edit the message to display the help text
+
         await query.message.edit(
             text=f"{help_text}",
             reply_markup=InlineKeyboardMarkup([
@@ -283,23 +283,23 @@ async def handle_help_callback(client, query: CallbackQuery):
         )
         await query.answer()
     except (ValueError, IndexError):
-        # This almost always means the /help menu being tapped is "stale" -
-        # it was generated before the bot's module list changed (a new
-        # deploy added/removed a module), so the numeric index baked into
-        # this old message's buttons no longer points to the same module.
+
+
+
+
         await query.answer(
             "This menu is outdated (the bot was updated since it was sent). Please run /help again.",
             show_alert=True
         )
     except Exception as e:
-        # Previously any other error here (e.g. a bad/unescaped character in a
-        # module's help text causing Telegram to reject the message edit) was
-        # never caught, so the tapped button just sat there "loading" forever
-        # with no feedback and no fix. Now we surface it instead of hanging.
+
+
+
+
         log.warning(f"handle_help_callback failed for {data}: {e}")
         await query.answer("Couldn't open this module's help right now. Please try again.", show_alert=True)
 
-# Callback query handler for pagination
+
 @app.on_callback_query(filters.regex(r"^area_\d+$"))
 async def handle_pagination_callback(client, query: CallbackQuery):
     data = query.data
@@ -307,7 +307,7 @@ async def handle_pagination_callback(client, query: CallbackQuery):
         page = int(data[5:])
         prefixes = " ".join(config.COMMAND_PREFIXES)
 
-        # Edit both the message text and reply markup
+
         await query.message.edit(
         text=f"**𝖧𝖾𝗋𝖾 𝗂𝗌 𝗍𝗁𝖾 𝗅𝗂𝗌𝗍 𝗈𝖿 𝖺𝗅𝗅 𝗆𝗒 𝗆𝗈𝖽𝗎𝗅𝖾𝗌!**\n"
              f"**𝖢𝗅𝗂𝖼𝗄 𝗈𝗇 𝖺 𝗆𝗈𝖽𝗎𝗅𝖾 𝖻𝖾𝗅𝗈𝗐 𝗍𝗈 𝗀𝖾𝗍 𝖽𝖾𝗍𝖺𝗂𝗅𝖾𝖽 𝗂𝗇𝖿𝗈𝗋𝗆𝖺𝗍𝗂𝗈𝗇 𝖺𝖻𝗈𝗎𝗍 𝗂𝗍.**\n\n"
@@ -322,7 +322,7 @@ async def handle_pagination_callback(client, query: CallbackQuery):
         log.warning(f"handle_pagination_callback failed: {e}")
         await query.answer("Error occurred while navigating pages. Please try again.", show_alert=True)
 
-# Callback query handler for main menu
+
 @app.on_callback_query(filters.regex(r"^main_menu$"))
 async def handle_main_menu_callback(client, query: CallbackQuery):
     prefixes = " ".join(config.COMMAND_PREFIXES)
@@ -398,11 +398,11 @@ if __name__ == "__main__":
             await setup_wordseek_indexes()
             if await is_database_empty():
                 log.warning("Database is empty. Attempting to restore from the last backup...")
-                # try :
-                #     restore_status = await restore_from_last_backup()
-                #     log.info(restore_status)
-                # except:
-                #     pass
+
+
+
+
+
             else:
                 log.info("Database is not empty. Proceeding with startup.")
             scheduler.start()

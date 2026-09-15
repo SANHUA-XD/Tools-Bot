@@ -155,7 +155,7 @@ async def remove_blsticker_command(client: Client, message: Message):
     chat_id = message.chat.id
     args = message.text.split()[1:]
     
-    # Get sticker ID from reply or command argument
+
     sticker_id = None
     if message.reply_to_message and message.reply_to_message.sticker:
         sticker_id = message.reply_to_message.sticker.file_id
@@ -166,7 +166,7 @@ async def remove_blsticker_command(client: Client, message: Message):
         await message.reply("𝖸𝗈𝗎 𝗆𝗎𝗌𝗍 𝗋𝖾𝗉𝗅𝗒 𝗍𝗈 𝖺 𝗌𝗍𝗂𝖼𝗄𝖾𝗋 𝗈𝗋 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗌𝗍𝗂𝖼𝗄𝖾𝗋 𝖨𝖣 𝗍𝗈 𝗋𝖾𝗆𝗈𝗏𝖾 𝗂𝗍 𝖿𝗋𝗈𝗆 𝗍𝗁𝖾 𝖻𝗅𝖺𝖼𝗄𝗅𝗂𝗌𝗍.")
         return
 
-    # Check if the sticker is blacklisted
+
     if sticker_id not in await get_blacklisted_stickers(chat_id):
         await message.reply(f"𝖳𝗁𝗂𝗌 𝗌𝗍𝗂𝖼𝗄𝖾𝗋 𝗂𝗌 𝗇𝗈𝗍 𝖻𝗅𝖺𝖼𝗄𝗅𝗂𝗌𝗍𝖾𝖽 𝗂𝗇 <b>{message.chat.title}</b>.\n- <code>{sticker_id}</code>", parse_mode=ParseMode.HTML)
     else:
@@ -194,7 +194,7 @@ async def blacklist_handler(client: Client, message: Message):
 
     if message.text:
         for word in blacklisted_words:
-            # Use regex to match whole words only
+
             if re.search(rf"\\b{re.escape(word)}\\b", message.text, flags=re.IGNORECASE):
                 await message.delete()
                 await take_action(client, message, blacklist_mode)
@@ -215,7 +215,7 @@ async def take_action(client: Client, message: Message, blacklist_mode: dict):
         else:
             d = duration
 
-        log_message = None  # Initialize log_message
+        log_message = None
 
         if mode == "del":
             log_message = await format_log("Deleted Blacklisted Content", message.chat.title, admin=message.from_user.mention)

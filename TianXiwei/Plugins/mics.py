@@ -20,10 +20,10 @@ def _get_genius_client():
     if _genius_client is None:
         try:
             import lyricsgenius
-            # Construct with just the token (always safe across lyricsgenius
-            # versions), then set the rest as plain attributes afterward -
-            # passing them as constructor kwargs crashed with "unexpected
-            # keyword argument" on some installed versions.
+
+
+
+
             client = lyricsgenius.Genius(token)
             client.verbose = False
             client.remove_section_headers = False
@@ -106,7 +106,7 @@ async def send_lyrics(client: Client, message: Message):
         await status_msg.delete()
         for chunk in [lyrics_text[i:i + 4000] for i in range(0, len(lyrics_text), 4000)]:
             await message.reply_text(chunk, disable_web_page_preview=True)
-            await asyncio.sleep(1.2) # Enforce a minor synthetic delay to bypass Telegram's strict FloodWait protocols
+            await asyncio.sleep(1.2)
     else:
         await status_msg.edit_text(lyrics_text, disable_web_page_preview=True)
     
@@ -116,16 +116,16 @@ async def send_lyrics(client: Client, message: Message):
 @error
 @save
 async def gender_command(client: Client, message: Message):
-    # Check if a name is provided or a user's message is replied to
+
     if len(message.command) >= 2:
         display_name = " ".join(message.command[1:])
-        api_name = message.command[1]  # Use first word for better API prediction
+        api_name = message.command[1]
     elif message.reply_to_message and message.reply_to_message.from_user:
         user = message.reply_to_message.from_user
         display_name = user.first_name
         if user.last_name:
             display_name += f" {user.last_name}"
-        # Extract the first word of the first name for the API
+
         api_name = user.first_name.split()[0] if user.first_name else ""
     else:
         return await message.reply_text("⚠️ **𝖲𝗒𝗇𝗍𝖺𝗑 𝖤𝗋𝗋𝗈𝗋:**\n𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗇𝖺𝗆𝖾 𝗈𝗋 𝗋𝖾𝗉𝗅𝗒 𝗍𝗈 𝖺 𝗎𝗌𝖾𝗋'𝗌 𝗆𝖾𝗌𝗌𝖺𝗀𝖾.\n\n📌 `𝖴𝗌𝖺𝗀𝖾: /gender [name]`")
@@ -157,9 +157,9 @@ async def gender_command(client: Client, message: Message):
     await status_msg.edit_text(response)
 
 
-# ——————————————————————————————————————————————————————————————
-# /donate - support menu with per-network wallet addresses
-# ——————————————————————————————————————————————————————————————
+
+
+
 _DONATE_NETWORKS = {
     "dn_btc": ("₿ Bitcoin (BTC)", "DONATE_BTC_ADDRESS"),
     "dn_usdt": ("💲 USDT (TRC20)", "DONATE_USDT_TRC20_ADDRESS"),

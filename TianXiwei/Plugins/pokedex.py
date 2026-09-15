@@ -52,7 +52,7 @@ async def pokedex(client: Client, message: Message):
 
                 image_url = f"https://img.pokemondb.net/artwork/large/{pokemon_info['name']}.jpg"
 
-                # Create inline buttons
+
                 keyboard = [
                     [
                         InlineKeyboardButton(text="\U0001F516 𝖲𝖳𝖠𝖳𝖲", callback_data="stats"),
@@ -99,16 +99,16 @@ async def callback_query_handler(client: Client, query: CallbackQuery):
                 await query.message.reply_text(stats_message)
             elif query.data == "moves":
                 if len(moves_message) > 1000:
-                    # Save the moves message to a file
+
                     with open("moves.txt", "w") as file:
                         file.write(moves_message)
                     await query.message.reply_text(
                         "𝖳𝗁𝖾 𝗆𝗈𝗏𝖾𝗌 𝖾𝗑𝖼𝖾𝖾𝖽 𝟣𝟢𝟢𝟢 𝖼𝗁𝖺𝗋𝖺𝖼𝗍𝖾𝗋𝗌. 𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝖺𝗌 𝖺 𝖿𝗂𝗅𝖾.",
                         disable_web_page_preview=True,
                     )
-                    # Send the file to the user
+
                     await query.message.reply_document(document=open("moves.txt", "rb"))
-                    # Delete the file after sending
+
                     os.remove("moves.txt")
                 else:
                     await query.message.reply_text(moves_message)

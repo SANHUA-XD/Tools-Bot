@@ -20,19 +20,19 @@ async def tiny_command(client, message):
     processing_message = await message.reply("`Processing tiny...`")
     file_path = await client.download_media(reply)
 
-    # Previously this loaded "TianXiwei/resources/transparent.png" from disk,
-    # but that binary asset kept getting corrupted when zipping/uploading
-    # through Telegram to GitHub. A blank 512x512 transparent canvas is
-    # trivial to generate in-memory, so there's no need to depend on a
-    # binary file surviving that pipeline at all anymore.
+
+
+
+
+
     im1 = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
 
     try:
-        # Determine file extension
+
         _, file_extension = os.path.splitext(file_path)
         file_extension = file_extension.lower()
 
-        # Set output file name dynamically
+
         output_file = f"result{file_extension}"
 
         if file_extension == ".tgs":
@@ -55,13 +55,13 @@ async def tiny_command(client, message):
         else:
             image_file = file_path
 
-        # Resize image (preserving aspect ratio - no distortion) to fit
-        # inside a 300x300 box, then center it on the 512x512 canvas.
-        # Previously the resize used a formula that could go negative for
-        # extreme aspect ratios (very tall/wide images) and didn't preserve
-        # proportions, and the paste position was hardcoded to (150, 0)
-        # regardless of the resized image's actual size - both together are
-        # why the sticker's position/framing looked broken for some photos.
+
+
+
+
+
+
+
         im = Image.open(image_file).convert("RGBA")
         width, height = im.size
 
@@ -82,14 +82,14 @@ async def tiny_command(client, message):
         output_file = "result.webp"
         back_im.save(output_file, "WEBP", quality=95)
 
-        # Send the processed file
+
         await client.send_document(
             chat_id=message.chat.id,
             document=output_file,
             reply_to_message_id=reply.id
         )
     finally:
-        # Cleanup temporary files
+
         os.remove(file_path)
         if os.path.exists("frame.png"):
             os.remove("frame.png")

@@ -26,7 +26,7 @@ def _clean_first_name(name: str) -> str:
     if not name:
         return ""
     ascii_name = unidecode(name)
-    # Keep letters/spaces only - drops leftover punctuation, digits, etc.
+
     ascii_name = re.sub(r"[^A-Za-z\s]", " ", ascii_name).strip()
     if not ascii_name:
         return ""

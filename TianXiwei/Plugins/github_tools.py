@@ -15,12 +15,12 @@ from config import config
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# IN-MEMORY STORAGE FOR TOKENS (NOT SAVED IN DATABASE)
+
 USER_TOKENS = {}
 
-# ==========================================
-# 1. GITHUB TOKEN & UPLOAD MODULE
-# ==========================================
+
+
+
 
 @app.on_message(filters.command("gittoken", prefixes=config.COMMAND_PREFIXES))
 @error
@@ -35,7 +35,7 @@ async def set_gittoken(client, message: Message):
     
     reply = await message.reply_text("<b>✅ 𝖸𝗈𝗎𝗋 𝖦𝗂𝗍𝖧𝗎𝖻 𝗍𝗈𝗄𝖾𝗇 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝗌𝖺𝗏𝖾𝖽 𝗍𝖾𝗆𝗉𝗈𝗋𝖺𝗋𝗂𝗅𝗒 𝗂𝗇 𝗆𝖾𝗆𝗈𝗋𝗒!</b>")
     
-    # Auto-delete token message in groups for security
+
     if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
         try:
             await message.delete()
@@ -160,9 +160,9 @@ async def upload_to_repo(client, message: Message):
             await status.edit_text(f"<b>❌ 𝖦𝗂𝗍𝖧𝗎𝖻 𝖾𝗋𝗋𝗈𝗋:</b> <code>{result}</code>")
 
 
-# ==========================================
-# 2. GITHUB SEARCH & PROFILE MODULE
-# ==========================================
+
+
+
 
 @app.on_message(filters.command(['repo', 'githubrepo'], prefixes=config.COMMAND_PREFIXES))
 @error
@@ -316,9 +316,9 @@ async def github_user(client, message: Message):
         await pablo.edit(f"<b>⚠️ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽:</b> `{e}`")
 
 
-# ==========================================
-# 3. CALLBACK QUERY HANDLER (FOR CLOSE BUTTONS)
-# ==========================================
+
+
+
 
 @app.on_callback_query(filters.regex("^repo_close_data$"))
 @error

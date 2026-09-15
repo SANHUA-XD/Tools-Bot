@@ -26,7 +26,7 @@ async def afk_command(client: Client, message: Message):
     afk_reason = None
     media_id = None
 
-    # Check if user is already AFK
+
     afk_data = await get_afk(user_id)
     if afk_data:
         afk_since = datetime.fromisoformat(afk_data["afk_start_time"])
@@ -45,9 +45,9 @@ async def afk_command(client: Client, message: Message):
         await message.reply(r, parse_mode=ParseMode.MARKDOWN)
         return
 
-    # Extract AFK reason from the message
+
     if message.reply_to_message:
-        # Handle media attachments
+
         if message.reply_to_message.video:
             media_id = message.reply_to_message.video.file_id
         elif message.reply_to_message.photo:
@@ -63,13 +63,13 @@ async def afk_command(client: Client, message: Message):
         elif message.reply_to_message.video_note:
             media_id = message.reply_to_message.video_note.file_id
 
-    # Handle reason if provided in the command (e.g., "brb bgmi")
+
     if message.text:
         command_split = message.text.split(" ", 1)
         if len(command_split) > 1:
             afk_reason = command_split[1]
 
-    # Store AFK details
+
     afk_start_time = datetime.now().isoformat()
     await set_afk(user_id, user_first_name, username, afk_reason, afk_start_time, media_id)
 
@@ -89,10 +89,10 @@ async def afk_mention_handler(client: Client, message: Message):
     if not message.from_user:
         return
 
-    # Fast, DB-free short-circuit: skip all the resolve/lookup work below
-    # when nobody in the whole bot is currently AFK (the overwhelmingly
-    # common case) - this used to do real lookup work on every single
-    # message regardless.
+
+
+
+
     if not await any_afk_cached():
         return
 
@@ -102,7 +102,7 @@ async def afk_mention_handler(client: Client, message: Message):
         if message.text:
             words = message.text.split()
             for word in words:
-                if word.startswith("@"):  # Username format
+                if word.startswith("@"):
                     username = word[1:]
                     afk_data = await get_afk_by_username(username)
                     if afk_data:
@@ -154,9 +154,9 @@ async def clear_afk_handler(client: Client, message: Message):
 
     user_id = message.from_user.id
 
-    # Fast, DB-free short-circuit: the overwhelming majority of messages are
-    # from users who were never AFK, so check the in-memory cache first
-    # instead of hitting MongoDB on every single message in every chat.
+
+
+
     if not await is_afk_cached(user_id):
         return
 

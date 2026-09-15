@@ -17,7 +17,7 @@ async def get_cosplay_data():
 async def cosplay(client, message):
     try:
         data = await get_cosplay_data()
-        photo_url = data.get("url")  # Corrected key: "url" instead of "cosplay_url"
+        photo_url = data.get("url")
         if photo_url:
             await message.reply_photo(photo=photo_url)
         else:

@@ -24,7 +24,7 @@ Name = "TianXiwei.png"
 @save
 async def generate_logo(client, message):
     try:
-        # Ensure the command has the required text
+
         if len(message.command) < 2:
             await message.reply_text(
                 "𝖣𝖺𝗋𝗅𝗂𝗇𝗀, 𝗉𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝗌𝗈𝗆𝖾 𝗍𝖾𝗑𝗍 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖺 𝗅𝗈𝗀𝗈!\𝗇\𝗇𝖤𝗑𝖺𝗆𝗉𝗅𝖾: `/𝗅𝗈𝗀𝗈 𝖸𝗎𝗆𝖾𝗄𝗈`",
@@ -32,46 +32,46 @@ async def generate_logo(client, message):
             )
             return
 
-        # Extract the text to generate the logo
+
         text = " ".join(message.command[1:])
 
-        # Notify the user that the logo is being generated
+
         status_message = await message.reply_text("`𝖫𝗈𝗀𝗈 𝗂𝗇 𝖯𝗋𝗈𝖼𝖾𝗌𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗐𝖺𝗂𝗍 𝖺 𝗌𝖾𝖼...`")
 
-        # Choose a random background image
+
         random_logo = random.choice(LOGO_LINKS)
         response = requests.get(random_logo)
-        response.raise_for_status()  # Ensure the request was successful
+        response.raise_for_status()
         img = Image.open(io.BytesIO(response.content))
 
-        # Draw text on the image
+
         draw = ImageDraw.Draw(img)
-        fnt_files = glob.glob("./TianXiwei/fonts/*")  # Update to your font directory
+        fnt_files = glob.glob("./TianXiwei/fonts/*")
         if not fnt_files:
             await status_message.edit("𝖭𝗈 𝖿𝗈𝗇𝗍𝗌 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝗂𝗇 𝗍𝗁𝖾 `𝖿𝗈𝗇𝗍𝗌` 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒.")
             return
         random_font = random.choice(fnt_files)
         font = ImageFont.truetype(random_font, 120)
 
-        # Center the text
+
         image_width, image_height = img.size
-        text_bbox = draw.textbbox((0, 0), text, font=font)  # Calculate text bounding box
+        text_bbox = draw.textbbox((0, 0), text, font=font)
         text_width, text_height = text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1]
         x, y = (image_width - text_width) / 2, (image_height - text_height) / 2
         draw.text((x, y), text, font=font, fill="white", stroke_width=1, stroke_fill="black")
 
-        # Save the generated logo
+
         fname = "generated_logo.png"
         img.save(fname, "PNG")
 
-        # Send the generated logo back to the user
+
         await client.send_photo(
             chat_id=message.chat.id,
             photo=fname,
             caption=f"**𝖫𝗈𝗀𝗈 𝖦𝖾𝗇𝖾𝗋𝖺𝗍𝖾𝖽 𝖻𝗒 @{BOT_USERNAME}**"
         )
 
-        # Clean up the generated file
+
         os.remove(fname)
         await status_message.delete()
 
@@ -86,12 +86,12 @@ async def generate_logo(client, message):
 async def make_logog(client: Client, message: Message):
     msg = await message.reply("`𝖯𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀...`")
     try:
-        # Extract text from the command
+
         match = message.text.split(maxsplit=1)[1]
     except IndexError:
         return await msg.edit("`𝖯𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗇𝖺𝗆𝖾 𝗍𝗈 𝗆𝖺𝗄𝖾 𝖺 𝗅𝗈𝗀𝗈...`")
     
-    # Split text into two parts (first and last)
+
     first, last = "", ""
     if len(match.split()) >= 2:
         first, last = match.split()[:2]
@@ -100,21 +100,21 @@ async def make_logog(client: Client, message: Message):
 
     import asyncio
 
-    # Generate the logo
+
     logo = await generate(first, last) if asyncio.iscoroutinefunction(generate) else generate(first, last)
 
-    # Save the logo
+
     name = "generated_clogo.png"
     logo.save(name, format="PNG")
 
-    # Send the generated logo
+
     await client.send_photo(
         chat_id=message.chat.id,
         photo=name,
         reply_to_message_id=message.reply_to_message.message_id if message.reply_to_message else None
     )
 
-    # Clean up
+
     os.remove(name)
     await msg.delete()
 
@@ -126,26 +126,26 @@ async def make_logog(client: Client, message: Message):
 async def make_blackpink_logo(client: Client, message: Message):
     msg = await message.reply("`𝖯𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀...`")
     try:
-        # Extract text
+
         match = message.text.split(maxsplit=1)[1]
     except IndexError:
         return await msg.edit("`𝖯𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗇𝖺𝗆𝖾 𝗍𝗈 𝗆𝖺𝗄𝖾 𝖺 𝗅𝗈𝗀𝗈...`")
 
     try:
-        # Generate the blackpink logo
+
         logo = blackpink(match)
 
-        # Save the logo
+
         logo_path = "generated_blogo.png"
         logo.save(logo_path, format="PNG")
 
-        # Send the logo
+
         await client.send_photo(
             chat_id=message.chat.id,
             photo=logo_path,
             reply_to_message_id=message.reply_to_message.message_id if message.reply_to_message else None
         )
-        os.remove(logo_path)  # Clean up
+        os.remove(logo_path)
         await msg.delete()
 
     except Exception as e:

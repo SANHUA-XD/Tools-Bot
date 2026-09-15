@@ -21,7 +21,7 @@ try:
 except ImportError:
     Image = None
 
-# Example color palette for backgrounds
+
 all_col = ["#FFFFFF", "#FF5733", "#33FF57", "#3357FF"]
 
 class Quotly:
@@ -232,7 +232,7 @@ def check_filename(filroid):
                 return ult
     return filroid
 
-#edit or reply
+
 async def eor(event, text=None, **args):
     time = args.get("time", None)
     edit_time = args.get("edit_time", None)

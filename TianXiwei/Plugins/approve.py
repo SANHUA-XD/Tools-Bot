@@ -10,7 +10,7 @@ from TianXiwei.Functions.log_helper import send_log, format_log
 from TianXiwei.Extra.errors import error
 from TianXiwei.Extra.save import save
 
-# Command: /approve
+
 @app.on_message(filters.command("approve") & filters.group)
 @can_change_info
 @error
@@ -44,7 +44,7 @@ async def approve_user_command(client: Client, message: Message):
                 user_id = user.user.id
                 user_name = user.user.first_name
 
-        # Improved admin check
+
         chat_member = await client.get_chat_member(chat_id, user_id)
         if chat_member.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
             await message.reply_text(
@@ -59,7 +59,7 @@ async def approve_user_command(client: Client, message: Message):
         if await approve_user(chat_id, user_id, user_name):
             await message.reply(f"{user_name} 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗂𝗇 {message.chat.title}! 𝖳𝗁𝖾𝗒 𝗐𝗂𝗅𝗅 𝗇𝗈𝗐 𝖻𝖾 𝗂𝗀𝗇𝗈𝗋𝖾𝖽 𝖻𝗒 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝖾𝖽 𝖺𝖽𝗆𝗂𝗇 𝖺𝖼𝗍𝗂𝗈𝗇𝗌 𝗅𝗂𝗄𝖾 𝗅𝗈𝖼𝗄𝗌, 𝖻𝗅𝗈𝖼𝗄𝗅𝗂𝗌𝗍𝗌, 𝖺𝗇𝖽 𝖺𝗇𝗍𝗂𝖿𝗅𝗈𝗈𝖽.")
 
-            # Log the approval
+
             log_message = await format_log(
                 tag="APPROVE",
                 chat=message.chat.title,
@@ -83,7 +83,7 @@ async def approve_user_command(client: Client, message: Message):
         await message.reply_text(f"𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽: {str(e)}")
 
 
-# Command: /unapprove
+
 @app.on_message(filters.command("unapprove") & filters.group)
 @can_change_info
 @error
@@ -114,7 +114,7 @@ async def unapprove_user_command(client: Client, message: Message):
                 user_id = user.user.id
                 user_name = user.user.first_name
 
-        # Improved admin check
+
         chat_member = await client.get_chat_member(chat_id, user_id)
         if chat_member.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
             await message.reply_text(
@@ -128,7 +128,7 @@ async def unapprove_user_command(client: Client, message: Message):
 
         await unapprove_user(chat_id, user_id)
         await message.reply(f"{user_name} 𝗂𝗌 𝗇𝗈 𝗅𝗈𝗇𝗀𝖾𝗋 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗂𝗇{message.chat.title}.")
-        # Log the approval
+
         log_message = await format_log(
             tag="UNAPPROVE",
             chat=message.chat.title,
@@ -166,7 +166,7 @@ async def approved_users_command(client: Client, message: Message):
 @save
 async def remove_all_approve_users(client: Client, message: Message):
 
-    # Send confirmation message with an inline button
+
     confirmation_buttons = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("𝖴𝗇𝖺𝗉𝗉𝗋𝗈𝗏𝖾 𝖠𝗅𝗅", callback_data=f"confirm_remove_approved_users")],
@@ -185,10 +185,10 @@ async def remove_all_approve_users(client: Client, message: Message):
 @error
 async def confirm_remove_all(client: Client, callback_query: CallbackQuery):
     try:
-        # Extract chat_id from callback_data
+
         chat_id = callback_query.message.chat.id
 
-        # Remove all filters for the chat
+
         result = await unapprove_all_users(chat_id)
         
         if result:
@@ -196,10 +196,10 @@ async def confirm_remove_all(client: Client, callback_query: CallbackQuery):
         else:
             await callback_query.message.edit_text(f"𝖭𝗈 𝖠𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝖴𝗌𝖾𝗋 𝖥𝗈𝗎𝗇𝖽 𝖨𝗇 {callback_query.message.chat.title}.")
 
-        # Acknowledge the callback
+
         await callback_query.answer("All filters removed!", show_alert=False)
     except Exception as e:
-        # Handle any errors gracefully
+
         print(f"Error during callback processing: {e}")
         await callback_query.message.edit_text("𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽 𝗐𝗁𝗂𝗅𝖾 𝗋𝖾𝗆𝗈𝗏𝗂𝗇𝗀 𝖿𝗂𝗅𝗍𝖾𝗋𝗌.")
         await callback_query.answer("Error occurred!", show_alert=True)

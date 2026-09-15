@@ -13,30 +13,30 @@ from TianXiwei.Extra.save import save
 async def speedtest_command(client, message: Message):
     a = await message.reply("**🚀 𝖱𝗎𝗇𝗇𝗂𝗇𝗀 𝗌𝗉𝖾𝖾𝖽 𝗍𝖾𝗌𝗍, 𝗉𝗅𝖾𝖺𝗌𝖾 𝗐𝖺𝗂𝗍...**")
     try:
-        # Initialize Speedtest
+
         st = speedtest.Speedtest()
 
-        # Find the best server
+
         await a.edit_text("🌍 **𝖥𝗂𝗇𝖽𝗂𝗇𝗀 𝗍𝗁𝖾 𝖻𝖾𝗌𝗍 𝗌𝖾𝗋𝗏𝖾𝗋...**")
         st.get_best_server()
 
-        # Run download speed test
+
         await a.edit_text("📥 **𝖳𝖾𝗌𝗍𝗂𝗇𝗀 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗌𝗉𝖾𝖾𝖽...**")
-        download_speed = st.download() / 1_000_000  # Convert to Mbps
+        download_speed = st.download() / 1_000_000
 
-        # Run upload speed test
+
         await a.edit_text("📤 **𝖳𝖾𝗌𝗍𝗂𝗇𝗀 𝗎𝗉𝗅𝗈𝖺𝖽 𝗌𝗉𝖾𝖾𝖽...**")
-        upload_speed = st.upload() / 1_000_000  # Convert to Mbps
+        upload_speed = st.upload() / 1_000_000
 
-        # Calculate ping
+
         await a.edit_text("📡** 𝖢𝖺𝗅𝖼𝗎𝗅𝖺𝗍𝗂𝗇𝗀 𝗉𝗂𝗇𝗀...**")
         ping = st.results.ping
 
-        # Generate shareable result image
+
         image_url = st.results.share()
         await a.delete()
 
-        # Prepare results text
+
         results = (
             f"**📊 𝖲𝗉𝖾𝖾𝖽𝗍𝖾𝗌𝗍 𝖱𝖾𝗌𝗎𝗅𝗍𝗌:**\n\n"
             f"**📥 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽 :** {download_speed:.2f} Mbps\n"
@@ -47,7 +47,7 @@ async def speedtest_command(client, message: Message):
             f"🔹 𝖢𝗈𝗎𝗇𝗍𝗋𝗒 : {st.results.client['country']}\n"
         )
 
-        # Send the results as a photo
+
         await message.reply_photo(photo=image_url, caption=results)
 
     except Exception as e:

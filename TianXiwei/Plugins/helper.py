@@ -213,7 +213,7 @@ def check_user(func):
 
 
 async def media_to_image(
-    client: app, message: Message, x: Message, replied: Message # type: ignore
+    client: app, message: Message, x: Message, replied: Message
 ):
     if not (
         replied.photo

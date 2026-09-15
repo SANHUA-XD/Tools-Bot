@@ -2,7 +2,7 @@ from TianXiwei.Database import couple_collection , waifu_collection
 from datetime import datetime
 from pytz import timezone
 
-# Define IST timezone
+
 IST = timezone('Asia/Kolkata')
 
 async def save_couple(chat_id: int, couple_id: int, couple_first_name: str , couple_id_2 : int , couple_first_name_2 : str):
@@ -53,9 +53,9 @@ async def save_waifu(chat_id: int, user_id: int, user_first_name: str, bond: str
         "date": date_chosen
     }
     await waifu_collection.update_one(
-        {"chat_id": chat_id, "user_id": user_id},  # Use both chat_id and user_id as unique identifiers
+        {"chat_id": chat_id, "user_id": user_id},
         {"$set": data},
-        upsert=True  # Insert a new document if none exists
+        upsert=True
     )
 
 

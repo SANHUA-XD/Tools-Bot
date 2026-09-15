@@ -8,7 +8,7 @@ from pyrogram.enums import ParseMode
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# Define the /news command
+
 @app.on_message(filters.command("news" , prefixes=config.COMMAND_PREFIXES))
 @error
 @save
@@ -18,9 +18,9 @@ async def news_command(client, message):
         return
 
     keyword = " ".join(message.command[1:])
-    # Encode keyword for URL safely
+
     keyword_encoded = urllib.parse.quote(keyword)
-    # Using Google News RSS feed as a highly reliable public API
+
     api_url = f"https://news.google.com/rss/search?q={keyword_encoded}&hl=en-US&gl=US&ceid=US:en"
 
     try:
@@ -29,10 +29,10 @@ async def news_command(client, message):
                 if response.status != 200:
                     await message.reply_text("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖿𝖾𝗍𝖼𝗁 𝗇𝖾𝗐𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.")
                     return
-                # Fetch XML data
+
                 data = await response.text()
 
-        # Parse XML data using ElementTree
+
         root = ET.fromstring(data)
         items = root.findall(".//item")
 
@@ -41,7 +41,7 @@ async def news_command(client, message):
             return
 
         news_items = []
-        for news in items[:5]:  # Limit to the first 5 results
+        for news in items[:5]:
             title_elem = news.find("title")
             url_elem = news.find("link")
             title = title_elem.text if title_elem is not None else "No title"
