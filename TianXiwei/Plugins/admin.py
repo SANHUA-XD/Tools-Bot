@@ -483,7 +483,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
         await message.reply(f"𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝖯𝗋𝗈𝗆𝗈𝗍𝖾 𝗍𝗁𝖾 𝗎𝗌𝖾𝗋:")
 
 
-@app.on_callback_query(filters.regex("^demote:(\d+)$"))
+@app.on_callback_query(filters.regex(r"^demote:(\d+)$"))
 @can_promote_members
 @error
 async def demote_user(client: app, callback_query: CallbackQuery): # type: ignore
@@ -1105,7 +1105,7 @@ async def clear_rules_command(client: app, message: Message): # type: ignore
     )
 
 # Callback query handler for clearing rules
-@app.on_callback_query(filters.regex("^clear_rules\|"))
+@app.on_callback_query(filters.regex(r"^clear_rules\|"))
 @chatadmin
 @error
 async def clear_rules_callback(client: app, callback_query): # type: ignore
