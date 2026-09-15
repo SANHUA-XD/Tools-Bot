@@ -1,12 +1,12 @@
 from TianXiwei.Database import afk_collection
 
-# In-memory set of currently-AFK user_ids. AFK status is checked on EVERY
-# single message in every chat (to detect mentions/replies to AFK users,
-# and to auto-clear AFK when they come back) - hitting MongoDB for that on
-# every message added real, noticeable latency to the whole bot. This set
-# lets both hot-path checks in TianXiwei/Plugins/afk.py be a plain in-memory
-# lookup instead, only touching the DB for the (rare) cases where someone
-# actually is AFK.
+
+
+
+
+
+
+
 _afk_user_ids: set[int] = set()
 _cache_loaded = False
 
@@ -60,7 +60,7 @@ async def clear_afk(user_id: int):
 
 async def get_afk_by_username(username: str):
     """Get the AFK details for a specific user by username."""
-    user_data = await afk_collection.find_one({"username": username})  # Await the coroutine
+    user_data = await afk_collection.find_one({"username": username})
     if user_data:
         return {
             "user_id": user_data["user_id"],

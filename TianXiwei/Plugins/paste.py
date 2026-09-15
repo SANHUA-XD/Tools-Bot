@@ -8,17 +8,17 @@ from pyrogram.types import Message
 
 from TianXiwei import app
 
-# Initialize Telegraph
+
 telegraph = Telegraph()
 telegraph.create_account(short_name="bot")
 
 
-# Pastebins
+
 class PasteBins:
     def __init__(self) -> None:
-        # API Urls
+
         self.nekobin_api = "https://nekobin.com/api/documents"
-        # Paste Urls
+
         self.nekobin = "https://nekobin.com"
     
     async def paste_text(self, paste_bin, text, user_data=None):

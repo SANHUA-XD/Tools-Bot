@@ -10,7 +10,7 @@ async def get_antiflood_settings(chat_id: int):
         "flood_timer_duration": 0,
         "flood_action": "mute",
         "delete_flood_messages": False,
-        "action_duration": 86400,  # Default duration of 1 day in seconds
+        "action_duration": 86400,
     }
 
 async def set_flood_threshold(chat_id: int, threshold: int):
@@ -56,4 +56,4 @@ async def set_flood_action_duration(chat_id: int, duration_seconds: int):
 async def get_flood_action_duration(chat_id: int):
     """Get the custom action duration for tban or tmute in seconds."""
     settings = await antiflood_collection.find_one({"chat_id": chat_id})
-    return settings.get("action_duration", 86400) if settings else 86400  # Default to 1 day
+    return settings.get("action_duration", 86400) if settings else 86400

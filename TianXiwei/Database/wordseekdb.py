@@ -19,20 +19,20 @@ from TianXiwei.Database.game_db import add_xp
 wsdb = gamesdb.database['WordSeek']
 
 
-# ——————————————————————————————————————————————————————————————
-# Indexes - CRITICAL for performance.
-#
-# `wsdb` mixes many doc "type"s (game/daily/history/auth/topic/streak/
-# score_event/paused_daily) in one collection, and `process_guess` in
-# wordseek.py runs `get_game()`/`get_daily()`/`is_daily_paused()` on
-# *every single text message* sent anywhere the bot can see (there was no
-# `filters.group` restriction, so this fires in DMs too). Without indexes,
-# every one of those find_one() calls was a full COLLECTION SCAN. As
-# score_event docs pile up (one per WordSeek win, across every group,
-# forever) that scan gets slower and slower over time - this is almost
-# certainly why the bot has been feeling slower the longer it runs and the
-# more groups/games it has. Call setup_wordseek_indexes() once at startup.
-# ——————————————————————————————————————————————————————————————
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async def setup_wordseek_indexes():
     await wsdb.create_index([("type", 1), ("chat_id", 1)])
@@ -42,18 +42,18 @@ async def setup_wordseek_indexes():
     await wsdb.create_index([("type", 1), ("user_id", 1), ("len", 1)])
 
 
-# In-memory cache of chat_ids that are KNOWN to have no active game right
-# now. process_guess() hits get_game() on every message in every group; for
-# the (usual) case of "no game running here", this lets it skip the DB
-# round-trip entirely instead of querying Mongo per-message. Kept small and
-# short-lived on purpose - it only ever shortcuts to `None`, so a stale
-# entry just means "one extra DB check next message", never wrong game data.
+
+
+
+
+
+
 _no_active_game = TTLCache(maxsize=20000, ttl=120)
 
 
-# ——————————————————————————————————————————————————————————————
-# Active group games
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def get_game(chat_id: int):
     if chat_id in _no_active_game:
@@ -83,9 +83,9 @@ async def clear_game(chat_id: int):
     _no_active_game[chat_id] = True
 
 
-# ——————————————————————————————————————————————————————————————
-# Daily (private chat) games
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def get_daily(user_id: int):
     doc = await wsdb.find_one({"type": "daily", "user_id": user_id})
@@ -115,9 +115,9 @@ async def set_daily_paused(user_id: int, paused: bool):
     )
 
 
-# ——————————————————————————————————————————————————————————————
-# Per-chat word history (so the same word doesn't repeat too soon)
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def get_word_history(chat_id: int):
     doc = await wsdb.find_one({"type": "history", "chat_id": chat_id})
@@ -132,9 +132,9 @@ async def add_word_history(chat_id: int, word: str):
     )
 
 
-# ——————————————————————————————————————————————————————————————
-# Per-chat authorized users (who can /end a game besides admins)
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def get_auth_users(chat_id: int) -> set:
     doc = await wsdb.find_one({"type": "auth", "chat_id": chat_id})
@@ -153,9 +153,9 @@ async def remove_auth_user(chat_id: int, user_id: int):
     await wsdb.update_one({"type": "auth", "chat_id": chat_id}, {"$pull": {"user_ids": user_id}})
 
 
-# ——————————————————————————————————————————————————————————————
-# Per-topic settings (restrict games to a topic, allowed lengths, etc.)
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def get_topic_settings(chat_id: int, topic_id):
     return await wsdb.find_one({"type": "topic", "chat_id": chat_id, "topic_id": topic_id})
@@ -183,9 +183,9 @@ async def delete_topic_settings(chat_id: int, topic_id):
     await wsdb.delete_one({"type": "topic", "chat_id": chat_id, "topic_id": topic_id})
 
 
-# ——————————————————————————————————————————————————————————————
-# Daily streaks
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def get_streak(user_id: int) -> int:
     doc = await wsdb.find_one({"type": "streak", "user_id": user_id})
@@ -202,9 +202,9 @@ async def reset_streak(user_id: int):
     await wsdb.update_one({"type": "streak", "user_id": user_id}, {"$set": {"count": 0}}, upsert=True)
 
 
-# ——————————————————————————————————————————————————————————————
-# Score events - feeds both the leaderboards AND the shared XP wallet
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def record_score_event(chat_id, user_id: int, length: int, xp: int, username: str = None):
     await wsdb.insert_one({
@@ -215,8 +215,8 @@ async def record_score_event(chat_id, user_id: int, length: int, xp: int, userna
         "xp": xp,
         "ts": time.time(),
     })
-    # This is what actually makes WordSeek wins spendable XP alongside
-    # games.py's economy and fast-typing wins - one shared wallet.
+
+
     await add_xp(user_id, xp, username)
 
 

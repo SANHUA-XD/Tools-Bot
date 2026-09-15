@@ -42,11 +42,11 @@ def edit_restart_message():
 
 def clear_downloads_folder():
     """Remove all files and subdirectories in the downloads folder."""
-    downloads_path = "downloads"  # Change this to your actual downloads folder path if needed
+    downloads_path = "downloads"
     if os.path.exists(downloads_path):
         try:
             shutil.rmtree(downloads_path)
-            os.makedirs(downloads_path)  # Recreate the folder
+            os.makedirs(downloads_path)
             print("Downloads folder cleared successfully.")
         except Exception as e:
             print(f"Failed to clear downloads folder: {e}")
@@ -54,7 +54,7 @@ def clear_downloads_folder():
 def notify_startup():
     """Notify the log channel and sudoers that the bot has started."""
     app.send_message(
-    # Notify the log channel
+
         chat_id=config.LOG_CHANNEL,
         text="**𝖡𝗈𝗍 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝗌𝗍𝖺𝗋𝗍𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒!** ✅"
     )

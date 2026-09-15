@@ -13,7 +13,7 @@ from TianXiwei.Extra.errors import error
 from youtubesearchpython.__future__ import VideosSearch
 
 
-# --- Progress Bar Helper Functions ---
+
 
 def format_bytes(size):
     if not size: return "0 B"
@@ -38,7 +38,7 @@ async def pyrogram_progress(current, total, message, start_time, action):
     if not hasattr(message, "last_updated"):
         message.last_updated = 0
     
-    # Update message every 2 seconds to avoid Telegram FloodWait
+
     if now - message.last_updated > 2 or current == total:
         bar = make_progress_bar(current, total)
         text = f"**{action}...**\n\n{bar}\n**{format_bytes(current)} / {format_bytes(total)}**"
@@ -66,7 +66,7 @@ def get_ytdl_progress_hook(message, loop, action="Downloading"):
     return hook
 
 
-# --- Downloader Classes ---
+
 
 class Downloader:
     def __init__(self, download_path='downloads'):
@@ -75,13 +75,13 @@ class Downloader:
             os.makedirs(self.download_path)
 
     def _get_cookie_opts(self):
-        # player_client fallback and cookies solve two DIFFERENT problems -
-        # cookies handle "sign in to confirm you're not a bot"/age-gated
-        # content, while player_client affects which YouTube signature/"n"
-        # challenge gets used. They were previously either/or (cookies
-        # entirely skipped the player_client fallback when present), which
-        # meant this fallback silently never even ran whenever cookies.txt
-        # existed - now both apply together.
+
+
+
+
+
+
+
         opts = {'extractor_args': {'youtube': {'player_client': ['android', 'ios', 'tv', 'web']}}}
         cookie_path = 'TXT/cookies.txt'
         if os.path.exists(cookie_path):
@@ -98,11 +98,11 @@ class Downloader:
         return all((f.get('vcodec') or 'none') == 'none' for f in formats)
 
     def download(self, url, loop=None, message=None):
-        # Probe first (no download) so we know whether this is a video post
-        # or a photo/carousel post. Instagram, TikTok, etc. photo posts have
-        # NO video stream at all - forcing 'bestvideo+bestaudio/best' on them
-        # always failed with "Requested format is not available", exactly
-        # like the "Only images are available for download" warning.
+
+
+
+
+
         probe_opts = {'quiet': True, 'noplaylist': False, **self._get_cookie_opts()}
         with yt_dlp.YoutubeDL(probe_opts) as probe:
             probe_info = probe.extract_info(url, download=False)
@@ -114,16 +114,16 @@ class Downloader:
             return self._download_photos(url, probe_info, entries)
 
         ydl_opts = {
-            'format': 'bestvideo+bestaudio/best', # Broadest compatibility for Pinterest, FB, IG, YT
+            'format': 'bestvideo+bestaudio/best',
             'outtmpl': os.path.join(self.download_path, '%(title)s.%(ext)s'),
             'writethumbnail': True,
-            # For .m3u8/HLS streams: use ffmpeg (already a dependency here)
-            # as the downloader instead of yt-dlp's native HLS downloader,
-            # which is more reliable for segmented/live-style streams.
-            # N_m3u8DL-RE is a separate compiled binary that isn't
-            # guaranteed to be installable on Heroku (same class of problem
-            # as the earlier git/mongodump binary issues), so this reaches
-            # the same goal using what's already available.
+
+
+
+
+
+
+
             'hls_prefer_native': False,
             'hls_use_mpegts': True,
             'postprocessors': [
@@ -227,7 +227,7 @@ class SongDownloader:
             except Exception:
                 pass
         
-        # Fallback to YouTube Search if ARQ fails
+
         videos_search = VideosSearch(query, limit=1)
         results = await videos_search.next()
         if results['result']:
@@ -260,11 +260,11 @@ class SongDownloader:
             'quiet': True,
         }
 
-        # player_client fallback and cookies solve different problems (see
-        # VideoDownloader._get_cookie_opts) - apply both together instead of
-        # either/or, since cookies alone don't solve the signature/"n"
-        # challenge that was actually causing "Requested format is not
-        # available" here.
+
+
+
+
+
         ydl_opts['extractor_args'] = {'youtube': {'player_client': ['android', 'ios', 'tv', 'web']}}
         cookie_path = 'TXT/cookies.txt'
         if os.path.exists(cookie_path):
@@ -276,7 +276,7 @@ class SongDownloader:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             
-            # If it's a playlist or multiple entries, grab the first one safely
+
             if 'entries' in info:
                 info = info['entries'][0]
 
@@ -304,7 +304,7 @@ class SongDownloader:
 downloader = Downloader()
 song_downloader = SongDownloader()
 
-# --- Bot Commands ---
+
 
 @app.on_message(filters.command(["ytdl", "dl"], prefixes=config.COMMAND_PREFIXES))
 @error
@@ -318,12 +318,12 @@ async def download_video(client: Client, message: Message):
     
     try:
         loop = asyncio.get_event_loop()
-        # Run downloader in background to prevent bot freezing
+
         video_info = await loop.run_in_executor(None, downloader.download, url, loop, a)
 
         await a.edit_text("**✅ Download complete! Starting Upload...**\n\n▱▱▱▱▱▱▱▱▱▱ 0%")
 
-        # Get Dynamic Bot Username for Caption
+
         bot_username = getattr(config, "BOT_USERNAME", None)
         if not bot_username:
             bot_username = client.me.username if client.me else "Shizuka_Helper_Robot"
@@ -404,12 +404,12 @@ async def download_song(client: Client, message: Message):
         await a.edit("**⬇️ Found it! Preparing to download...**\n\n▱▱▱▱▱▱▱▱▱▱ 0%")
 
         loop = asyncio.get_event_loop()
-        # Run downloader in background to prevent bot freezing
+
         song_info = await loop.run_in_executor(None, song_downloader.download_song, search_result['url'], loop, a)
         
         await a.edit_text("**✅ Download complete! Starting Upload...**\n\n▱▱▱▱▱▱▱▱▱▱ 0%")
 
-        # Get Dynamic Bot Username for Caption
+
         bot_username = getattr(config, "BOT_USERNAME", None)
         if not bot_username:
             bot_username = client.me.username if client.me else "Shizuka_Helper_Robot"

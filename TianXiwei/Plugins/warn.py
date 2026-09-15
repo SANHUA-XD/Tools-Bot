@@ -37,7 +37,7 @@ async def warn_user(client: Client, message: Message):
             await message.reply("<b>𝖤𝗋𝗋𝗈𝗋:</b> 𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝗂𝖽𝖾𝗇𝗍𝗂𝖿𝗒 𝗍𝗁𝖾 𝗎𝗌𝖾𝗋 𝗍𝗈 𝗐𝖺𝗋𝗇.", parse_mode=ParseMode.HTML)
             return
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(message.chat.id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -154,7 +154,7 @@ async def unwarn_user(client: Client, message: Message):
             await message.reply("<b>𝖤𝗋𝗋𝗈𝗋:</b> 𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝗂𝖽𝖾𝗇𝗍𝗂𝖿𝗒 𝗍𝗁𝖾 𝗎𝗌𝖾𝗋 𝗍𝗈 𝗎𝗇𝗐𝖺𝗋𝗇.", parse_mode=ParseMode.HTML)
             return
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(message.chat.id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:

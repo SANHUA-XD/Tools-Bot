@@ -15,7 +15,7 @@ LOCK_CHAT_RESTRICTION = {
         "can_send_video_notes": False,
         "can_send_voice_notes": False,
     },
-    # Add necessary permissions for each lock type.
+
 }
 
 UNLOCK_CHAT_RESTRICTION = {
@@ -35,7 +35,7 @@ UNLOCK_CHAT_RESTRICTION = {
         "can_send_video_notes": True,
         "can_send_voice_notes": True,
     },
-    # Add necessary permissions for each unlock type.
+
 }
 
 LOCKABLES = {

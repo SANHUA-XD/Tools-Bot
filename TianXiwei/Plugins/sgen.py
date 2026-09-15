@@ -40,7 +40,7 @@ async def is_batal(msg):
         return True
     elif msg.text == "/skip":
         return False
-    elif msg.text.startswith("/"):  # Bot Commands
+    elif msg.text.startswith("/"):
         await msg.reply("**» Cancelled the ongoing string session generation process !**", quote=True)
         return True
     else:

@@ -25,10 +25,10 @@ from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
 
-# ——————————————————————————————————————————————————————————————
-# Genre keywords for /suggestmode's fuzzy genre matching (ported from the
-# reference Filter-Bot-Dev plugins/utils.py detect_genre()).
-# ——————————————————————————————————————————————————————————————
+
+
+
+
 GENRE_KEYWORDS = [
     "action", "adventure", "comedy", "drama", "fantasy", "horror", "romance",
     "mystery", "thriller", "sci-fi", "science fiction", "slice of life",
@@ -85,9 +85,9 @@ async def _is_group_admin(client: Client, chat_id: int, user_id: int) -> bool:
         return False
 
 
-# ——————————————————————————————————————————————————————————————
-# /add (alias /filter) - add a filter, with optional buttons/media/alerts
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command(["add", "filter"], config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -114,7 +114,7 @@ async def filter_command(client: Client, message: Message):
         extra = " ".join(message.command[2:]) if len(message.command) > 2 else ""
 
         if replied.reply_markup and replied.reply_markup.inline_keyboard:
-            # Format: reply to a message that already has buttons attached
+
             rows = serialize_existing_markup(replied.reply_markup.inline_keyboard)
             media = _extract_media_response(replied)
             if media:
@@ -148,7 +148,7 @@ async def filter_command(client: Client, message: Message):
     await add_filter(chat_id, trigger, reply_text, rows, file_id, alerts)
     await message.reply(f"𝖥𝗂𝗅𝗍𝖾𝗋 𝖿𝗈𝗋 `{trigger}` 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝖺𝖽𝖽𝖾𝖽 𝗍𝗈 **{title}**!")
 
-    # Background genre tagging (TMDB -> AniList), doesn't block the reply above
+
     async def _tag_genre():
         try:
             genres = await fetch_genres(trigger)
@@ -159,9 +159,9 @@ async def filter_command(client: Client, message: Message):
     asyncio.create_task(_tag_genre())
 
 
-# ——————————————————————————————————————————————————————————————
-# /filters - list all filters in this chat
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command("filters", config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -187,9 +187,9 @@ async def list_filters(client: Client, message: Message):
     await message.reply(filter_list)
 
 
-# ——————————————————————————————————————————————————————————————
-# /stop - delete one filter
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command(["stop"], config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -211,9 +211,9 @@ async def stop_filter(client: Client, message: Message):
         await message.reply(f"𝖭𝗈 𝖿𝗂𝗅𝗍𝖾𝗋 𝖿𝗈𝗎𝗇𝖽 𝖿𝗈𝗋 `{trigger}` 𝗂𝗇 {message.chat.title}.")
 
 
-# ——————————————————————————————————————————————————————————————
-# /delall (alias /stopall) - remove every filter, owner only, with confirm
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command(["delall", "stopall"], config.COMMAND_PREFIXES) & filters.group)
 @chatowner
 @error
@@ -249,9 +249,9 @@ async def confirm_remove_all(client: Client, callback_query: CallbackQuery):
         await callback_query.answer("Error occurred!", show_alert=True)
 
 
-# ——————————————————————————————————————————————————————————————
-# The actual keyword -> reply matching handler
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.group & ~filters.command(["add", "filter", "mfilter"]), group=FILTERS_GROUP)
 @error
 @save
@@ -301,9 +301,9 @@ async def filter_response(client: Client, message: Message):
         asyncio.create_task(_auto_delete())
 
 
-# ——————————————————————————————————————————————————————————————
-# Alert-button callback ("alertmessage:{index}:{trigger}")
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_callback_query(filters.regex(r"^alertmessage:"))
 @error
 async def filter_alert_callback(client: Client, callback_query: CallbackQuery):
@@ -320,9 +320,9 @@ async def filter_alert_callback(client: Client, callback_query: CallbackQuery):
         await callback_query.answer("Something went wrong.", show_alert=True)
 
 
-# ——————————————————————————————————————————————————————————————
-# /autodel on|off [seconds] - auto-delete filter replies after N seconds
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command("autodel", config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -358,9 +358,9 @@ async def set_autodel_cmd(client: Client, message: Message):
         await message.reply("❓ **𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖺𝖼𝗍𝗂𝗈𝗇.** 𝖴𝗌𝖾 `on` 𝗈𝗋 `off`.")
 
 
-# ——————————————————————————————————————————————————————————————
-# /fclone on|off (owner only, toggle) and /fclone source to target (admins)
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command("fclone", config.COMMAND_PREFIXES))
 @error
 @save
@@ -451,9 +451,9 @@ async def view_clones_cmd(client: Client, message: Message):
     await message.reply(text)
 
 
-# ——————————————————————————————————————————————————————————————
-# /topfilters - most-used filters in this chat
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command("topfilters", config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -472,9 +472,9 @@ async def top_filters_cmd(client: Client, message: Message):
     await message.reply(text)
 
 
-# ——————————————————————————————————————————————————————————————
-# /suggestmode on|off - random genre-based filter suggestions
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.command("suggestmode", config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -491,10 +491,10 @@ async def suggest_mode_cmd(client: Client, message: Message):
     await message.reply(f"🎲 **𝖱𝖺𝗇𝖽𝗈𝗆 𝗌𝗎𝗀𝗀𝖾𝗌𝗍𝗂𝗈𝗇 𝗆𝗈𝖽𝖾 𝗂𝗌 𝗇𝗈𝗐 {state}!**")
 
 
-# ——————————————————————————————————————————————————————————————
-# /syncgenre - backfill genre tags for filters added before genre-tagging
-# existed (or where the TMDB/AniList lookup failed at add-time)
-# ——————————————————————————————————————————————————————————————
+
+
+
+
 @app.on_message(filters.command("syncgenre", config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -522,7 +522,7 @@ async def sync_genre_cmd(client: Client, message: Message):
                     tagged += 1
             except Exception as sync_error:
                 print(f"syncgenre error for '{keyword}': {sync_error}")
-            await asyncio.sleep(0.4)  # be gentle on TMDB/AniList rate limits
+            await asyncio.sleep(0.4)
             if i % 15 == 0 or i == total:
                 try:
                     await status_msg.edit_text(f"⏳ **{i}/{total}** 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝖾𝖽 • {tagged} 𝗍𝖺𝗀𝗀𝖾𝖽 𝗌𝗈 𝖿𝖺𝗋...")
@@ -542,9 +542,9 @@ async def sync_genre_cmd(client: Client, message: Message):
     asyncio.create_task(_run_sync())
 
 
-# ——————————————————————————————————————————————————————————————
-# Random genre-based suggestion trigger (only active when /suggestmode is on)
-# ——————————————————————————————————————————————————————————————
+
+
+
 @app.on_message(filters.group & filters.text, group=SUGGEST_MODE_GROUP)
 @error
 @save
@@ -577,8 +577,8 @@ async def random_suggest_trigger(client: Client, message: Message):
         if picked_filter:
             label = f"🎯 **{matched_genre.title()} 𝗌𝗎𝗀𝗀𝖾𝗌𝗍𝗂𝗈𝗇:**"
         else:
-            # Most filters simply have no genre tag yet - say so plainly
-            # instead of silently falling back to an unrelated random filter.
+
+
             is_admin = False
             userid = message.from_user.id if message.from_user else None
             if userid:

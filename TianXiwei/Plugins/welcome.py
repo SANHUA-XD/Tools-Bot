@@ -202,7 +202,7 @@ async def member_has_joined(c: Client, m: Message):
             if user.id == c.me.id:
                 continue
             if user.is_bot:
-                continue  # ignore bots
+                continue
         except ChatAdminRequired:
             continue
         status = db.get_welcome_status()
@@ -299,7 +299,7 @@ async def member_has_left(c: Client, m: Message):
     else:
         teks = tek
 
-    if not teks:  # Just in case
+    if not teks:
         teks = f"Thanks for being part of this group {user.mention}. But I don't like your arrogance and leaving the group {emoji.EYES}"
 
     ifff = db.get_current_cleangoodbye_id()

@@ -61,11 +61,11 @@ async def start_broadcast(client: Client, message: Message):
     global cancel_broadcast
     cancel_broadcast = False
 
-    # Extract command arguments from message text
+
     if message.command:
-        command_args = message.command[1:]  # Skip the command itself
+        command_args = message.command[1:]
     else:
-        # If triggered by regex, split the message text to simulate command arguments
+
         command_args = message.text.split()[1:]
 
     target = 'all'
@@ -79,24 +79,24 @@ async def start_broadcast(client: Client, message: Message):
     if '-pin' in command_args:
         pin_message = True
 
-    # Get groups and users from the database
+
     groups = [chat["chat_id"] for chat in await total_chats.find().to_list(None)]
     users = [user["user_id"] for user in await total_users.find().to_list(None)]
 
-    # Send broadcast start message with cancel button
+
     cancel_button = InlineKeyboardMarkup([[InlineKeyboardButton("𝖢𝖺𝗇𝖼𝖾𝗅 𝖡𝗋𝗈𝖺𝖽𝖼𝖺𝗌𝗍", callback_data="cancel_broadcast")]])
     broadcast_message_status = await message.reply_text(
         "📡 𝖡𝗋𝗈𝖺𝖽𝖼𝖺𝗌𝗍 𝖨𝗇 𝖯𝗋𝗈𝗀𝗋𝖾𝗌𝗌", reply_markup=cancel_button
     )
 
-    # Start broadcasting (forwarding the message)
+
     user_count, group_count = await broadcast_message(client, message.reply_to_message, groups, users, pin_message, target)
 
-    # Edit the final broadcast message with a simple success message
+
     if not cancel_broadcast:
         await broadcast_message_status.edit_text("✅ 𝖡𝗋𝗈𝖺𝖽𝖼𝖺𝗌𝗍 𝖢𝗈𝗆𝗉𝗅𝖾𝗍𝖾𝖽 𝖲𝗎𝖼𝖼𝖾𝗌𝖿𝗎𝗅𝗅𝗒 !!")
 
-    # Send detailed stats to the owner
+
     owner_message = (
         f"✅ 𝖡𝗋𝗈𝖺𝖽𝖼𝖺𝗌𝗍 𝖢𝗈𝗆𝗉𝗅𝖾𝗍𝖾𝖽!\n"
         f"👥 𝖴𝗌𝖾𝗋𝗌 𝖱𝖾𝖺𝖼𝗁𝖾𝖽: {user_count}\n"

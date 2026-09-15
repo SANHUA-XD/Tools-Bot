@@ -24,9 +24,9 @@ from TianXiwei.Database.wordseekdb import (
 
 
 
-# ==========================================
-# EXPANDED WORD LISTS & DICTIONARIES
-# ==========================================
+
+
+
 WORDS_4 = [
     "TIME", "PLAY", "GAME", "WORD", "SEEK", "LOVE", "LIFE", "MIND", "SOUL", "HERO", 
     "BIRD", "FIRE", "COLD", "DARK", "LIGHT", "MOON", "STAR", "WIND", "RAIN", "SNOW", 
@@ -64,7 +64,7 @@ WORDS_6 = [
     "ESCAPE", "RESCUE", "SEARCH", "TRAVEL", "VOYAGE", "FLIGHT", "DRIVING", "RIDING", "FLYING", "SPORTS"
 ]
 
-# Fast lookup for some common words before hitting API
+
 EXTRA_VALID_4 = ["GIRL", "BOY", "BABY", "MILK", "BLUE", "PINK", "GOLD", "JUMP", "RUNS", "WALK", "TALK", "SING", "FAST", "SLOW"]
 EXTRA_VALID_5 = ["ADULT", "AGENT", "AGREE", "AHEAD", "ALARM", "ALBUM", "ALERT", "ALIEN", "ALTER", "ANGLE", "ANGRY", "APPLY", "ARGUE", "ARISE", "ARMED", "ASSET", "AUDIO", "AUDIT", "AVOID", "AWARD", "AWARE"]
 EXTRA_VALID_6 = ["ABROAD", "ACCEPT", "ACCESS", "ACROSS", "ACTING", "ACTIVE", "ACTUAL", "ADVICE", "ADVISE", "AFFECT", "AFFORD", "AFRAID", "AGENCY", "ENJOY", "OBJECT", "OFFICE"]
@@ -78,24 +78,24 @@ async def is_valid_word(word: str, length: int) -> bool:
     """Check if the word is valid locally first, then via Free Dictionary API"""
     word = word.upper()
     
-    # 1. Local fast check
+
     if length == 4 and (word in WORDS_4 or word in EXTRA_VALID_4): return True
     if length == 5 and (word in WORDS_5 or word in EXTRA_VALID_5): return True
     if length == 6 and (word in WORDS_6 or word in EXTRA_VALID_6): return True
     
-    # 2. Free API check (api.dictionaryapi.dev)
+
     try:
         async with httpx.AsyncClient(timeout=3.0) as client:
             resp = await client.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word.lower()}")
             if resp.status_code == 200:
                 return True
     except Exception:
-        pass # API failed, we reject to be safe from random letters
+        pass
     return False
 
-# ==========================================
-# HELPER FUNCTIONS
-# ==========================================
+
+
+
 def to_bold_sans(text: str) -> str:
     res = ""
     for char in text.upper():
@@ -161,9 +161,9 @@ async def is_admin_or_auth(client: Client, message: Message):
     except: pass
     return False
 
-# ==========================================
-# GAME COMMANDS
-# ==========================================
+
+
+
 @app.on_message(filters.command(["new", "new4", "new5", "new6"], prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -264,15 +264,15 @@ async def pause_daily(client: Client, message: Message):
     await set_daily_paused(message.from_user.id, True)
     await message.reply("⏸ **𝖣𝖺𝗂𝗅𝗒 𝖬𝗈𝖽𝖾 𝖯𝖺𝗎𝗌𝖾𝖽.**\n𝖸𝗈𝗎 𝖼𝖺𝗇 𝗇𝗈𝗐 𝗉𝗅𝖺𝗒 𝗇𝗈𝗋𝗆𝖺𝗅 𝗀𝖺𝗆𝖾𝗌. 𝖴𝗌𝖾 /𝖽𝖺𝗂𝗅𝗒 𝗍𝗈 𝗋𝖾𝗌𝗎𝗆𝖾.")
 
-# ==========================================
-# GAMEPLAY (TEXT LISTENER)
-# ==========================================
-# NOTE: pyrogram runs every handler GROUP independently regardless of order
-# (an exception or missing ContinuePropagation in one group does NOT block
-# other groups - only an explicit StopPropagation would, which this handler
-# never raises). So this doesn't need to "win the race" with a negative/
-# priority group number - it just gets its own ordinary, dedicated group
-# like every other feature in TianXiwei.
+
+
+
+
+
+
+
+
+
 @app.on_message(filters.text & ~filters.command(["new", "new4", "new5", "new6", "end", "daily", "pausedaily", "score", "seekauth", "setgametopic", "unsetgametopic", "allowonlylen", "recreatetopic"]), group=WORDSEEK_GROUP)
 @error
 async def process_guess(client: Client, message: Message):
@@ -288,7 +288,7 @@ async def process_guess(client: Client, message: Message):
 
     is_private = message.chat.type.name == "PRIVATE"
 
-    # --- Daily Mode Processing ---
+
     if is_private:
         game = await get_daily(user_id)
         paused = await is_daily_paused(user_id)
@@ -328,7 +328,7 @@ async def process_guess(client: Client, message: Message):
                 await message.reply(board_text)
             return
 
-    # --- Group Mode Processing ---
+
     game = await get_game(chat_id)
     if game and game.get("status"):
         topic_id = message.message_thread_id
@@ -384,9 +384,9 @@ async def process_guess(client: Client, message: Message):
 
     raise ContinuePropagation
 
-# ==========================================
-# ADVANCED LEADERBOARD & SCORES DASHBOARD
-# ==========================================
+
+
+
 async def get_lb_text(client: Client, chat_id: int, scope: str, length: str, period: str):
     scores_list = await get_leaderboard(scope, chat_id, length, period)
     scope_name = "Group" if scope == "grp" else "Global"
@@ -521,9 +521,9 @@ async def wsprof_callback(client: Client, query: CallbackQuery):
 async def close_callback(client: Client, query: CallbackQuery):
     await query.message.delete()
 
-# ==========================================
-# GROUP SETTINGS (Admin Only)
-# ==========================================
+
+
+
 @app.on_message(filters.command("seekauth", prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -616,9 +616,9 @@ async def recreate_topic(client: Client, message: Message):
     await set_topic_settings(chat_id, topic_id, recreate=(state == "on"))
     await message.reply(f"✅ **𝖠𝗎𝗍𝗈-𝗋𝖾𝖼𝗋𝖾𝖺𝗍𝖾 𝗍𝗈𝗉𝗂𝖼:** {'𝖤𝗇𝖺𝖻𝗅𝖾𝖽' if state == 'on' else '𝖣𝗂𝗌𝖺𝖻𝗅𝖾𝖽'}")
 
-# ==========================================
-# HELP MENU
-# ==========================================
+
+
+
 __module__ = "𝖶𝗈𝗋𝖽𝖲𝖾𝖾𝗄"
 
 __help__ = """▸ **𝖧𝗈𝗐 𝗍𝗈 𝖯𝗅𝖺𝗒 𝖶𝗈𝗋𝖽𝖲𝖾𝖾𝗄**

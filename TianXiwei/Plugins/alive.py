@@ -11,22 +11,22 @@ import platform
 
 @app.on_message(filters.command("alive" , config.COMMAND_PREFIXES))
 async def alive_command(client : Client , message : Message):
-    # Calculate uptime
+
     current_time = time.time()
     uptime_seconds = int(current_time - start_time)
     uptime_str = time.strftime("%Hh %Mm %Ss", time.gmtime(uptime_seconds))
 
-    # System stats
+
     cpu_usage = psutil.cpu_percent()
     memory_usage = psutil.virtual_memory().percent
 
-    # Ping
+
     start_ping = time.time()
-    x = await message.reply_text("Pinging...")  # Temporary response to measure ping
+    x = await message.reply_text("Pinging...")
     end_ping = time.time()
     ping = round((end_ping - start_ping) * 1000, 2)
 
-    # Message text
+
     alive_message = (
         f"**『 {app.me.mention} Is Alive Baby 🐾🐾 **』\n\n"
         f" • **Uptime:** `{uptime_str}`\n"
@@ -40,7 +40,7 @@ async def alive_command(client : Client , message : Message):
         f"I’m here to help you manage your groups effectively! Use the /help command to explore my features."
     )
 
-    # Inline buttons
+
     buttons = InlineKeyboardMarkup([
         [
             InlineKeyboardButton("🤝 Sᴜᴘᴘᴏʀᴛ", url=config.SUPPORT_CHAT_LINK),
@@ -51,7 +51,7 @@ async def alive_command(client : Client , message : Message):
         ]
     ])
 
-    # Edit the original response
+
     await x.edit_text(alive_message, reply_markup=buttons , invert_media=True )
 
 @app.on_callback_query(filters.regex("version_info"))

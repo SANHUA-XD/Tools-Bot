@@ -8,7 +8,7 @@ INSERTION_LOCK = RLock()
 class Greetings(MongoDB):
     """Class for managing antichannelpins in chats."""
 
-    # Database name to connect to to preform operations
+
     db_name = "welcome_chats"
 
     def __init__(self, chat_id: int) -> None:
@@ -16,7 +16,7 @@ class Greetings(MongoDB):
         self.chat_id = chat_id
         self.chat_info = self.__ensure_in_db()
 
-    # Get settings from database
+
     def get_welcome_status(self):
         with INSERTION_LOCK:
             return self.chat_info["welcome"]
@@ -69,7 +69,7 @@ class Greetings(MongoDB):
         with INSERTION_LOCK:
             return self.chat_info["cleangoodbye_id"]
 
-    # Set settings in database
+
     def set_current_welcome_settings(self, status: bool):
         with INSERTION_LOCK:
             return self.update({"_id": self.chat_id}, {"welcome": status})
@@ -163,7 +163,7 @@ class Greetings(MongoDB):
             return new_data
         return chat_data
 
-    # Migrate if chat id changes!
+
     def migrate_chat(self, new_chat_id: int):
         old_chat_db = self.find_one({"_id": self.chat_id})
         new_data = old_chat_db.update({"_id": new_chat_id})

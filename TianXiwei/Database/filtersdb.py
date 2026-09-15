@@ -2,10 +2,10 @@ import random
 from TianXiwei.Database import filter_collection
 from cachetools import TTLCache
 
-# Per-chat filter cache. Filters are read on EVERY group message (hot path),
-# so - matching the reference Filter-Bot-Dev's caching approach - we keep
-# the whole per-chat document in memory and only hit MongoDB again after a
-# write, or after the TTL expires as a safety net.
+
+
+
+
 _doc_cache = TTLCache(maxsize=5000, ttl=300)
 
 
@@ -28,9 +28,9 @@ async def _get_chat_filters(chat_id: int) -> dict:
     return doc.get("filters", {})
 
 
-# ——————————————————————————————————————————————————————————————
-# Core filter CRUD
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def add_filter(chat_id: int, trigger: str, reply: str, buttons: list, file_id, alerts: list = None):
     """
@@ -115,7 +115,7 @@ async def increment_filter_count(chat_id: int, trigger: str):
         {"chat_id": chat_id, f"filters.{trigger}": {"$exists": True}},
         {"$inc": {f"filters.{trigger}.use_count": 1}}
     )
-    # best-effort cache patch so /topfilters reflects it without waiting for TTL
+
     doc = _doc_cache.get(chat_id)
     if doc and trigger in doc.get("filters", {}):
         doc["filters"][trigger]["use_count"] = doc["filters"][trigger].get("use_count", 0) + 1
@@ -137,9 +137,9 @@ async def get_alert_text(chat_id: int, trigger: str, index: int):
     return None
 
 
-# ——————————————————————————————————————————————————————————————
-# Auto-delete settings
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def set_autodelete_settings(chat_id: int, enabled: bool, seconds: int):
     await filter_collection.update_one(
@@ -156,9 +156,9 @@ async def get_autodelete_settings(chat_id: int):
     return settings.get("enabled", False), settings.get("seconds", 0)
 
 
-# ——————————————————————————————————————————————————————————————
-# Clone system
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def set_clone_status(chat_id: int, enabled: bool):
     await filter_collection.update_one(
@@ -211,9 +211,9 @@ async def get_clone_history(chat_id: int):
     return doc.get("clone_history", [])
 
 
-# ——————————————————————————————————————————————————————————————
-# Random / genre-based suggestion mode
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def set_random_suggest_status(chat_id: int, enabled: bool):
     await filter_collection.update_one(
@@ -262,9 +262,9 @@ async def get_random_filter_by_genre(chat_id: int, genre: str):
     return {**resp, "text": trigger}
 
 
-# ——————————————————————————————————————————————————————————————
-# Global stats
-# ——————————————————————————————————————————————————————————————
+
+
+
 
 async def get_filter_statistics():
     all_filters = await filter_collection.find({}).to_list(length=None)

@@ -6,7 +6,7 @@ from pyrogram.types import Message
 from pyrogram.enums import ChatType
 from config import config
 
-# Optional: Batch update for large groups or channels
+
 @app.on_message(filters.all , group=WATCHER_GROUP)
 async def batch_user_saver(client, message : Message):
 
@@ -28,10 +28,10 @@ async def batch_user_saver(client, message : Message):
         if message.from_user:
             users.append(message.from_user)
         if message.sender_chat:
-            # Only include user details, not bots or channel info
+
             pass
         
-        # Process all users in bulk
+
         if users:
             bulk_updates = [
                 UpdateOne(

@@ -14,7 +14,7 @@ async def is_user_approved(chat_id: int, user_id: int):
 async def approve_user(chat_id: int, user_id: int , user_name : str):
     """Approve a user in the given chat."""
     if await is_user_approved(chat_id, user_id):
-        return False  # User is already approved
+        return False
 
     await approved_collection.insert_one({"chat_id": chat_id, "user_id": user_id , "user_name" : user_name})
     return True

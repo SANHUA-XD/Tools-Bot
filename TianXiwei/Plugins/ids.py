@@ -22,21 +22,21 @@ async def get_id(client: Client, message: Message):
     entities = message.entities
     command_args = message.command[1:] if len(message.command) > 1 else []
 
-    # Base response
+
     response = [f"**Chat ID:** `{chat_id}`\n", f"**Your ID:** `{user_id}`\n"]
 
-    # Handle replies
+
     if reply:
-        if reply.forward_from_chat:  # Forwarded message
+        if reply.forward_from_chat:
             response.append(
                 f"**Forwarded Chat ID:** `{reply.forward_from_chat.id}`\n"
             )
-        elif reply.from_user:  # Reply to a user
+        elif reply.from_user:
             response.append(
                 f"**Replied User ID:** `{reply.from_user.id}` ({reply.from_user.mention()})\n"
             )
 
-    # Handle text mentions
+
     if entities:
         for entity in entities:
             if entity.type == MessageEntityType.TEXT_MENTION:
@@ -45,7 +45,7 @@ async def get_id(client: Client, message: Message):
                 )
                 break
 
-    # Handle username arguments
+
     if command_args:
         username = command_args[0].strip("@")
         try:
@@ -56,8 +56,8 @@ async def get_id(client: Client, message: Message):
         except Exception:
             response.append("")
 
-    # Final fallback: default response
-    if len(response) == 2:  # No additional info added
+
+    if len(response) == 2:
         response.append("")
 
     await message.reply_text("".join(response))
@@ -66,7 +66,7 @@ async def get_id(client: Client, message: Message):
 @app.on_message(filters.command("info", prefixes=config.config.COMMAND_PREFIXES))
 @error
 async def get_user_info(client: Client, message: Message):
-    # Determine target user
+
     if message.reply_to_message:
         user = message.reply_to_message.from_user
     elif len(message.command) > 1:
@@ -80,7 +80,7 @@ async def get_user_info(client: Client, message: Message):
 
     x = await message.reply_text("Fetching User Info.")
 
-    # Get user info
+
     user_id = user.id
     first_name = user.first_name or "N/A"
     last_name = user.last_name or "N/A"
@@ -88,7 +88,7 @@ async def get_user_info(client: Client, message: Message):
     mention = user.mention or "N/A"
     dc_id = user.dc_id or "N/A"
 
-    # Fetch full user info for bio
+
     try:
         full_user = await app.get_chat(user.id)
         bio = full_user.bio or "N/A"
@@ -97,7 +97,7 @@ async def get_user_info(client: Client, message: Message):
 
     await x.edit_text("Fetching User Info...")
 
-    # Get profile photo
+
     photo_count = await client.get_chat_photos_count(user_id)
     user_photo = None
     if photo_count > 0:
@@ -105,12 +105,12 @@ async def get_user_info(client: Client, message: Message):
             user_photo = photo.file_id
             break
 
-    # Fetch additional info from database
+
     user_info = await get_user_infoo(user_id)
     custom_bio = user_info.get("custom_bio", "N/A") if user_info else "N/A"
     custom_title = user_info.get("custom_title", "N/A") if user_info else "N/A"
 
-    # Calculate health
+
     health = 100
     if username == "N/A":
         health -= 25
@@ -119,14 +119,14 @@ async def get_user_info(client: Client, message: Message):
     if bio == "N/A":
         health -= 20
 
-    # Generate health bar
+
     filled_blocks = health // 10
     empty_blocks = 10 - filled_blocks
     health_bar = f"{'▰' * filled_blocks}{'▱' * empty_blocks}"
 
     await x.edit_text("Fetching User Info.....")
    
-    # Prepare caption
+
     caption = (
         f"     【 **User Information** 】\n"
         f"➢ **ID:** `{user_id}`\n"
@@ -143,14 +143,14 @@ async def get_user_info(client: Client, message: Message):
         f"    {health_bar}\n\n"
     )
 
-    # Additional statuses
+
     caption += f"➢ **AFK Status:** `{'Currently Away From Keyboard !!' if await is_user_afk(user_id) else 'No'}`\n"
     common_groups = await get_common_chat_count(user_id)
     caption += f"➢ **Common Groups:** `{common_groups}`\n"
     caption += f"➢ **Globally Banned:** `{'Yes' if await is_user_gbanned(user_id) else 'No'}`\n"
     caption += f"➢ **Globally Muted:** `{'Yes' if await is_user_gmuted(user_id) else 'No'}`\n"
 
-    # Send response
+
     if user_photo:
         await x.edit_media(InputMediaPhoto(
             media=user_photo,

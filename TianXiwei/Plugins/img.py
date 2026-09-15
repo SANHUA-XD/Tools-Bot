@@ -28,7 +28,7 @@ def get_pinterest_images(query, limit=8):
             except KeyError:
                 pass
 
-        # Fallback if first regex fails or no images
+
         if not images:
             fallback = re.findall(r'https://i\.pinimg\.com/originals/[0-9a-f]+/[0-9a-f]+/[0-9a-f]+/[0-9a-f]+\.jpg', html)
             if not fallback:
@@ -40,7 +40,7 @@ def get_pinterest_images(query, limit=8):
         print(f"Pinterest Search Error: {e}")
         return []
 
-# Command to download images
+
 @app.on_message(filters.command("img", prefixes=config.COMMAND_PREFIXES))
 @error
 @save
@@ -50,11 +50,11 @@ async def download_images(client, message: Message):
         return
     
     query = " ".join(message.command[1:])
-    limit = 8  # Set the limit of images to download
+    limit = 8
 
     a = await message.reply_text("🔎")
     
-    # Download images
+
     try:
         images = get_pinterest_images(query, limit)
 
@@ -63,7 +63,7 @@ async def download_images(client, message: Message):
                 InputMediaPhoto(media=img_url) for img_url in images
             ]
 
-            # Send images as a media group (album)
+
             await a.delete()
             
             try:

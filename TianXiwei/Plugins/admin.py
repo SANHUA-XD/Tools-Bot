@@ -23,30 +23,30 @@ from TianXiwei.Script.template import CHAT_ADMIN_REQUIRED , USER_ALREADY_PROMOTE
 async def update_all_admin_cache(client, message: Message):
     chat_id = message.chat.id
     chat_name = message.chat.title
-    current_time = time.time()  # Current time in seconds
+    current_time = time.time()
 
-    # Check if the chat has a cooldown entry and if 10 minutes have passed
+
     if chat_id in admin_cache_reload:
         time_diff = current_time - admin_cache_reload[chat_id]
-        if time_diff < 600:  # 600 seconds = 10 minutes
+        if time_diff < 600:
             await message.reply(f"𝖯𝗅𝖾𝖺𝗌𝖾 𝖶𝖺𝗂𝗍 {int(600 - time_diff)} 𝖲𝖾𝖼𝗈𝗇𝖽𝗌 𝖡𝖾𝖿𝗈𝗋𝖾 𝖱𝖾𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝖳𝗁𝖾 𝖠𝖽𝗆𝗂𝗇 𝖢𝖺𝖼𝗁𝖾 𝖠𝗀𝖺𝗂𝗇.")
             return
 
     try:
-        # Fetch all administrators in the chat
+
         admins = [admin async for admin in app.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS)]
         
-        # Update privileges from admin data
+
         for admin in admins:
             user_id = admin.user.id
-            # Extract and cache privileges directly from the admin object
+
             privileges = {
                 "is_admin": admin.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER],
                 "is_owner": admin.status == ChatMemberStatus.OWNER,
                 "privileges": admin.privileges if admin.privileges else None,
             }
             admin_cache[(chat_id, user_id)] = privileges
-        # Update last reload time for this chat
+
         admin_cache_reload[chat_id] = current_time
 
         await message.reply(f"𝖨 𝖧𝖺𝗏𝖾 U𝗉𝖽𝖺𝗍𝖾𝖽 𝖬𝗒 𝖠𝖽𝗆𝗂𝗇 𝖢𝖺𝖼𝗁𝖾 𝖥𝗈𝗋 {chat_name}.")
@@ -71,11 +71,11 @@ async def update_all_admin_cache(client, message: Message):
 async def pin_message(client, message: Message):
     try:
         if message.reply_to_message:
-            # Pin the replied-to message
+
             await app.pin_chat_message(chat_id=message.chat.id, message_id=message.reply_to_message.id)
-            chat_id = str(message.chat.id).removeprefix("-100")  # Remove the -100 prefix
+            chat_id = str(message.chat.id).removeprefix("-100")
+
             
-            # Generate the pinned message link
             if message.chat.username:
                 pinned_link = f"https://t.me/{message.chat.username}/{message.reply_to_message.id}"
             else:
@@ -86,7 +86,7 @@ async def pin_message(client, message: Message):
                 disable_web_page_preview=True,
             )
 
-            # Log the action
+
             await send_log(
                 message.chat.id,
                 await format_log(
@@ -98,14 +98,14 @@ async def pin_message(client, message: Message):
             )
 
         elif len(message.command) > 1:
-            # Pin a new message with provided text
+
             msg_text = message.text.split(None, 1)[1]
             sent_message = await message.reply(msg_text)
             await message.delete()
             await app.pin_chat_message(chat_id=sent_message.chat.id, message_id=sent_message.id)
-            chat_id = str(message.chat.id).removeprefix("-100")  # Remove the -100 prefix
+            chat_id = str(message.chat.id).removeprefix("-100")
 
-            # Generate the pinned message link
+
             if sent_message.chat.username:
                 pinned_link = f"https://t.me/{sent_message.chat.username}/{sent_message.id}"
             else:
@@ -116,7 +116,7 @@ async def pin_message(client, message: Message):
                 disable_web_page_preview=True,
             )
 
-            # Log the action
+
             await send_log(
                 message.chat.id,
                 await format_log(
@@ -128,14 +128,14 @@ async def pin_message(client, message: Message):
             )
 
         else:
-            # No message to pin
+
             await message.reply_text("𝖱𝖾𝗉𝗅𝗒 𝖳𝗈 𝖠 𝖬𝖾𝗌𝗌𝖺𝗀𝖾 𝖮𝗋 𝖯𝗋𝗈𝗏𝗂𝖽𝖾 𝖳𝖾𝗑𝗍 𝖳𝗈 𝖯𝗂𝗇.")
     except ChatAdminRequired:
         await message.reply(CHAT_ADMIN_REQUIRED)
     except Exception as e:
         print(f"Error in pin_message: {e}")
 
-# Unpin a specific message
+
 @app.on_message(filters.command("unpin" , prefixes=c.COMMAND_PREFIXES) & filters.group)
 @app.on_message(filters.regex(r"(?i)^Unpin It$") & filters.group & filters.reply)
 @can_pin_messages
@@ -149,7 +149,7 @@ async def unpin_message(client, message: Message):
             await message.reply_text(f"𝖬𝖾𝗌𝗌𝖺𝗀𝖾 𝖴𝗇𝗉𝗂𝗇𝗇𝖾𝖽 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝖨𝗇 {message.chat.title}!")
         
         elif len(message.command) > 1:
-            # Pin a new message with provided text
+
             msg_text = message.text.split(None, 1)[1]
             if msg_text.lower() == "all":
                 await message.chat.unpin_all_messages()
@@ -176,12 +176,12 @@ async def unpin_message(client, message: Message):
 @save
 async def get_last_pinned(client, message: Message):
     try:
-        # Fetch chat details including pinned_message
+
         chat = await client.get_chat(message.chat.id)
         pinned_message = chat.pinned_message
 
         if pinned_message:
-            chat_id = str(message.chat.id).removeprefix("-100")  # Remove the -100 prefix
+            chat_id = str(message.chat.id).removeprefix("-100")
             if message.chat.username:
                 await message.reply_text(
                     f"𝖯𝗂𝗇𝗇𝖾𝖽 [𝖬𝖾𝗌𝗌𝖺𝗀𝖾](https://t.me/{message.chat.username}/{pinned_message.id}) 𝖨𝗇 {message.chat.title}",
@@ -201,11 +201,11 @@ async def get_last_pinned(client, message: Message):
 @chatadmin
 @error
 @save
-async def invite_link(client: app, message: Message):  # type: ignore
+async def invite_link(client: app, message: Message):
     try:
         chat = await app.get_chat(message.chat.id)
 
-        # Ensure the bot can actually create invite links here
+
         if not chat.permissions.can_invite_users:
             await message.reply("𝖨 𝖭𝖾𝖾𝖽 𝖳𝗈 𝖡𝖾 𝖠𝗇 𝖠𝖽𝗆𝗂𝗇 𝖶𝗂𝗍𝗁 𝖨𝗇𝗏𝗂𝗍𝖾 𝖴𝗌𝖾𝗋 𝖯𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌 𝖳𝗈 𝖦𝖾𝗍 𝖳𝗁𝖾 𝖨𝗇𝗏𝗂𝗍𝖾 𝖫𝗂𝗇𝗄!")
             return
@@ -223,7 +223,7 @@ async def invite_link(client: app, message: Message):  # type: ignore
             reply_markup=share_button
         )
 
-        # Log the action
+
         await send_log(
             message.chat.id,
             await format_log(
@@ -240,7 +240,7 @@ async def invite_link(client: app, message: Message):  # type: ignore
     except Exception as e:
         await message.reply(f"𝖠𝗇 𝖤𝗋𝗋𝗈𝗋 𝖮𝖼𝖼𝗎𝗋𝗋𝖾𝖽: {e}")
 
-#==============================================================================================================================================#
+
 
 @app.on_message(filters.command(["del" , "delete"] , prefixes=c.COMMAND_PREFIXES) & filters.group)
 @app.on_message(filters.regex(r"^(del|delete)$") & filters.group & filters.reply)
@@ -252,7 +252,7 @@ async def delete_message(client, message: Message):
         if message.reply_to_message:
             await message.delete()
 
-            # Log deletion
+
             log_message = await format_log(
                 action="Message Deleted",
                 chat=message.chat.title,
@@ -272,7 +272,7 @@ async def delete_message(client, message: Message):
 @can_delete_messages
 @error
 @save
-async def purge(c: app, m: Message): # type: ignore
+async def purge(c: app, m: Message):
 
     if m.chat.type != ChatType.SUPERGROUP:
         await m.reply_text(text="𝖢𝖺𝗇𝗇𝗈𝗍 𝗉𝗎𝗋𝗀𝖾 𝗆𝖾𝗌𝗌𝖺𝗀𝖾𝗌 𝗂𝗇 𝖺 𝖻𝖺𝗌𝗂𝖼 𝗀𝗋𝗈𝗎𝗉")
@@ -285,7 +285,7 @@ async def purge(c: app, m: Message): # type: ignore
             for i in range(0, len(l), n):
                 yield l[i : i + n]
 
-        # Dielete messages in chunks of 100 messages
+
         m_list = list(divide_chunks(message_ids))
 
         try:
@@ -321,7 +321,7 @@ async def purge(c: app, m: Message): # type: ignore
 @can_delete_messages
 @error
 @save
-async def spurge(c: app, m: Message): # type: ignore
+async def spurge(c: app, m: Message):
 
     if m.chat.type != ChatType.SUPERGROUP:
         await m.reply_text(text="𝖢𝖺𝗇𝗇𝗈𝗍 𝗉𝗎𝗋𝗀𝖾 𝗆𝖾𝗌𝗌𝖺𝗀𝖾𝗌 𝗂𝗇 𝖺 𝖻𝖺𝗌𝗂𝖼 𝗀𝗋𝗈𝗎𝗉")
@@ -334,7 +334,7 @@ async def spurge(c: app, m: Message): # type: ignore
             for i in range(0, len(l), n):
                 yield l[i : i + n]
 
-        # Dielete messages in chunks of 100 messages
+
         m_list = list(divide_chunks(message_ids))
 
         try:
@@ -361,37 +361,37 @@ async def spurge(c: app, m: Message): # type: ignore
         except RPCError:
             return
 
-#==============================================================================================================================================#
+
 
 @app.on_message(filters.command(["promote" , "makeadmin"], prefixes=c.COMMAND_PREFIXES) & filters.group)
 @app.on_message(filters.regex(r"(?i)^Promote (him|her)$") & filters.group & filters.reply)
 @can_promote_members
 @error
 @save
-async def promote_user(client: app, message: Message):  # type: ignore
+async def promote_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
         return
 
-    title = "Admin"  # Default admin title
+    title = "Admin"
     target_user = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            title = args[1]  # Use the second argument as the title
+            title = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
         if len(args) > 2:
-            title = args[2]  # Use the third argument as the title
+            title = args[2]
 
     if not target_user:
         await message.reply(
@@ -405,10 +405,10 @@ async def promote_user(client: app, message: Message):  # type: ignore
 
 
 
-    # Promote the user with the provided title
+
     try:
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -419,14 +419,14 @@ async def promote_user(client: app, message: Message):  # type: ignore
             await message.reply(USER_ALREADY_PROMOTED)
             return
 
-        # Fetch the bot's privileges from the cache or API
+
         cached_privileges = admin_cache.get((chat_id, app.me.id))
         if not cached_privileges:
             cached_privileges = await fetch_admin_privileges(chat_id, app.me.id)
 
         bot_privileges = cached_privileges.get("privileges") if cached_privileges else None
 
-        # Adjust the promotion rights based on the bot's capabilities
+
 
         adjusted_privileges = ChatPrivileges(
                 can_delete_messages=bot_privileges.can_delete_messages and PROMOTE.can_delete_messages,
@@ -449,7 +449,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
             title=title,
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖯𝖱𝖮𝖬𝖮𝖳𝖤 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -457,7 +457,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
             f"🏷️ **𝖳𝗂𝗍𝗅𝖾:** `{title}`\n"
         )
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖣𝖾𝗆𝗈𝗍𝖾", callback_data=f"demote:{target_user.id}")],
@@ -466,7 +466,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
         )
         await message.reply(promotion_message, reply_markup=buttons)
 
-        # Log the promotion event
+
         log_message = await format_log(
             tag="PROMOTE",
             chat=message.chat.title,
@@ -486,7 +486,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
 @app.on_callback_query(filters.regex("^demote:(\d+)$"))
 @can_promote_members
 @error
-async def demote_user(client: app, callback_query: CallbackQuery): # type: ignore
+async def demote_user(client: app, callback_query: CallbackQuery):
     if not callback_query.from_user:
         return
 
@@ -510,7 +510,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
             permissions=MUTE
         )
 
-        # Demote the user
+
         await app.restrict_chat_member(
             chat_id=chat_id,
             user_id=user_id,
@@ -519,7 +519,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
         await callback_query.answer("𝖴𝗌𝖾𝗋 𝖽𝖾𝗆𝗈𝗍𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒.")
         await callback_query.message.edit_text(f"{d_user.mention()} 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝖽𝖾𝗆𝗈𝗍𝖾𝖽 𝖻𝗒 {callback_query.from_user.mention()}")
 
-        # Log the promotion event
+
         log_message = await format_log(
             tag="DEMOTE",
             chat=callback_query.message.chat.title,
@@ -535,7 +535,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
 
 @app.on_callback_query(filters.regex("^delete$"))
 @error
-async def delete_promotion_message(client: app, callback_query: CallbackQuery): # type: ignore
+async def delete_promotion_message(client: app, callback_query: CallbackQuery):
     try:
         await callback_query.message.delete()
         await callback_query.answer("𝖬𝖾𝗌𝗌𝖺𝗀𝖾 𝖣𝖾𝗅𝖾𝗍𝖾𝖽.")
@@ -547,12 +547,12 @@ async def delete_promotion_message(client: app, callback_query: CallbackQuery): 
 @can_promote_members
 @error
 @save
-async def demote_user(client: app, message: Message):  # type: ignore
+async def demote_user(client: app, message: Message):
     chat_id = message.chat.id
     if not message.from_user:
         return
     
-    # Resolve the target user
+
     target_user = await resolve_user(client, message)
     if not target_user:
         await message.reply(
@@ -560,10 +560,10 @@ async def demote_user(client: app, message: Message):  # type: ignore
         )
         return
 
-    user = message.from_user  # The user who sent the promote command
+    user = message.from_user
 
 
-    # Promote the target user with the specified privileges
+
     try:
 
         x = await app.get_chat_member(chat_id , target_user.id)
@@ -588,7 +588,7 @@ async def demote_user(client: app, message: Message):  # type: ignore
             permissions=UNMUTE
         )
 
-        # Construct the promotion message
+
         promotion_message = (
             f"✪ **𝖣𝖾𝗆𝗈𝗍𝖾 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -597,7 +597,7 @@ async def demote_user(client: app, message: Message):  # type: ignore
 
         await message.reply(promotion_message)
 
-        # Log the promotion event
+
         log_message = await format_log(
             tag="DEMOTE",
             chat=message.chat.title,
@@ -618,30 +618,30 @@ async def demote_user(client: app, message: Message):  # type: ignore
 @can_promote_members
 @error
 @save
-async def promote_user(client: app, message: Message):  # type: ignore
+async def promote_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
         return
 
-    title = "Admin"  # Default admin title
+    title = "Admin"
     target_user = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            title = args[1]  # Use the second argument as the title
+            title = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
         if len(args) > 2:
-            title = args[2]  # Use the third argument as the title
+            title = args[2]
 
     if not target_user:
         await message.reply(
@@ -655,10 +655,10 @@ async def promote_user(client: app, message: Message):  # type: ignore
 
 
 
-    # Promote the user with the provided title
+
     try:
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -669,14 +669,14 @@ async def promote_user(client: app, message: Message):  # type: ignore
             await message.reply(USER_ALREADY_PROMOTED)
             return
 
-        # Fetch the bot's privileges from the cache or API
+
         cached_privileges = admin_cache.get((chat_id, app.me.id))
         if not cached_privileges:
             cached_privileges = await fetch_admin_privileges(chat_id, app.me.id)
 
         bot_privileges = cached_privileges.get("privileges") if cached_privileges else None
 
-        # Adjust the promotion rights based on the bot's capabilities
+
 
         adjusted_privileges = ChatPrivileges(
                 can_delete_messages=bot_privileges.can_delete_messages and LOWPROMOTE.can_delete_messages,
@@ -700,7 +700,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
             title=title,
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖫𝖮𝖶-𝖯𝖱𝖮𝖬𝖮𝖳𝖤 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -708,7 +708,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
             f"🏷️ **𝖳𝗂𝗍𝗅𝖾:** `{title}`\n"
         )
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖣𝖾𝗆𝗈𝗍𝖾", callback_data=f"demote:{target_user.id}")],
@@ -717,7 +717,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
         )
         await message.reply(promotion_message, reply_markup=buttons)
 
-        # Log the promotion event
+
         log_message = await format_log(
             tag="PROMOTE",
             chat=message.chat.title,
@@ -739,30 +739,30 @@ async def promote_user(client: app, message: Message):  # type: ignore
 @can_promote_members
 @error
 @save
-async def promote_user(client: app, message: Message):  # type: ignore
+async def promote_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
         return
 
-    title = "Admin"  # Default admin title
+    title = "Admin"
     target_user = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            title = args[1]  # Use the second argument as the title
+            title = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
         if len(args) > 2:
-            title = args[2]  # Use the third argument as the title
+            title = args[2]
 
     if not target_user:
         await message.reply(
@@ -776,10 +776,10 @@ async def promote_user(client: app, message: Message):  # type: ignore
 
 
 
-    # Promote the user with the provided title
+
     try:
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -792,14 +792,14 @@ async def promote_user(client: app, message: Message):  # type: ignore
 
 
 
-        # Fetch the bot's privileges from the cache or API
+
         cached_privileges = admin_cache.get((chat_id, app.me.id))
         if not cached_privileges:
             cached_privileges = await fetch_admin_privileges(chat_id, app.me.id)
 
         bot_privileges = cached_privileges.get("privileges") if cached_privileges else None
 
-        # Adjust the promotion rights based on the bot's capabilities
+
 
         adjusted_privileges = ChatPrivileges(
                 can_delete_messages=bot_privileges.can_delete_messages and FULLPROMOTE.can_delete_messages,
@@ -822,7 +822,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
             title=title,
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖥𝖴𝖫𝖫-𝖯𝖱𝖮𝖬𝖮𝖳𝖤 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -830,7 +830,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
             f"🏷️ **𝖳𝗂𝗍𝗅𝖾:** `{title}`\n"
         )
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖣𝖾𝗆𝗈𝗍𝖾", callback_data=f"demote:{target_user.id}")],
@@ -839,7 +839,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
         )
         await message.reply(promotion_message, reply_markup=buttons)
 
-        # Log the promotion event
+
         log_message = await format_log(
             tag="PROMOTE",
             chat=message.chat.title,
@@ -860,7 +860,7 @@ async def promote_user(client: app, message: Message):  # type: ignore
 @can_promote_members
 @error
 @save
-async def set_admin_title(client: app, message: Message):  # type: ignore
+async def set_admin_title(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -869,21 +869,21 @@ async def set_admin_title(client: app, message: Message):  # type: ignore
     title = "Admin"
     target_user = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            title = args[1]  # Use the second argument as the title
+            title = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
         if len(args) > 2:
-            title = args[2]  # Use the third argument as the title
+            title = args[2]
 
     if not target_user:
         await message.reply(
@@ -895,7 +895,7 @@ async def set_admin_title(client: app, message: Message):  # type: ignore
         await message.reply("𝖳𝗂𝗍𝗅𝖾 𝗆𝗎𝗌𝗍 𝖻𝖾 𝗅𝖾𝗌𝗌 𝗍𝗁𝖺𝗇 16 𝖼𝗁𝖺𝗋𝖺𝖼𝗍𝖾𝗋𝗌.")
         return
 
-    # Check the user's current status in the chat
+
     try:
         x = await app.get_chat_member(chat_id, target_user.id)
 
@@ -903,7 +903,7 @@ async def set_admin_title(client: app, message: Message):  # type: ignore
             await message.reply("𝖳𝗁𝖾 𝗎𝗌𝖾𝗋 𝗂𝗌 𝗇𝗈𝗍 𝖺𝗇 𝖺𝖽𝗆𝗂𝗇.")
             return
 
-        # Set the custom title for the admin
+
         await app.set_administrator_title(chat_id, target_user.id, title)
 
         await message.reply(f"𝖳𝗁𝖾 𝖠𝖽𝗆𝗂𝗇 𝗍𝗂𝗍𝗅𝖾 𝖿𝗈𝗋 {target_user.mention()} 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝗎𝗉𝖽𝖺𝗍𝖾𝖽 𝗍𝗈: `{title}`")
@@ -914,20 +914,20 @@ async def set_admin_title(client: app, message: Message):  # type: ignore
     except Exception as e:
         await message.reply(f"𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝗎𝗉𝖽𝖺𝗍𝖾 𝗍𝗁𝖾 𝗍𝗂𝗍𝗅𝖾: {e}")
 
-#==============================================================================================================================================#
+
 
 @app.on_message(filters.command("adminlist") & filters.group)
 @app.on_message(filters.regex(r"(?i)^Yaha Ke Majdoor$") & filters.group)
 @chatadmin
 @error
 @save
-async def admin_list(client: app, message: Message):  # type: ignore
+async def admin_list(client: app, message: Message):
     chat_id = message.chat.id
     
     sent = await message.reply("𝖣𝖾𝗍𝖾𝖼𝗍𝗂𝗇𝗀 𝖺𝗅𝗅 𝖺𝖽𝗆𝗂𝗇𝗌...")
 
     try:
-        # `get_chat_members` returns an async generator, no `await` here
+
         admins = app.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS)
 
         owner = None
@@ -938,11 +938,11 @@ async def admin_list(client: app, message: Message):  # type: ignore
             title = member.custom_title if member.custom_title else "Admin"
 
             if member.status == ChatMemberStatus.OWNER:
-                owner = user.mention  # Format the Owner separately
+                owner = user.mention
             else:
                 admins_list.append(f"• {user.mention} - `{title}`")
 
-        # Construct the message text
+
         text = "**👮 Admin List:**\n"
         if owner:
             text += f"\n👑 **Owner :** {owner}\n\n"
@@ -960,13 +960,13 @@ async def admin_list(client: app, message: Message):  # type: ignore
     except Exception as e:
         await message.reply_text(f"An error occurred: {e}")
 
-#==============================================================================================================================================#
 
-# /setgtitle command
+
+
 @app.on_message(filters.command("setgtitle") & filters.group)
 @error
 @save
-async def set_group_title(client: app, message: Message): # type: ignore
+async def set_group_title(client: app, message: Message):
 
     new_title = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
     if not new_title:
@@ -980,11 +980,11 @@ async def set_group_title(client: app, message: Message): # type: ignore
     except Exception as e:
         await message.reply_text(f"𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽: {e}")
 
-# /setgpic command
+
 @app.on_message(filters.command("setgpic") & filters.group & filters.reply)
 @error
 @save
-async def set_group_photo(client: app, message: Message): # type: ignore
+async def set_group_photo(client: app, message: Message):
 
     if not message.reply_to_message.photo:
         return await message.reply_text("𝖯𝗅𝖾𝖺𝗌𝖾 𝗋𝖾𝗉𝗅𝗒 𝗍𝗈 𝖺𝗇 𝗂𝗆𝖺𝗀𝖾 𝗍𝗈 𝗌𝖾𝗍 𝖺𝗌 𝗍𝗁𝖾 𝗀𝗋𝗈𝗎𝗉 𝗉𝗁𝗈𝗍𝗈.")
@@ -999,22 +999,22 @@ async def set_group_photo(client: app, message: Message): # type: ignore
     except Exception as e:
         await message.reply_text(f"𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽: {e}")
 
-# /rmgpic command
+
 @app.on_message(filters.command("rmgpic") & filters.group)
 @error
 @save
-async def remove_group_photo(client: app, message: Message): # type: ignore
+async def remove_group_photo(client: app, message: Message):
     try:
         await app.delete_chat_photo(message.chat.id)
         await message.reply_text("𝖦𝗋𝗈𝗎𝗉 𝗉𝗁𝗈𝗍𝗈 𝗋𝖾𝗆𝗈𝗏𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒.")
     except Exception as e:
         await message.reply_text(f"𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽: {e}")
 
-# /setdesc command
+
 @app.on_message(filters.command("setdesc") & filters.group)
 @error
 @save
-async def set_group_description(client: app, message: Message): # type: ignore
+async def set_group_description(client: app, message: Message):
 
     new_description = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
     if not new_description:
@@ -1028,16 +1028,16 @@ async def set_group_description(client: app, message: Message): # type: ignore
     except Exception as e:
         await message.reply_text(f"𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽: {e}")
 
-#==============================================================================================================================================#
 
-# Command: /setrule
+
+
 @app.on_message(filters.command("setrule") & filters.group)
 @chatadmin
 @error
 @save
-async def set_rule(client: app, message: Message): # type: ignore
+async def set_rule(client: app, message: Message):
     chat_id = message.chat.id
-    text = message.text.split(None, 1)  # Split command and rest of the text
+    text = message.text.split(None, 1)
 
     if len(text) < 2:
         await message.reply_text(
@@ -1048,7 +1048,7 @@ async def set_rule(client: app, message: Message): # type: ignore
 
     rules = text[1].strip()
 
-    # Check if rules already exist
+
     existing_rules = await get_rules(chat_id)
 
     if existing_rules:
@@ -1066,15 +1066,15 @@ async def set_rule(client: app, message: Message): # type: ignore
             quote=True
         )
 
-# Command: /rules
+
 @app.on_message(filters.command("rules") & filters.group)
 @error
 @save
-async def get_rules_command(client: app, message: Message): # type: ignore
+async def get_rules_command(client: app, message: Message):
     chat_id = message.chat.id
     chat_name = message.chat.title
 
-    # Fetch rules
+
     rules = await get_rules(chat_id)
 
     if rules:
@@ -1089,63 +1089,63 @@ async def get_rules_command(client: app, message: Message): # type: ignore
             quote=True
         )
 
-# Command: /clearrule
+
 @app.on_message(filters.command("clearrule") & filters.group)
 @chatadmin
 @error
 @save
-async def clear_rules_command(client: app, message: Message): # type: ignore
+async def clear_rules_command(client: app, message: Message):
     chat_id = message.chat.id
 
-    # Clear rules
+
     await clear_rules(chat_id)
     await message.reply_text(
         "𝖱𝗎𝗅𝖾𝗌 𝗁𝖺𝗏𝖾 𝖻𝖾𝖾𝗇 𝖼𝗅𝖾𝖺𝗋𝖾𝖽 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.",
         quote=True
     )
 
-# Callback query handler for clearing rules
+
 @app.on_callback_query(filters.regex("^clear_rules\|"))
 @chatadmin
 @error
-async def clear_rules_callback(client: app, callback_query): # type: ignore
+async def clear_rules_callback(client: app, callback_query):
     chat_id = int(callback_query.data.split("|")[1])
 
-    # Clear rules
+
     await clear_rules(chat_id)
     await callback_query.message.edit_text(
         "𝖱𝗎𝗅𝖾𝗌 𝗁𝖺𝗏𝖾 𝖻𝖾𝖾𝗇 𝖼𝗅𝖾𝖺𝗋𝖾𝖽 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.",
     )
 
-#==============================================================================================================================================#
+
 
 @app.on_message(filters.command("userlist") & filters.group)
 @chatadmin
 @error
 @save
-async def userlist(client: app, message: Message):  # type: ignore
+async def userlist(client: app, message: Message):
     chat = message.chat
 
     try:
-        # Collect all members into a list
+
         members = []
         async for member in app.get_chat_members(chat.id):
             members.append(member)
         
         total_members = len(members)
 
-        # Create a list of user details
+
         user_data = [
             f"{member.user.first_name or '𝖴𝗇𝗄𝗇𝗈𝗐𝗇'} : {member.user.id}"
             for member in members
         ]
 
-        # Save user data to a file
+
         file_name = f"{chat.title}_𝗎𝗌𝖾𝗋𝗅𝗂𝗌𝗍.txt"
         with open(file_name, "w") as file:
             file.write("\n".join(user_data))
 
-        # Send the file with caption
+
         caption = (
             f"𝖳𝗈𝗍𝖺𝗅 𝖬𝖾𝗆𝖻𝖾𝗋𝗌: {total_members}\n"
             f"𝖧𝖾𝗋𝖾 𝗂𝗌 𝗍𝗁𝖾 𝗅𝗂𝗌𝗍 𝗈𝖿 𝗎𝗌𝖾𝗋𝗌 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍."
@@ -1158,7 +1158,7 @@ async def userlist(client: app, message: Message):  # type: ignore
             parse_mode=ParseMode.MARKDOWN
         )
 
-        # Clean up the file
+
         os.remove(file_name)
 
     except ChatAdminRequired:

@@ -28,7 +28,7 @@ async def mentionall(event):
     if not is_admin:
         return await event.respond("𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗆𝖾𝗇𝗍𝗂𝗈𝗇 𝖺𝗅𝗅!")
 
-    # Determine the mention mode
+
     command_type = event.pattern_match.group(1)
     msg_text = event.pattern_match.group(2)
     

@@ -57,7 +57,7 @@ def parse_buttons(text: str, keyword: str = ""):
 
             if btn_type == "buttonurl":
                 button = {"text": btn_text, "url": btn_data.replace(" ", "")}
-            else:  # buttonalert
+            else:
                 alerts.append(btn_data)
                 button = {"text": btn_text, "alert_index": len(alerts) - 1}
 
@@ -84,7 +84,7 @@ def build_markup(button_rows, keyword: str = ""):
         for btn in row:
             if "url" in btn:
                 line.append(InlineKeyboardButton(btn["text"], url=btn["url"]))
-            else:  # alert button
+            else:
                 line.append(InlineKeyboardButton(
                     btn["text"],
                     callback_data=f"alertmessage:{btn['alert_index']}:{keyword}"

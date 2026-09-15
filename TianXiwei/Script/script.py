@@ -245,15 +245,15 @@ SEX_IMAGES = [
 ]
 
 
-# ——————————————————————————————————————————————————————————————
-# Local image pools for the rest of fun.py's /waifus, /neko, /hug, etc.
-# commands (the ones handled by the generic send_waifu_image handler).
-# Add your own telegra.ph (or any direct image) URLs to any list below - if
-# a category's list is non-empty, fun.py picks a random image from it
-# FIRST, instant and with no external API call. If a list is empty, it
-# falls back to the waifu.pics API automatically. Same pattern as
-# HUG_IMAGES / KISS_IMAGES / etc. above, just for the other 25 categories.
-# ——————————————————————————————————————————————————————————————
+
+
+
+
+
+
+
+
+
 
 WAIFU_IMAGES = []
 NEKO_IMAGES = []
@@ -281,8 +281,8 @@ POKE_IMAGES = []
 DANCE_IMAGES = []
 CRINGE_IMAGES = []
 
-# category (matches the waifu.pics API category name) -> local image pool.
-# fun.py's fetch_image() looks a category up here first.
+
+
 CATEGORY_IMAGE_POOLS = {
     "waifu": WAIFU_IMAGES,
     "neko": NEKO_IMAGES,
@@ -313,12 +313,12 @@ CATEGORY_IMAGE_POOLS = {
 
 
 
-# BOT/imgs_config.py
+
 
 wish_videos = [
     "https://telegra.ph/file/5ca6ddfc49b49fae534da.mp4",
     "https://telegra.ph/file/67e9ed91b66af0dbdbb66.mp4",
-    # Add more URLs as needed
+
 ]
 
 
@@ -358,11 +358,11 @@ sticker_ids = [
     "CAACAgUAAxkBAAJlJ2aRIK-RAwNazT6EVHhztwKKbqyKAAJtCwACKmpJVSJnkH4nUIrNNQQ"
 ]
 
-# Mapping Telegram commands to API categories
+
 command_to_category = {
     "waifus": "waifu",
     "kickk": "kick",
-    # Direct mappings for other categories
+
     "neko": "neko",
     "shinobu": "shinobu",
     "megumin": "megumin",
@@ -865,7 +865,7 @@ TOSS = (
 DECIDE = ("𝖸𝖾𝗌.", "𝖭𝗈.", "𝖬𝖺𝗒𝖻𝖾.")
 
 
-# This feature's credit goes to @ishikki_akabane
+
 FLIRT = (
     "𝖨 𝗁𝗈𝗉𝖾 𝗒𝗈𝗎 𝗄𝗇𝗈𝗐 𝖢𝖯𝖱, 𝖻𝖾𝖼𝖺𝗎𝗌𝖾 𝗒𝗈𝗎 𝗃𝗎𝗌𝗍 𝗍𝗈𝗈𝗄 𝗆𝗒 𝖻𝗋𝖾𝖺𝗍𝗁 𝖺𝗐𝖺𝗒!",
     "𝖲𝗈, 𝖺𝗌𝗂𝖽𝖾 𝖿𝗋𝗈𝗆 𝗍𝖺𝗄𝗂𝗇𝗀 𝗆𝗒 𝖻𝗋𝖾𝖺𝗍𝗁 𝖺𝗐𝖺𝗒, 𝗐𝗁𝖺𝗍 𝖽𝗈 𝗒𝗈𝗎 𝖽𝗈 𝖿𝗈𝗋 𝖺 𝗅𝗂𝗏𝗂𝗇𝗀?",

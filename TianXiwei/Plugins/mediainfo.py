@@ -43,7 +43,7 @@ def _parse_ffprobe_to_mediainfo(raw: str) -> str:
         if v is None or str(v).strip() == "": return ""
         return f"{html.escape(str(k)).ljust(40)} : {html.escape(str(v))}\n"
 
-    # 1. General (FORMAT)
+
     fmt = data.get("format", {})
     if fmt:
         html_out += "<h4>🗒 General</h4>\n<pre>\n"
@@ -80,7 +80,7 @@ def _parse_ffprobe_to_mediainfo(raw: str) -> str:
             
         html_out += "</pre><br>\n"
         
-    # 2. Streams (Video, Audio, Subtitle)
+
     v_idx, a_idx, s_idx = 1, 1, 1
     for stream in data.get("streams", []):
         ctype = stream.get("codec_type", "unknown")
@@ -149,7 +149,7 @@ def _parse_ffprobe_to_mediainfo(raw: str) -> str:
             
         html_out += "</pre><br>\n"
         
-    # 3. Chapters (Menu)
+
     chapters = data.get("chapters", [])
     if chapters:
         html_out += "<h4>🗃 Menu</h4>\n<pre>\n"
@@ -189,12 +189,12 @@ async def _run_cmd(cmd: list) -> str:
 
 async def _get_info_text(file_path: str) -> tuple[str, str]:
     """Tries mediainfo first; falls back to ffprobe if mediainfo is missing."""
-    # 1) Try mediainfo
+
     out = await _run_cmd(["mediainfo", file_path])
     if out and "not found" not in out.lower() and "no such file" not in out.lower():
         return out, "mediainfo"
 
-    # 2) Fallback to ffprobe JSON format for perfect mapping
+
     out = await _run_cmd([
         "ffprobe",
         "-v", "quiet",
@@ -212,11 +212,11 @@ async def _get_info_text(file_path: str) -> tuple[str, str]:
 
 async def _download_telegram_media(client: Client, message: Message, media, dest: str) -> None:
     size = getattr(media, "file_size", 0) or 0
-    if size and size <= 50000000: # 50 MB
+    if size and size <= 50000000:
         await message.download(file_name=dest)
     else:
         try:
-            # Downloading more chunks just to be sure we hit the chapters/tags
+
             async for chunk in client.stream_media(media, limit=25):
                 async with aiofiles.open(dest, "ab") as f:
                     await f.write(chunk)
@@ -274,7 +274,7 @@ async def gen_mediainfo(client: Client, message: Message, media, media_msg: Mess
         if parser_type == "mediainfo":
             tc += _parse_mediainfo_text(raw)
         else:
-            # Now perfectly matches original mediainfo structure via JSON mapping
+
             tc += _parse_ffprobe_to_mediainfo(raw)
 
         try:
@@ -345,7 +345,7 @@ async def _download_from_link(link: str, dest: str) -> bool:
     headers = {
         "user-agent": "Mozilla/5.0 (Linux; Android 12) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0 Mobile Safari/537.36"
     }
-    max_bytes = 100 * 1024 * 1024  # 100 MiB cap - plenty for probing, avoids downloading huge files whole
+    max_bytes = 100 * 1024 * 1024
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(link, headers=headers, timeout=aiohttp.ClientTimeout(total=60)) as resp:
@@ -437,7 +437,7 @@ async def mediainfo_cmd(client: Client, message: Message):
         "<code>/mediainfo &lt;link&gt;</code>"
     )
 
-    # Link-based: /mediainfo <url>, or reply to a message containing a link
+
     link = None
     if len(message.command) > 1:
         link = message.command[1]

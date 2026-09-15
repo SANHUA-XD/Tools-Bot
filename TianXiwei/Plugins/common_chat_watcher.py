@@ -9,7 +9,7 @@ async def user_chat_tracker(client, message: Message):
     chat = message.chat
 
     if user and chat:
-        # Save the user-chat mapping
+
         await save_user_chat(user_id=user.id, chat_id=chat.id)
     else :
         return

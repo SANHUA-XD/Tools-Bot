@@ -13,9 +13,9 @@ async def save_or_check_user(user):
         list: A list of tuples containing change type, old value, and new value for each change detected.
     """
     if not user:
-        return []  # Skip invalid data
+        return []
 
-    # Prepare new user data
+
     new_data = {
         "user_id": user.id,
         "username": user.username.lower() if user.username else None,
@@ -23,22 +23,22 @@ async def save_or_check_user(user):
         "last_name": user.last_name,
     }
 
-    # Check for existing user in the database
+
     existing_user = await imposter_collection.find_one({"user_id": user.id})
     changes = []
 
     if existing_user:
-        # Detect and handle each type of change
+
         for field in ["username", "first_name", "last_name"]:
             if existing_user.get(field) != new_data[field]:
                 changes.append((field, existing_user.get(field), new_data[field]))
-                # Update the database with the new value
+
                 await imposter_collection.update_one(
                     {"user_id": user.id},
                     {"$set": {field: new_data[field]}}
                 )
     else:
-        # Insert new user data if not found
+
         await imposter_collection.insert_one(new_data)
 
     return changes

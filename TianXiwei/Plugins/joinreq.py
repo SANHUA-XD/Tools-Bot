@@ -10,7 +10,7 @@ from TianXiwei.Functions.log_helper import send_log, format_log
 from config import config
 
 
-# /autoaccept on|off - toggles automatic approval of join requests for this group
+
 @app.on_message(filters.command("autoaccept", prefixes=config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -36,15 +36,15 @@ async def autoaccept_command(client: Client, message: Message):
         await message.reply("❌ **𝖠𝗎𝗍𝗈 𝖩𝗈𝗂𝗇 𝖱𝖾𝗊𝗎𝖾𝗌𝗍 𝖠𝖼𝖼𝖾𝗉𝗍 𝗂𝗌 𝗇𝗈𝗐 𝖣𝗂𝗌𝖺𝖻𝗅𝖾𝖽.**\n𝖩𝗈𝗂𝗇 𝗋𝖾𝗊𝗎𝖾𝗌𝗍𝗌 𝗐𝗂𝗅𝗅 𝗇𝗈 𝗅𝗈𝗇𝗀𝖾𝗋 𝖻𝖾 𝖺𝗎𝗍𝗈-𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽.")
 
 
-# Silently auto-approves join requests for groups where it's enabled, then
-# DMs the user an approval notice. No "Join" button here (they're already
-# approved) - instead a "Powered By" button pointing at the bot's own
-# /start, so tapping it adds them to TianXiwei's user DB for future broadcasts.
+
+
+
+
 @app.on_chat_join_request(group=JOIN_UPDATE_GROUP)
 async def join_request_handler(c: Client, j: ChatJoinRequest):
     chat_id = j.chat.id
 
-    # Log the request itself regardless of auto-accept status
+
     try:
         invite_from = None
         if j.invite_link and j.invite_link.creator:
@@ -81,7 +81,7 @@ async def join_request_handler(c: Client, j: ChatJoinRequest):
             reply_markup=powered_by
         )
     except Exception:
-        pass  # user may have their DMs closed to the bot - that's fine, they're still approved
+        pass
 
 
 __module__ = "𝖩𝗈𝗂𝗇 𝖱𝖾𝗊𝗎𝖾𝗌𝗍"

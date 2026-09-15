@@ -2,7 +2,7 @@ from functools import wraps
 from pyrogram.types import Message, CallbackQuery
 from TianXiwei.Group.roleassign import load_roles
 
-# Define the role hierarchy
+
 ROLE_HIERARCHY = {
     "Botadmin" : ["Hokage", "Jonin" , "Chunin" , "Genin"],
     "Hokage": [],
@@ -11,11 +11,11 @@ ROLE_HIERARCHY = {
     "Genin": ["Jonin", "Chunin", "Hokage"]
 }
 
-# Helper function to check user roles
+
 def user_has_role(user_id, role):
     roles = load_roles()
 
-    # Check if the user has the required role or any lower role
+
     allowed_roles = [role] + ROLE_HIERARCHY.get(role, [])
     for allowed_role in allowed_roles:
         allowed_role_key = allowed_role + "s"
@@ -24,7 +24,7 @@ def user_has_role(user_id, role):
 
     return False
 
-# Decorator factory to create role-based decorators
+
 def role_required(role):
     def decorator(func):
         @wraps(func)
@@ -43,7 +43,7 @@ def role_required(role):
         return wrapper
     return decorator
 
-# Role-based decorators
+
 hokage = role_required("Hokage")
 jonin = role_required("Jonin")
 chunin = role_required("Chunin")

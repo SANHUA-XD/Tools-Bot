@@ -2,7 +2,7 @@ from httpx import AsyncClient, Timeout
 from Python_ARQ import ARQ
 from config import config
 
-# Global variables
+
 state = None
 arq = None
 

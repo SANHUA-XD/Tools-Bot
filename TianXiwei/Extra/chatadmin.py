@@ -15,13 +15,13 @@ def get_privileged_users():
     )
 
 async def cache_all_admin(chat_id):
-    # Fetch all administrators in the chat
+
     admins = [admin async for admin in app.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS)]
         
-        # Update privileges from admin data
+
     for admin in admins:
         user_id = admin.user.id
-        # Extract and cache privileges directly from the admin object
+
         privileges = {
             "is_admin": admin.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER],
             "is_owner": admin.status == ChatMemberStatus.OWNER,
@@ -41,7 +41,7 @@ async def fetch_admin_privileges(chat_id, user_id):
 def ensure_privilege(privilege_name):
     def decorator(func):
         @wraps(func)
-        async def wrapper(client: app, update, *args, **kwargs):  # type: ignore
+        async def wrapper(client: app, update, *args, **kwargs):
             if isinstance(update, Message):
                 user_id = update.from_user.id
             elif isinstance(update, CallbackQuery):
@@ -49,14 +49,14 @@ def ensure_privilege(privilege_name):
             else:
                 return
 
-            # Dynamically fetch privileged users
+
             privileged_users = get_privileged_users()
 
-            # Allow privileged users to bypass checks
+
             if user_id in privileged_users:
                 return await func(client, update, *args, **kwargs)
 
-            # Fetch admin privileges if not privileged
+
             chat_id = update.chat.id if isinstance(update, Message) else update.message.chat.id
             cached_privileges = admin_cache.get((chat_id, user_id))
             if not cached_privileges:
@@ -116,7 +116,7 @@ def can_pin_messages(func):
 def is_anonymous(func):
     return ensure_privilege("is_anonymous")(func)
 
-#==================================================================================================================================#
+
 
 def ensure_admin_or_owner(required_role=None):
     """
@@ -135,10 +135,10 @@ def ensure_admin_or_owner(required_role=None):
                 await update.reply("Unsupported update type.")
                 return
 
-            # Dynamically fetch privileged users
+
             privileged_users = get_privileged_users()
 
-            # Allow privileged users to bypass checks
+
             if user_id in privileged_users:
                 return await func(client, update, *args, **kwargs)
 

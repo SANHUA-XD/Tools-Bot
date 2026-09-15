@@ -2,7 +2,7 @@ from TianXiwei.Database import locks_collection
 
 
 
-# --- Lock Functions ---
+
 async def set_lock(chat_id: int, lock_type: str):
     """Enable a lock in a chat."""
     await locks_collection.update_one(

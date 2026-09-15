@@ -72,7 +72,7 @@ async def locks_command(client: Client, message: Message):
 async def locktypes_command(client: Client, message: Message):
     lockables = list(LOCKABLES.items())
 
-    # Create rows of 3 buttons each
+
     keyboard = [
         [
             InlineKeyboardButton(
@@ -92,7 +92,7 @@ async def locktypes_command(client: Client, message: Message):
 
 @app.on_callback_query(filters.regex(r"^locktype_"))
 async def locktype_description(client: Client, query: CallbackQuery):
-    # Extract lock type from callback data
+
     lock_type = query.data.split("_", 1)[1]
     description = LOCKABLES.get(lock_type, "No description available.")    
 

@@ -15,7 +15,7 @@ TMDB_GENRE_MAP = {
     36: "historical", 27: "horror", 10402: "music", 9648: "mystery",
     10749: "romance", 878: "sci-fi", 10770: "drama", 53: "thriller",
     10752: "war", 37: "western",
-    # TV-specific ids
+
     10759: "action adventure", 10762: "family", 10763: "documentary",
     10764: "drama", 10765: "sci-fi", 10766: "drama", 10767: "drama",
     10768: "war",
@@ -40,7 +40,7 @@ async def _fetch_tmdb_genres(query: str):
         genre_ids = result.get("genre_ids", [])
         names = [TMDB_GENRE_MAP[g] for g in genre_ids if g in TMDB_GENRE_MAP]
         if names:
-            # de-dupe while keeping order
+
             seen = set()
             return [n for n in names if not (n in seen or seen.add(n))]
     return None

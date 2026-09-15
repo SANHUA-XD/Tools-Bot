@@ -15,7 +15,7 @@ AUDIO_FILE = "TianXiwei.mp3"
 async def gtts_handler(client: Client, message: Message):
     reply = ""
 
-    # Get text from the command arguments or reply
+
     if len(message.command) > 1:
         reply = " ".join(message.command[1:])
     elif message.reply_to_message and message.reply_to_message.text:
@@ -27,15 +27,15 @@ async def gtts_handler(client: Client, message: Message):
         )
         return
 
-    # Remove newlines from the text
+
     reply = reply.replace("\n", "")
 
     try:
-        # Convert text to speech
+
         tts = gTTS(reply, lang="en", tld="co.in")
         tts.save(AUDIO_FILE)
 
-        # Send the audio file
+
         await client.send_audio(
             chat_id=message.chat.id,
             audio=AUDIO_FILE,
@@ -44,7 +44,7 @@ async def gtts_handler(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗈𝗇𝗏𝖾𝗋𝗍 𝗍𝖾𝗑𝗍 𝗍𝗈 𝗌𝗉𝖾𝖾𝖼𝗁. 𝖤𝗋𝗋𝗈𝗋: {e}")
     finally:
-        # Clean up the audio file
+
         if os.path.isfile(AUDIO_FILE):
             os.remove(AUDIO_FILE)
 

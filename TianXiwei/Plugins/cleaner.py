@@ -13,7 +13,7 @@ from TianXiwei.Functions.log_helper import send_log, format_log
 from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 
-# Command to toggle cleaner status
+
 @pgram.on_message(filters.command("cleaner" , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -22,14 +22,14 @@ async def cleaner_handler(client: Client, message: Message):
     chat_id = message.chat.id
 
     if await is_cleaner_enabled(chat_id):
-        # If already enabled, send a button to disable
+
         button = InlineKeyboardMarkup(
             [[InlineKeyboardButton("🔴 𝖣𝗂𝗌𝖺𝖻𝗅𝖾 𝖢𝗅𝖾𝖺𝗇𝖾𝗋", callback_data=f"disable_cleaner:{chat_id}")],
             [InlineKeyboardButton("🗑️", callback_data="delete")]]
         )
         await message.reply_text("**🛡️ 𝖢𝗅𝖾𝖺𝗇𝖾𝗋 𝖺𝗋𝖾 𝖾𝗇𝖺𝖻𝗅𝖾𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**", reply_markup=button)
     else:
-        # If not enabled, send a button to enable
+
         button = InlineKeyboardMarkup(
             [[InlineKeyboardButton("🟢 𝖤𝗇𝖺𝖻𝗅𝖾 𝖢𝗅𝖾𝖺𝗇𝖾𝗋", callback_data=f"enable_cleaner:{chat_id}")],
             [InlineKeyboardButton("🗑️", callback_data="delete")]]
@@ -38,7 +38,7 @@ async def cleaner_handler(client: Client, message: Message):
         await message.reply_text("**🛡️ 𝖢𝗅𝖾𝖺𝗇 𝖲𝖾𝗋𝗏𝗂𝖼𝖾 𝖺𝗋𝖾 𝖽𝗂𝗌𝖺𝖻𝗅𝖾𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**", reply_markup=button)
 
 
-# Callback query handler to enable/disable cleaners
+
 @pgram.on_callback_query(filters.regex("^(enable_cleaner|disable_cleaner):"))
 @chatadmin
 @error
@@ -65,18 +65,18 @@ async def toggle_cleaner(client: Client, callback_query):
 async def manage_antichannel(client: Client, message: Message):
     chat_id = message.chat.id
 
-    # Check if the cleaner feature is enabled for the group
+
     if not await is_cleaner_enabled(chat_id):
         return
 
     try :
 
-        # Delete service messages
+
         if message.service:
             await message.delete()
             return
     
-        # Check if the message starts with any of the defined command prefixes
+
         if message.text and any(message.text.startswith(prefix) for prefix in config.COMMAND_PREFIXES):
             await message.delete()
             return

@@ -20,7 +20,7 @@ from TianXiwei.Extra.errors import error
 IST = pytz.timezone("Asia/Kolkata")
 
 
-# Command to toggle announcement status
+
 @pgram.on_message(filters.command("nightmode" , prefixes=config.COMMAND_PREFIXES) & filters.group)
 @chatadmin
 @error
@@ -29,21 +29,21 @@ async def announcement_handler(client: Client, message: Message):
     chat_id = message.chat.id
         
     if await is_nightmode_enabled(chat_id):
-        # If already enabled, send a button to disable
+
         button = InlineKeyboardMarkup(
             [[InlineKeyboardButton("🔴 𝖣𝗂𝗌𝖺𝖻𝗅𝖾 Nightmode", callback_data=f"disable_nightmode:{chat_id}")],
             [InlineKeyboardButton("🗑️", callback_data="delete")]]
         )
         await message.reply_text("**📢 Nightmode is 𝖾𝗇𝖺𝖻𝗅𝖾𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**", reply_markup=button)
     else:
-        # If not enabled, send a button to enable
+
         button = InlineKeyboardMarkup(
             [[InlineKeyboardButton("🟢 𝖤𝗇𝖺𝖻𝗅𝖾 Nightmode", callback_data=f"enable_nightmode:{chat_id}")],
             [InlineKeyboardButton("🗑️", callback_data="delete")]]
              
         )
         await message.reply_text("**📢 Nightmode is 𝖽𝗂𝗌𝖺𝖻𝗅𝖾𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**", reply_markup=button)
-        # Log the command usage
+
     log_message = await format_log(
         action="Toggle Nightmode Command Used",
         chat=message.chat.title or str(chat_id),
@@ -52,7 +52,7 @@ async def announcement_handler(client: Client, message: Message):
     await send_log(chat_id, log_message)
 
 
-# Callback query handler to enable/disable nightmode
+
 @pgram.on_callback_query(filters.regex("^(enable_nightmode|disable_nightmode):"))
 @chatadmin
 @error
@@ -65,7 +65,7 @@ async def toggle_announcements(client: Client, callback_query):
         await enable_nightmode(chat_id, chat.title, chat.username)
         await callback_query.message.edit_text("**🟢 Nightmode 𝗁𝖺𝗏𝖾 𝖻𝖾𝖾𝗇 𝖾𝗇𝖺𝖻𝗅𝖾𝖽 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**")
 
-        # Log the action
+
         log_message = await format_log(
             action="Nightmode Enabled",
             chat=chat.title or str(chat_id),
@@ -76,7 +76,7 @@ async def toggle_announcements(client: Client, callback_query):
         await disable_nightmode(chat_id)
         await callback_query.message.edit_text("**🔴 Nightmode 𝗁𝖺𝗏𝖾 𝖻𝖾𝖾𝗇 𝖽𝗂𝗌𝖺𝖻𝗅𝖾𝖽 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**")
 
-        # Log the action
+
         log_message = await format_log(
             action="Nightmode Disabled",
             chat=chat.title or str(chat_id),
@@ -85,25 +85,25 @@ async def toggle_announcements(client: Client, callback_query):
 
     await send_log(chat_id, log_message)
 
-# Function to enable night mode permissions
+
 async def enable_nightmode_permissions():
     chats = await get_all_nightmode_enabled_chats()
     for chat_id in chats:
         try:
             await pgram.set_chat_permissions(chat_id, NIGHT_MODE_PERMISSIONS)
             await pgram.send_message(chat_id, "**🌙 Nightmode has been enabled.**")
-            await asyncio.sleep(1)  # Prevent floodwait
+            await asyncio.sleep(1)
         except Exception as e:
             print(f"Error enabling nightmode for chat {chat_id}: {e}")
 
-# Function to disable night mode permissions
+
 async def disable_nightmode_permissions():
     chats = await get_all_nightmode_enabled_chats()
     for chat_id in chats:
         try:
             await pgram.set_chat_permissions(chat_id, DEFAULT_PERMISSIONS)
             await pgram.send_message(chat_id, "**☀️ Nightmode has been disabled.**")
-            await asyncio.sleep(1)  # Prevent floodwait
+            await asyncio.sleep(1)
         except Exception as e:
             print(f"Error disabling nightmode for chat {chat_id}: {e}")
 

@@ -25,7 +25,7 @@ btn = InlineKeyboardMarkup(
         ]
     )
 
-# Inline buttons to go back to main stats
+
 main = InlineKeyboardMarkup(
     [[InlineKeyboardButton("🔙 Back", callback_data="main_stats")],
      [InlineKeyboardButton("🗑️" , callback_data="delete")] 
@@ -36,19 +36,19 @@ main = InlineKeyboardMarkup(
 @botadmin
 async def stats(client: Client, message: Message):
    
-    # Get system information
+
     node_name = platform.node()
     system = platform.system()
     cpu_usage = psutil.cpu_percent()
     memory = psutil.virtual_memory()
     memory_percentage = memory.percent
 
-    # Calculate uptime
+
     uptime_seconds = time.time() - start_time
     uptime_delta = timedelta(seconds=uptime_seconds)
     human_readable_uptime = format_time_delta(uptime_delta)
 
-    # Main Stats Message
+
     main_stats_message = (
         f"**➣ System Details:**\n"
         f"**🌐 Node Name:** {node_name}\n"
@@ -61,23 +61,23 @@ async def stats(client: Client, message: Message):
     )
 
 
-    # Inline buttons for toggling
+
     buttons = btn
 
-    # Send the main stats message
+
     await message.reply_text(main_stats_message, reply_markup=buttons, disable_web_page_preview=False , invert_media=True)
 
 
 @app.on_callback_query(filters.regex("version_stats"))
 @botadmin
 async def show_version_stats(client: Client, callback_query : CallbackQuery):
-    # Get library versions
+
     python_version = platform.python_version()
     pyrogram_version = pyrogram.__version__
     telethon_version = telethon.__version__
     motor_version = motor.version
 
-    # Version Stats Message
+
     version_stats_message = (
         f"**➣ Library Versions:**\n"
         f"**🐍 Python:** {python_version}\n"
@@ -86,10 +86,10 @@ async def show_version_stats(client: Client, callback_query : CallbackQuery):
         f"**⚡ Motor:** {motor_version}\n"
     )
 
-    # Inline buttons to go back to main stats
+
     buttons = main
 
-    # Edit the message with version stats
+
     await callback_query.message.edit_text(version_stats_message, reply_markup=buttons, disable_web_page_preview=False, invert_media=True)
 
 
@@ -109,7 +109,7 @@ async def show_database_stats(client: Client, callback_query : CallbackQuery):
     rules_enabled_chats = await get_rules_enabled_chats_count()
     interacted_users = await get_interacted_user_count()
 
-    # Version Stats Message
+
     version_stats_message = (
         f"**➣ Database Stats:**\n"
         f"**👤 Total Users:** {total_users}\n"
@@ -133,10 +133,10 @@ async def show_database_stats(client: Client, callback_query : CallbackQuery):
         f"**🔇 GMuted Users:** {total_gmuted_users}\n"
     )
 
-    # Inline buttons to go back to main stats
+
     buttons = main
 
-    # Edit the message with version stats
+
     await callback_query.message.edit_text(version_stats_message, reply_markup=buttons, disable_web_page_preview=False, invert_media=True)
 
 
@@ -144,19 +144,19 @@ async def show_database_stats(client: Client, callback_query : CallbackQuery):
 @app.on_callback_query(filters.regex("main_stats"))
 @botadmin
 async def show_main_stats(client: Client, callback_query : CallbackQuery):
-    # Get system information
+
     node_name = platform.node()
     system = platform.system()
     cpu_usage = psutil.cpu_percent()
     memory = psutil.virtual_memory()
     memory_percentage = memory.percent
 
-    # Calculate uptime
+
     uptime_seconds = time.time() - start_time
     uptime_delta = timedelta(seconds=uptime_seconds)
     human_readable_uptime = format_time_delta(uptime_delta)
 
-    # Main Stats Message
+
     main_stats_message = (
         f"**➣ System Details:**\n"
         f"**🌐 Node Name:** {node_name}\n"
@@ -168,8 +168,8 @@ async def show_main_stats(client: Client, callback_query : CallbackQuery):
         f"**📅 Started At:** {start_time_str}\n\n"
     )
 
-    # Inline buttons for toggling
+
     buttons = btn
 
-    # Edit the message with main stats
+
     await callback_query.message.edit_text(main_stats_message, reply_markup=buttons, disable_web_page_preview=False , invert_media=True)

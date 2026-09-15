@@ -96,18 +96,18 @@ async def save_banned_chats(user_id: int, chat_ids):
     Save the list of chat IDs where the user was banned.
     Handles both a single chat ID and a list of chat IDs.
     """
-    # Ensure chat_ids is a list
+
     if isinstance(chat_ids, int):
         chat_ids = [chat_ids]
 
-    # Add new chat IDs to the existing list (if any)
+
     existing_data = await banned_chats.find_one({"id": user_id})
     existing_chats = existing_data.get("banned_chats", []) if existing_data else []
 
-    # Combine and remove duplicates
+
     updated_chats = list(set(existing_chats + chat_ids))
 
-    # Update the database
+
     data = {
         "id": user_id,
         "banned_chats": updated_chats,

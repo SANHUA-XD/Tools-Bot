@@ -8,11 +8,11 @@ from threading import RLock
 from time import perf_counter
 from cachetools import TTLCache
 
-# stores admemes in memory for 10 min.
+
 ADMIN_CACHE = TTLCache(maxsize=512, ttl=60 * 10, timer=perf_counter)
 THREAD_LOCK = RLock()
 
-async def resolve_user(client: app, message: Message):  # type: ignore
+async def resolve_user(client: app, message: Message):
     try:
         if message.reply_to_message and message.reply_to_message.from_user:
             return message.reply_to_message.from_user
@@ -102,7 +102,7 @@ LOWPROMOTE = ChatPrivileges(
                             is_anonymous = False
             )
 
-async def resolve_user_for_afk(client: app, message: Message):  # type: ignore
+async def resolve_user_for_afk(client: app, message: Message):
     try:
         if message.reply_to_message and message.reply_to_message.from_user:
             return message.reply_to_message.from_user
@@ -177,7 +177,7 @@ async def is_user_admin(client, chat_id: int, user_id: int) -> bool:
             ADMIN_CACHE[chat_id] = admin_list
             return user_id in admin_list
 
-# Define permissions for night mode
+
 NIGHT_MODE_PERMISSIONS = ChatPermissions(
     can_send_messages = True ,
     can_send_media_messages = False,

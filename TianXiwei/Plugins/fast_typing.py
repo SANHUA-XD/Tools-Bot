@@ -15,9 +15,9 @@ from TianXiwei.Extra.save import save
 from TianXiwei.Extra.errors import error
 from TianXiwei.Database.game_db import get_ft_settings, update_ft_settings, add_local_ft_point, get_all_active_ft_chats, get_local_leaderboard, get_global_user_leaderboard, get_global_chat_leaderboard, FT_WIN_XP_REWARD
 
-# ==========================================
-# GAME ASSETS & CONSTANTS (Massively Expanded)
-# ==========================================
+
+
+
 FREQ_MAP = {
     3600: "1h", 7200: "2h", 10800: "3h", 14400: "4h",
     21600: "6h", 28800: "8h", 43200: "12h", 86400: "1D"
@@ -95,18 +95,18 @@ QUES = [
     ("Who is the author of Harry Potter?", "jk rowling"), ("What is the capital of Australia?", "canberra")
 ]
 
-# 👇 আপনার আপলোড করা ব্যাকগ্রাউন্ড ছবির ডিরেক্ট লিংকগুলো এখানে দিন (Telegraph বা ImgBB লিংক)
+
 BACKGROUND_TEMPLATES = [
     "https://i.ibb.co/KxGQbyRj/image.jpg",
     "https://i.ibb.co/dwGsXv3m/image.jpg",
 ]
 
-# Active games in memory: chat_id -> {word, start_time, msg_id, prev_msg_id, task_ref, options, needs_button}
+
 active_ft_games = {}
 
-# ==========================================
-# IMAGE GENERATOR (With Big Font, Emoji & Auto-wrap)
-# ==========================================
+
+
+
 def generate_word_image(text, cat):
     img = None
     if BACKGROUND_TEMPLATES:
@@ -137,7 +137,7 @@ def generate_word_image(text, cat):
     W, H = img.size
     cx, cy = W // 2, H // 2
 
-    # --- 1. EMOJI & FLAGS FIX (Using Twemoji API without Box) ---
+
     if cat in ["emoji", "flags"]:
         codepoints = [hex(ord(c))[2:] for c in text if hex(ord(c))[2:] != 'fe0f']
         code_str = "-".join(codepoints)
@@ -167,7 +167,7 @@ def generate_word_image(text, cat):
             bio.seek(0)
             return bio
 
-    # --- 2. SONG & QUES LONG TEXT WRAP FIX ---
+
     font_size = 100
     if cat in ["song", "ques"]:
         lines = textwrap.wrap(text, width=22)
@@ -202,9 +202,9 @@ def generate_word_image(text, cat):
     bio.seek(0)
     return bio
 
-# ==========================================
-# UI BUILDER
-# ==========================================
+
+
+
 def build_ft_keyboard(settings):
     is_on = "🟢 ON" if settings["is_on"] else "🔴 OFF"
     freq_str = FREQ_MAP.get(settings["freq"], "1h")
@@ -233,9 +233,9 @@ def build_ft_keyboard(settings):
         ]
     ])
 
-# ==========================================
-# /game COMMAND
-# ==========================================
+
+
+
 @app.on_message(filters.command("game", prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save
@@ -312,9 +312,9 @@ async def ft_callback(client: Client, query: CallbackQuery):
     )
     await query.message.edit_text(text, reply_markup=build_ft_keyboard(settings))
 
-# ==========================================
-# GAME LOGIC & SCHEDULER
-# ==========================================
+
+
+
 async def start_game_instance(client: Client, chat_id: int, settings: dict):
     cat = random.choice(settings["cats"])
     options_list = None
@@ -328,12 +328,12 @@ async def start_game_instance(client: Client, chat_id: int, settings: dict):
         q, answer = random.choice(MATHS)
         photo = await asyncio.to_thread(generate_word_image, q, cat)
     else:
-        # Button based categories
+
         source_list = EMOJIS if cat == "emoji" else FLAGS if cat == "flags" else SONGS if cat == "song" else QUES
         q, answer = random.choice(source_list)
         photo = await asyncio.to_thread(generate_word_image, q, cat)
         
-        # Generate Options
+
         other_options = [item[1] for item in source_list if item[1] != answer]
         wrong_choices = random.sample(other_options, min(3, len(other_options)))
         options_list = [answer] + wrong_choices
@@ -405,7 +405,7 @@ async def start_game_instance(client: Client, chat_id: int, settings: dict):
     except Exception as e:
         print(f"Failed to start game in {chat_id}: {e}")
 
-# Background Scheduler Loop
+
 async def ft_scheduler():
     await asyncio.sleep(10)
     while True:
@@ -429,10 +429,10 @@ async def ft_scheduler():
 
 asyncio.get_event_loop().create_task(ft_scheduler())
 
-# ==========================================
-# ANSWER HANDLER (For Words & Math Only)
-# ==========================================
-# Group=-10 ব্যবহার করা হয়েছে যেন অন্য যেকোনো ফিচারের আগে এটি রান করে এবং ব্লক না হয়
+
+
+
+
 @app.on_message(filters.group & filters.text, group=-10)
 async def check_ft_answer(client: Client, message: Message):
     chat_id = message.chat.id
@@ -441,7 +441,7 @@ async def check_ft_answer(client: Client, message: Message):
         
     game = active_ft_games[chat_id]
     
-    # Ignore text answers if the game requires a button click
+
     if game.get("needs_button"):
         raise ContinuePropagation
     
@@ -449,7 +449,7 @@ async def check_ft_answer(client: Client, message: Message):
         elapsed = int(time.time() - game["start_time"])
         mins, secs = divmod(elapsed, 60)
         
-        # Robust user_id catch (Fix for Anonymous Admins/Owners)
+
         if message.from_user:
             user_id = message.from_user.id
             username = message.from_user.username
@@ -484,12 +484,12 @@ async def check_ft_answer(client: Client, message: Message):
         del active_ft_games[chat_id]
         raise ContinuePropagation
     else:
-        # ভুল উত্তর দিলে অন্য মডিউলের জন্য কন্টিনিউ করবে
+
         raise ContinuePropagation
 
-# ==========================================
-# BUTTON ANSWER HANDLER (For Emoji, Flags, Song, Ques)
-# ==========================================
+
+
+
 @app.on_callback_query(filters.regex(r"^ftans_"))
 @error
 async def ft_button_answer(client: Client, query: CallbackQuery):
@@ -505,7 +505,7 @@ async def ft_button_answer(client: Client, query: CallbackQuery):
     selected_answer = game["options"][idx]
     
     if selected_answer.lower() == str(game["word"]).lower():
-        # Winner Found!
+
         user_id = query.from_user.id
         username = query.from_user.username
         elapsed = int(time.time() - game["start_time"])
@@ -516,7 +516,7 @@ async def ft_button_answer(client: Client, query: CallbackQuery):
         except Exception as e:
             print(f"Point Error: {e}")
         
-        # Remove buttons and update caption
+
         try:
             new_caption = "⚡️ Be the first to answer correctly to climb the mini-game leaderboard.\n\n⏱ Time remaining: **Ended**"
             await query.message.edit_caption(caption=new_caption, reply_markup=None)
@@ -539,9 +539,9 @@ async def ft_button_answer(client: Client, query: CallbackQuery):
     else:
         await query.answer("Wrong answer! Try again.", show_alert=True)
 
-# ==========================================
-# LEADERBOARDS (Local & Global)
-# ==========================================
+
+
+
 @app.on_message(filters.command("leaderboard", prefixes=config.COMMAND_PREFIXES) & filters.group)
 @error
 @save

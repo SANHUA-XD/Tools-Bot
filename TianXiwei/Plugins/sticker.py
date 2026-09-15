@@ -66,7 +66,7 @@ class Memify:
         self.font_path = font_path
 
     def draw_text(self, media_path, text, bg_color=None):
-        unique_id = str(uuid.uuid4())  # Generate unique file name
+        unique_id = str(uuid.uuid4())
         if media_path.endswith(".webm"):
             return self.process_video(media_path, text, bg_color, unique_id)
         else:
@@ -93,15 +93,15 @@ class Memify:
             upper_text = text
             lower_text = ""
     
-        # Define create_text_clip before using it
+
         def create_text_clip(txt, position):
-            # Calculate dynamic wrapping width based on the frame's width
-            max_chars_per_line = int(clip.w / (font_size * 0.6))  # Adjust 0.6 as needed
+
+            max_chars_per_line = int(clip.w / (font_size * 0.6))
             lines = textwrap.wrap(txt, width=max_chars_per_line)
     
             text_clips = []
-            line_spacing = font_size + 10  # Spacing between lines
-            total_height = len(lines) * line_spacing  # Total height of the text block
+            line_spacing = font_size + 10
+            total_height = len(lines) * line_spacing
     
             for i, line in enumerate(lines):
                 if position == "top":
@@ -128,7 +128,7 @@ class Memify:
     
             return text_clips
     
-        # Use create_text_clip after defining it
+
         upper_clips = create_text_clip(upper_text, "top") if upper_text else []
         lower_clips = create_text_clip(lower_text, "bottom") if lower_text else []
     
@@ -340,9 +340,9 @@ async def new_pack(client: Client, message: Message):
     if await get_pack(user_id, short_name):
         return await link_msg.reply("⚠️ 𝖸𝗈𝗎 𝖺𝗅𝗋𝖾𝖺𝖽𝗒 𝗁𝖺𝗏𝖾 𝖺 𝗉𝖺𝖼𝗄 𝗐𝗂𝗍𝗁 𝗍𝗁𝖺𝗍 𝗅𝗂𝗇𝗄 𝗇𝖺𝗆𝖾. 𝖳𝗋𝗒 /newpack 𝖺𝗀𝖺𝗂𝗇 𝗐𝗂𝗍𝗁 𝖺 𝖽𝗂𝖿𝖿𝖾𝗋𝖾𝗇𝗍 𝗈𝗇𝖾.")
 
-    # kind is decided by whatever the FIRST /kang into this pack turns out
-    # to be (photo vs video vs animated) - default to static for now, the
-    # kang flow re-tags it correctly once real media arrives.
+
+
+
     await add_pack(user_id, short_name, title, kind="static")
     await set_active_pack(user_id, short_name)
 
@@ -416,7 +416,7 @@ async def spk_delete(client: Client, query):
         try:
             await client.invoke(DeleteStickerSet(stickerset=InputStickerSetShortName(short_name=short_name)))
         except Exception:
-            pass  # still remove it from our records even if Telegram's side fails/is already gone
+            pass
     await delete_pack(query.from_user.id, short_name)
     await query.answer("🗑 𝖯𝖺𝖼𝗄 𝖽𝖾𝗅𝖾𝗍𝖾𝖽.", show_alert=True)
     kb = await _render_packs_keyboard(query.from_user.id)
@@ -461,17 +461,17 @@ async def kang_sticker(self: Client, ctx: Message):
             videos = True
         elif reply.document:
             if "image" in reply.document.mime_type:
-                # mime_type: image/webp
+
                 resize = True
             elif reply.document.mime_type in (
                 enums.MessageMediaType.VIDEO,
                 enums.MessageMediaType.ANIMATION,
             ):
-                # mime_type: application/video
+
                 videos = True
                 convert = True
             elif "tgsticker" in reply.document.mime_type:
-                # mime_type: application/x-tgsticker
+
                 animated = True
         elif reply.sticker:
             if not reply.sticker.file_name:
@@ -497,15 +497,15 @@ async def kang_sticker(self: Client, ctx: Message):
             and ctx.command[1].isdigit()
             and int(ctx.command[1]) > 0
         ):
-            # provide pack number to kang in desired pack
+
             packnum = int(ctx.command.pop(1))
             packname = (
                 f"{pack_prefix}{packnum}_{ctx.from_user.id}_by_{self.me.username}"
             )
             explicit_pack = True
         elif ctx.command and len(ctx.command) > 1 and ctx.command[1].startswith("#"):
-            # /kang #packlink -> target a specific named pack directly by
-            # its short link (as shown in /mypacks), instead of the active one
+
+
             wanted = ctx.command.pop(1)[1:]
             found_pack = await get_pack(ctx.from_user.id, wanted) or next(
                 (p for p in await get_packs(ctx.from_user.id) if p["short_name"].split("_", 1)[0] == wanted),
@@ -517,10 +517,10 @@ async def kang_sticker(self: Client, ctx: Message):
                 explicit_pack = True
 
         if not explicit_pack:
-            # No pack explicitly named in the command - fall back to
-            # whichever named pack the user has marked active via
-            # /mypacks (see /newpack), so kangs land in the pack they
-            # actually chose instead of always the legacy default one.
+
+
+
+
             kind = "animated" if animated else "video" if videos else "static"
             active = await get_active_pack(ctx.from_user.id, kind)
             if active:
@@ -528,14 +528,14 @@ async def kang_sticker(self: Client, ctx: Message):
                 pack_title_override = active["title"]
 
         if len(ctx.command) > 1:
-            # matches all valid emojis in input
+
             sticker_emoji = (
                 "".join(set(EMOJI_PATTERN.findall("".join(ctx.command[1:]))))
                 or sticker_emoji
             )
         filename = await self.download_media(ctx.reply_to_message)
         if not filename:
-            # Failed to download
+
             await prog_msg.delete()
             return
     elif ctx.entities and len(ctx.entities) > 1:
@@ -562,7 +562,7 @@ async def kang_sticker(self: Client, ctx: Message):
         except Exception as r_e:
             return await prog_msg.edit(f"{r_e.__class__.__name__} : {r_e}")
         if len(ctx.command) > 2:
-            # m.command[1] is image_url
+
             if ctx.command[2].isdigit() and int(ctx.command[2]) > 0:
                 packnum = ctx.command.pop(2)
                 packname = f"a{packnum}_{ctx.from_user.id}_by_{self.me.username}"
@@ -600,10 +600,10 @@ async def kang_sticker(self: Client, ctx: Message):
             except StickersetInvalid:
                 break
         file = await self.save_file(filename)
-        # `guess_mime_type()` returns None for extensions it doesn't
-        # recognise (this is what caused "'NoneType' object has no
-        # attribute 'encode'" - pyrogram tries to .encode() the mime type
-        # string internally). Always fall back to something sane instead.
+
+
+
+
         mime_type = self.guess_mime_type(filename) or (
             "video/webm" if filename.endswith(".webm")
             else "application/x-tgsticker" if filename.endswith(".tgs")
@@ -703,9 +703,9 @@ async def kang_sticker(self: Client, ctx: Message):
             reply_markup=markup,
         )
         if not packname_found:
-            # Pack was just created on Telegram for the first time - if it
-            # was one of the user's /newpack-registered named packs,
-            # flip it to "created" so /mypacks shows a working link.
+
+
+
             kind = "animated" if animated else "video" if videos else "static"
             existing_named = await get_pack(ctx.from_user.id, packname)
             if existing_named:
@@ -714,7 +714,7 @@ async def kang_sticker(self: Client, ctx: Message):
                 await add_pack(ctx.from_user.id, packname, pack_title_override, kind)
                 await mark_created(ctx.from_user.id, packname)
                 await set_active_pack(ctx.from_user.id, packname)
-        # Cleanup
+
         await self.delete_messages(
             chat_id=config.LOG_CHANNEL, message_ids=msg_.id, revoke=True
         )
@@ -731,7 +731,7 @@ def resize_image(filename: str) -> str:
     sizenew = (int(im.width * scale), int(im.height * scale))
     im = im.resize(sizenew, Image.NEAREST)
     downpath, f_name = os.path.split(filename)
-    # not hardcoding png_image as "sticker.png"
+
     png_image = os.path.join(downpath, f"{f_name.split('.', 1)[0]}.png")
     im.save(png_image, "PNG")
     if png_image != filename:
@@ -766,7 +766,7 @@ async def convert_video(filename: str) -> str:
     ]
 
     proc = await asyncio.create_subprocess_exec(*cmd)
-    # Wait for the subprocess to finish
+
     await proc.communicate()
 
     if webm_video != filename:
@@ -775,7 +775,7 @@ async def convert_video(filename: str) -> str:
 
 
 @app.on_message(filters.command(["stickerinfo", "stinfo"] , prefixes=config.COMMAND_PREFIXES))
-async def give_st_info(c: app, m: Message):  # type: ignore
+async def give_st_info(c: app, m: Message):
     if not m.reply_to_message:
         await m.reply_text("𝖯𝗅𝖾𝖺𝗌𝖾 𝗋𝖾𝗉𝗅𝗒 𝗍𝗈 𝖺 𝗌𝗍𝗂𝖼𝗄𝖾𝗋 𝗍𝗈 𝗀𝖾𝗍 𝗂𝗍𝗌 𝗂𝗇𝖿𝗈𝗋𝗆𝖺𝗍𝗂𝗈𝗇.")
         return
@@ -827,10 +827,10 @@ async def handler(client: Client, message: Message):
         await message.reply("Provide some text, please...")
         return
 
-    # Grab everything after the command word itself, robustly - this used
-    # to split on the literal string "/mmf " which threw an IndexError
-    # (crashing the whole dispatcher) whenever someone sent bare "/mmf"
-    # with no trailing text, or used a different command prefix.
+
+
+
+
     text_parts = message.text.split(None, 1) if message.text else []
     command_text = text_parts[1].strip() if len(text_parts) > 1 else ""
     if not command_text:

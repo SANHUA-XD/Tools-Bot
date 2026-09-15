@@ -19,7 +19,7 @@ async def unmute_all_users(client, message):
     chat_title = message.chat.title
 
 
-    # Check if the bot has the necessary rights
+
     bot = await pgram.get_chat_member(chat_id,"me")
     if not bot.privileges or not bot.privileges.can_restrict_members:
         await message.reply_text(
@@ -28,19 +28,19 @@ async def unmute_all_users(client, message):
         )
         return
 
-    # Notify the process start
+
     progress_message = await message.reply_text(
         f"🔍 **𝖥𝗂𝗇𝖽𝗂𝗇𝗀 𝗆𝗎𝗍𝖾𝖽 𝗎𝗌𝖾𝗋𝗌 𝗂𝗇** `{chat_title}`..."
     )
 
     try:
-        # Find all muted users
+
         muted_users = []
         async for member in client.get_chat_members(chat_id, filter=enums.ChatMembersFilter.RESTRICTED):
             if member.status == ChatMemberStatus.RESTRICTED:
                 muted_users.append(member.user.id)
 
-        # Update the progress message
+
         if not muted_users:
             await progress_message.edit_text("**𝖭𝗈 𝗆𝗎𝗍𝖾𝖽 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**")
             return
@@ -50,7 +50,7 @@ async def unmute_all_users(client, message):
             "**𝖭𝗈𝗐 𝗎𝗇𝗆𝗎𝗍𝗂𝗇𝗀 𝗍𝗁𝖾𝗆 𝖺𝗅𝗅...**"
         )
 
-        # Unmute all found members by resetting their permissions
+
         for user_id in muted_users:
             await pgram.restrict_chat_member(
                 chat_id,
@@ -64,7 +64,7 @@ async def unmute_all_users(client, message):
                                                      can_pin_messages=True) 
                 )
 
-        # Notify success
+
         await progress_message.edit_text(
             f"**𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗎𝗇𝗆𝗎𝗍𝖾𝖽`{len(muted_users)}` 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝗂𝗇** `{chat_title}`!"
         )
@@ -85,7 +85,7 @@ async def unban_all_users(client: Client, message: Message):
     chat_id = message.chat.id
     chat_title = message.chat.title
 
-    # Check if the bot has the necessary rights
+
     bot = await pgram.get_chat_member(chat_id, "me")
     if not bot.privileges or not bot.privileges.can_restrict_members:
         await message.reply_text(
@@ -94,20 +94,20 @@ async def unban_all_users(client: Client, message: Message):
         )
         return
 
-    # Notify the process start
+
     progress_message = await message.reply_text(
         f"🔍 **𝖥𝗂𝗇𝖽𝗂𝗇𝗀 𝖻𝖺𝗇𝗇𝖾𝖽 𝗎𝗌𝖾𝗋𝗌 𝗂𝗇** `{chat_title}`..."
     )
 
     try:
-        # Find all banned users
+
         banned_users = []
         async for member in pgram.get_chat_members(chat_id, filter=enums.ChatMembersFilter.BANNED):
             if member.status == ChatMemberStatus.BANNED:
                if member.user: 
                    banned_users.append(member.user.id)
 
-        # Update the progress message
+
         if not banned_users:
             await progress_message.edit_text("**𝖭𝗈 𝖻𝖺𝗇𝗇𝖾𝖽 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**")
             return
@@ -117,11 +117,11 @@ async def unban_all_users(client: Client, message: Message):
             "**𝖭𝗈𝗐 𝗎𝗇𝖻𝖺𝗇𝗇𝗂𝗇𝗀 𝗍𝗁𝖾𝗆 𝖺𝗅𝗅...**"
         )
 
-        # Unban all found members
+
         for user_id in banned_users:
             await pgram.unban_chat_member(chat_id, user_id)
 
-        # Notify success
+
         await progress_message.edit_text(
             f"**𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗎𝗇𝖻𝖺𝗇𝗇𝖾𝖽 `{len(banned_users)}` 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝗂𝗇** `{chat_title}`!"
         )
@@ -142,7 +142,7 @@ async def clear_zombies(client, message):
     chat_id = message.chat.id
     chat_title = message.chat.title
 
-    # Check if the bot has the necessary rights
+
     bot = await pgram.get_chat_member(chat_id, "me")
     if not bot.privileges or not bot.privileges.can_restrict_members:
         await message.reply_text(
@@ -151,19 +151,19 @@ async def clear_zombies(client, message):
         )
         return
 
-    # Notify the process start
+
     progress_message = await message.reply_text(
         f"🔍 **𝖲𝖼𝖺𝗇𝗇𝗂𝗇𝗀 𝖿𝗈𝗋 𝖽𝖾𝗅𝖾𝗍𝖾𝖽 𝖺𝖼𝖼𝗈𝗎𝗇𝗍𝗌 𝗂𝗇** `{chat_title}`..."
     )
 
     try:
-        # Find all deleted accounts
+
         deleted_accounts = []
         async for member in client.get_chat_members(chat_id):
             if member.user.is_deleted:
                 deleted_accounts.append(member.user.id)
 
-        # Update the progress message
+
         if not deleted_accounts:
             await progress_message.edit_text("**𝖭𝗈 𝖽𝖾𝗅𝖾𝗍𝖾𝖽 𝖺𝖼𝖼𝗈𝗎𝗇𝗍𝗌 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.**")
             return
@@ -173,14 +173,14 @@ async def clear_zombies(client, message):
             "**𝖭𝗈𝗐 𝖻𝖺𝗇𝗇𝗂𝗇𝗀 𝗍𝗁𝖾𝗆...**"
         )
 
-        # Ban all deleted accounts
+
         for user_id in deleted_accounts:
             try:
                 await pgram.ban_chat_member(chat_id, user_id)
             except RPCError:
-                pass  # Ignore errors for individual accounts
+                pass
 
-        # Notify success
+
         await progress_message.edit_text(
             f"**𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝖻𝖺𝗇𝗇𝖾𝖽 `{len(deleted_accounts)}` 𝖽𝖾𝗅𝖾𝗍𝖾𝖽 𝖺𝖼𝖼𝗈𝗎𝗇𝗍𝗌 𝖿𝗋𝗈𝗆** `{chat_title}`!"
         )
@@ -200,16 +200,16 @@ async def kick_the_fools(client, message):
     chat_title = message.chat.title
 
     try:
-        # Check bot privileges
+
         bot_member = await client.get_chat_member(chat_id, (await client.get_me()).id)
         if not bot_member.privileges or not bot_member.privileges.can_restrict_members:
             await message.reply("𝖯𝗅𝖾𝖺𝗌𝖾 𝗀𝗋𝖺𝗇𝗍 𝗆𝖾 **𝖡𝖺𝗇 𝖱𝗂𝗀𝗁𝗍𝗌** 𝖺𝗇𝖽 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.")
             return
 
-        # Notify about the scanning process
+
         status_message = await message.reply(f"`🔍 𝖲𝖼𝖺𝗇𝗇𝗂𝗇𝗀 𝖿𝗈𝗋 𝗂𝗇𝖺𝖼𝗍𝗂𝗏𝖾 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝗂𝗇{chat_title}...`")
 
-        # Collect inactive members
+
         inactive_members = []
         async for member in client.get_chat_members(chat_id):
             if member.user.status == enums.UserStatus.LONG_AGO:
@@ -219,7 +219,7 @@ async def kick_the_fools(client, message):
             await status_message.edit("`𝖭𝗈 𝗂𝗇𝖺𝖼𝗍𝗂𝗏𝖾 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝗍𝗁𝗂𝗌 𝖼𝗁𝖺𝗍.`")
             return
 
-        # Show confirmation keyboard
+
         keyboard = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("✅ 𝖪𝗂𝖼𝗄 𝖳𝗁𝖾𝗆 𝖠𝗅𝗅", callback_data="kick_all")],
@@ -235,18 +235,18 @@ async def kick_the_fools(client, message):
         @pgram.on_callback_query(filters.regex(r"kick_(all|cancel)"))
         @chatowner
         async def callback_kick(client, query):
-            # Verify if the callback query is from the chat OWNER
+
             initiator = await client.get_chat_member(chat_id, query.from_user.id)
             if initiator.status != enums.ChatMemberStatus.OWNER:
                 await query.answer("𝖮𝗇𝗅𝗒 𝗍𝗁𝖾 𝖼𝗁𝖺𝗍 𝗈𝗐𝗇𝖾𝗋 𝖼𝖺𝗇 𝖼𝗈𝗇𝖿𝗂𝗋𝗆 𝗍𝗁𝗂𝗌 𝖺𝖼𝗍𝗂𝗈𝗇.", show_alert=True)
                 return
 
             if query.data == "kick_all":
-                # Kick all inactive members
+
                 for user_id in inactive_members:
                     try:
                         await client.ban_chat_member(chat_id, user_id)
-                        await client.unban_chat_member(chat_id, user_id)  # Unban to allow rejoining
+                        await client.unban_chat_member(chat_id, user_id)
                     except ChatAdminRequired:
                         await query.message.edit("`𝖨 𝗇𝖾𝖾𝖽 𝖡𝖺𝗇 𝖱𝗂𝗀𝗁𝗍𝗌 𝗍𝗈 𝗉𝖾𝗋𝖿𝗈𝗋𝗆 𝗍𝗁𝗂𝗌 𝖺𝖼𝗍𝗂𝗈𝗇.`")
                         return

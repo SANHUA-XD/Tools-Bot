@@ -1,14 +1,14 @@
 import datetime
 from TianXiwei.Database import gamesdb
 
-# Fast Typing গেমের সেটিংস/লিডারবোর্ড ডাটা যেন মেইন ইকোনমির সাথে ক্ল্যাশ না করে,
-# তাই আলাদা কালেকশনে রাখা হলো - কিন্তু আসল XP ব্যালেন্স একই জায়গায় (gamesdb, 'coins'
-# ফিল্ড) থাকে, যাতে fast-typing এ জেতা XP অন্য সব গেম/ইকোনমি কমান্ডেও (bal, pay, bet...)
-# একইভাবে খরচযোগ্য হয়। "dalcs" আর fast-typing এর "pts" - দুটো আলাদা পয়েন্ট সিস্টেম না
-# রেখে একটাই XP ব্যালেন্স ব্যবহার করা হচ্ছে এখন।
+
+
+
+
+
 ftdb = gamesdb.database['FastTyping']
 
-# Fast typing এ প্রতিটা সঠিক উত্তরের জন্য এত XP মূল ওয়ালেটে যোগ হবে
+
 FT_WIN_XP_REWARD = 500
 
 
@@ -96,9 +96,9 @@ async def can_collect(user_id):
     time_since_last_collection = current_time - last_collection_time
     return (time_since_last_collection.total_seconds() >= 7 * 24 * 60 * 60,7 * 24 * 60 * 60 - time_since_last_collection.total_seconds())
 
-# ==========================================
-# FAST TYPING GAME DATABASE
-# ==========================================
+
+
+
 async def get_ft_settings(chat_id):
     data = await ftdb.find_one({"chat_id": chat_id, "type": "ft_settings"})
     if not data:
@@ -117,15 +117,15 @@ async def update_ft_settings(chat_id, settings):
     await ftdb.update_one({"chat_id": chat_id, "type": "ft_settings"}, {"$set": settings}, upsert=True)
 
 async def add_local_ft_point(chat_id, user_id, username: str = None):
-    # Local per-chat leaderboard tally (still separate - this is "who's
-    # winning games in THIS chat", not a currency amount).
+
+
     await ftdb.update_one(
         {"chat_id": chat_id, "user_id": user_id, "type": "ft_points"}, 
         {"$inc": {"points": 1}}, 
         upsert=True
     )
-    # Shared XP wallet - this is what actually makes fast-typing wins and
-    # the "dalcs" economy the same currency now.
+
+
     await add_xp(user_id, FT_WIN_XP_REWARD, username)
     
 async def get_all_active_ft_chats():

@@ -1,7 +1,7 @@
 from TianXiwei.Database import blacklist_collection
 
 
-# --- Word Blacklist Functions ---
+
 async def add_blacklisted_word(chat_id: int, word: str):
     """Add a word to the blacklist for a specific chat."""
     await blacklist_collection.update_one(
@@ -43,7 +43,7 @@ async def get_blacklist_mode(chat_id: int):
     mode_data = chat_data.get("blacklist_mode", {"mode": "off"}) if chat_data else {"mode": "off"}
     return mode_data
 
-# --- Sticker Blacklist Functions ---
+
 async def add_blacklisted_sticker(chat_id: int, sticker_id: str):
     """Add a sticker to the blacklist for a specific chat."""
     await blacklist_collection.update_one(
@@ -107,13 +107,13 @@ async def get_blacklist_summary():
     chats_with_blacklisted_stickers = 0
 
     async for chat_data in cursor:
-        # Count blacklisted words
+
         blacklisted_words = chat_data.get("blacklisted_words", [])
         if blacklisted_words:
             total_blacklisted_words += len(blacklisted_words)
             chats_with_blacklisted_words += 1
 
-        # Count blacklisted stickers
+
         blacklisted_stickers = chat_data.get("blacklisted_stickers", [])
         if blacklisted_stickers:
             total_blacklisted_stickers += len(blacklisted_stickers)

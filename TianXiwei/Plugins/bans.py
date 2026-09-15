@@ -26,7 +26,7 @@ def get_privileged_users():
 @can_restrict_members
 @error
 @save
-async def ban_user(client: app, message: Message):  # type: ignore
+async def ban_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -36,21 +36,21 @@ async def ban_user(client: app, message: Message):  # type: ignore
 
     reason = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            reason = args[1]  # Use the second argument as the title
+            reason = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
         if len(args) > 2:
-            reason = args[2]  # Use the third argument as the title
+            reason = args[2]
 
 
     if not target_user:
@@ -59,11 +59,11 @@ async def ban_user(client: app, message: Message):  # type: ignore
         )
         return
 
-    # Ban the user with the provided title
+
     try:
                 
         
-            # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -88,7 +88,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
             user_id=target_user.id,
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖡𝖺𝗇 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -99,7 +99,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
             promotion_message += f"📝 **𝖱𝖾𝖺𝗌𝗈𝗇** : {reason}"
 
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖴𝗇𝖻𝖺𝗇", callback_data=f"unban:{target_user.id}")],
@@ -107,7 +107,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
             ]
         )
         await message.reply(promotion_message, reply_markup=buttons)
-        # Log the ban action
+
         log_message = await format_log(
             tag="BAN",
             chat=message.chat.title,
@@ -128,7 +128,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
 @app.on_callback_query(filters.regex("^unban:(\d+)$"))
 @can_restrict_members
 @error
-async def demote_user(client: app, callback_query: CallbackQuery): # type: ignore
+async def demote_user(client: app, callback_query: CallbackQuery):
     if not callback_query.from_user:
         return
 
@@ -145,7 +145,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
             await callback_query.message.edit_text(USER_NOT_BANNED)
             return
 
-        # Demote the user
+
         await app.unban_chat_member(
             chat_id=chat_id,
             user_id=user_id
@@ -153,7 +153,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
         await callback_query.answer("𝖴𝗌𝖾𝗋 𝖴𝗇𝖻𝖺𝗇𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒.")
         await callback_query.message.edit_text(f"{d_user.mention()} 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝖴𝗇𝖻𝖺𝗇𝖾𝖽 𝖻𝗒 {callback_query.from_user.mention()}")
 
-        # Log the unban action
+
         log_message = await format_log(
             tag="UNBAN",
             chat=callback_query.message.chat.title,
@@ -173,12 +173,12 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
 @can_restrict_members
 @error
 @save
-async def demote_user(client: app, message: Message):  # type: ignore
+async def demote_user(client: app, message: Message):
     chat_id = message.chat.id
     if not message.from_user:
         return
     
-    # Resolve the target user
+
     target_user = await resolve_user(client, message)
     if not target_user:
         await message.reply(
@@ -186,11 +186,11 @@ async def demote_user(client: app, message: Message):  # type: ignore
         )
         return
 
-    user = message.from_user  # The user who sent the promote command
+    user = message.from_user
 
 
 
-    # Promote the target user with the specified privileges
+
     try:
         
         x = await app.get_chat_member(chat_id , target_user.id)
@@ -212,7 +212,7 @@ async def demote_user(client: app, message: Message):  # type: ignore
             user_id=target_user.id,
         )
 
-        # Construct the promotion message
+
         promotion_message = (
             f"✪ **𝖴𝗇𝖻𝖺𝗇 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -220,7 +220,7 @@ async def demote_user(client: app, message: Message):  # type: ignore
         )
 
         await message.reply(promotion_message)
-        # Log the unban event
+
         log_message = await format_log(
             tag="UNBAN",
             chat=message.chat.title,
@@ -237,7 +237,7 @@ async def demote_user(client: app, message: Message):  # type: ignore
 @app.on_message(filters.command(["kickme"], prefixes=c.COMMAND_PREFIXES) & filters.group)
 @error
 @save
-async def ban_user(client: app, message: Message):  # type: ignore
+async def ban_user(client: app, message: Message):
     chat_id = message.chat.id
     user = message.from_user
 
@@ -248,10 +248,10 @@ async def ban_user(client: app, message: Message):  # type: ignore
 
 
 
-    # Ban the user with the provided title
+
     try:
     
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -272,12 +272,12 @@ async def ban_user(client: app, message: Message):  # type: ignore
             user_id=target_user.id,
         )
 
-        # Construct promotion message
+
         promotion_message = ("𝖮𝗄𝖺𝗒 𝖥𝗎𝖼𝗄 𝖮𝖿𝖿 !!")
 
         await message.reply(promotion_message)
 
-        # Log the self-kick event
+
         log_message = await format_log(
             action="Self-Kick",
             chat=message.chat.title,
@@ -294,7 +294,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
 @app.on_message(filters.command(["banme"], prefixes=c.COMMAND_PREFIXES) & filters.group)
 @error
 @save
-async def ban_user(client: app, message: Message):  # type: ignore
+async def ban_user(client: app, message: Message):
     chat_id = message.chat.id
     user = message.from_user
 
@@ -305,10 +305,10 @@ async def ban_user(client: app, message: Message):  # type: ignore
 
 
 
-    # Ban the user with the provided title
+
     try:
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -324,12 +324,12 @@ async def ban_user(client: app, message: Message):  # type: ignore
             user_id=target_user.id,
         )
 
-        # Construct promotion message
+
         promotion_message = ("𝖮𝗄𝖺𝗒 𝖥𝗎𝖼𝗄 𝖮𝖿𝖿 !!")
 
         await message.reply(promotion_message)
 
-        # Log the self-ban event
+
         log_message = await format_log(
             action="Self-Ban",
             chat=message.chat.title,
@@ -346,7 +346,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
 @can_restrict_members
 @error
 @save
-async def silently_ban_user(client: app, message: Message):  # type: ignore
+async def silently_ban_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -354,32 +354,32 @@ async def silently_ban_user(client: app, message: Message):  # type: ignore
 
     target_user = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
 
-    # Case 2: Command with username/ID
+
     else:
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
             target_user = await resolve_user(client, message)
 
     if not target_user:
-        # Delete the command silently if no user was found
+
         await message.delete()
         return
 
-    # Check the user's current status in the chat
+
     try:
         x = await app.get_chat_member(chat_id, target_user.id)
 
         if x.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
-            # Owner/Admin can't be banned, delete the command silently
+
             await message.delete()
             return
 
         if x.status == ChatMemberStatus.BANNED:
-            # User is already banned, delete the command silently
+
             await message.delete()
             return
 
@@ -388,18 +388,18 @@ async def silently_ban_user(client: app, message: Message):  # type: ignore
         if target_user.id in privileged_users:
             return
 
-        # Ban the user
+
         await app.ban_chat_member(
             chat_id=chat_id,
             user_id=target_user.id,
         )
 
-        # Delete the command and the replied message (if applicable)
+
         await message.delete()
         if message.reply_to_message:
             await message.reply_to_message.delete()
 
-        # Log the ban event
+
         log_message = await format_log(
             tag="BAN",
             chat=message.chat.title,
@@ -409,13 +409,13 @@ async def silently_ban_user(client: app, message: Message):  # type: ignore
         await send_log(chat_id, log_message)
 
     except ChatAdminRequired:
-        # Silently handle if the bot lacks admin rights
+
         await message.delete()
 
     except UserNotParticipant:
         await message.delete()
     except Exception:
-        # Silently handle other errors
+
         await message.delete()
 
 
@@ -423,7 +423,7 @@ async def silently_ban_user(client: app, message: Message):  # type: ignore
 @can_restrict_members
 @error
 @save
-async def dban_user(client: app, message: Message):  # type: ignore
+async def dban_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -432,23 +432,23 @@ async def dban_user(client: app, message: Message):  # type: ignore
     target_user = None
     reason = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            reason = args[1]  # Use the second argument as the title
+            reason = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         await message.reply("𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝖿𝗂𝗇𝖽 𝗍𝗁𝖾 𝗌𝗉𝖾𝖼𝗂𝖿𝗂𝖾𝖽 𝗎𝗌𝖾𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗆𝖺𝗄𝖾 𝗌𝗎𝗋𝖾 𝗍𝗁𝖾 𝗏𝖺𝗅𝗂𝖽 𝗋𝖾𝗉𝗅𝗒 𝗍𝗈 𝖺 𝗆𝖾𝗌𝗌𝖺𝗀𝖾.")
         return
 
 
-    # Ban the user with the provided title
+
     try:
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -475,7 +475,7 @@ async def dban_user(client: app, message: Message):  # type: ignore
             user_id=target_user.id,
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖡𝖺𝗇 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -486,7 +486,7 @@ async def dban_user(client: app, message: Message):  # type: ignore
             promotion_message += f"📝 **𝖱𝖾𝖺𝗌𝗈𝗇** : {reason}"
 
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖴𝗇𝖻𝖺𝗇", callback_data=f"unban:{target_user.id}")],
@@ -495,7 +495,7 @@ async def dban_user(client: app, message: Message):  # type: ignore
         )
         await message.reply(promotion_message, reply_markup=buttons)
 
-        # Log the ban event
+
         log_message = await format_log(
             tag="BAN",
             chat=message.chat.title,
@@ -518,7 +518,7 @@ async def dban_user(client: app, message: Message):  # type: ignore
 @can_restrict_members
 @error
 @save
-async def temporary_ban_user(client: app, message: Message):  # type: ignore
+async def temporary_ban_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -528,14 +528,14 @@ async def temporary_ban_user(client: app, message: Message):  # type: ignore
     duration = None
     reason = None
 
-    # Parse the command arguments
+
     args = message.text.split(maxsplit=1)
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = message.reply_to_message.from_user
         if len(args) > 1:
-            # Extract duration and optional reason
+
             try:
                 duration_and_reason = args[1].split(maxsplit=1)
                 duration = int(duration_and_reason[0])
@@ -545,7 +545,7 @@ async def temporary_ban_user(client: app, message: Message):  # type: ignore
                 await message.reply("𝖴𝗌𝖺𝗀𝖾: /𝗍𝖻𝖺𝗇 [𝗎𝗌𝖾𝗋] [𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 𝗂𝗇 𝗆𝗂𝗇𝗎𝗍𝖾𝗌] [𝗋𝖾𝖺𝗌𝗈𝗇 (𝗈𝗉𝗍𝗂𝗈𝗇𝖺𝗅)]")
                 return
 
-    # Case 2: Command with username/ID and duration
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
@@ -564,7 +564,7 @@ async def temporary_ban_user(client: app, message: Message):  # type: ignore
         await message.reply("𝖴𝗌𝖺𝗀𝖾: /𝗍𝖻𝖺𝗇 [𝗎𝗌𝖾𝗋] [𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 𝗂𝗇 𝗆𝗂𝗇𝗎𝗍𝖾𝗌] [𝗋𝖾𝖺𝗌𝗈𝗇 (𝗈𝗉𝗍𝗂𝗈𝗇𝖺𝗅)]")
         return
 
-    # Check the user's current status in the chat
+
     try:
         x = await app.get_chat_member(chat_id, target_user.id)
 
@@ -585,7 +585,7 @@ async def temporary_ban_user(client: app, message: Message):  # type: ignore
         if target_user.id in privileged_users:
             return
 
-        # Ban the user temporarily
+
         until_date = datetime.utcnow() + timedelta(minutes=duration)
         await app.ban_chat_member(
             chat_id=chat_id,
@@ -593,7 +593,7 @@ async def temporary_ban_user(client: app, message: Message):  # type: ignore
             until_date=until_date,
         )
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖴𝗇𝖻𝖺𝗇", callback_data=f"unban:{target_user.id}")],
@@ -609,7 +609,7 @@ async def temporary_ban_user(client: app, message: Message):  # type: ignore
             h += f"📝 **𝖱𝖾𝖺𝗌𝗈𝗇:** {reason}"
         await message.reply(h, reply_markup=buttons)
 
-        # Log the temporary ban event
+
         log_message = await format_log(
             action=f"Temporarily Banned for {duration} minutes",
             chat=message.chat.title,
@@ -628,14 +628,14 @@ async def temporary_ban_user(client: app, message: Message):  # type: ignore
     except Exception as e:
         await message.reply(f"𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽: `{e}`")
 
-#====================================================================================================================================================#
+
 
 @app.on_message(filters.command(["mute"], prefixes=c.COMMAND_PREFIXES) & filters.group)
 @app.on_message(filters.regex(r"(?i)^Mute (him|her)$") & filters.group & filters.reply)
 @can_restrict_members
 @error
 @save
-async def mute_user(client: app, message: Message):  # type: ignore
+async def mute_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -644,21 +644,21 @@ async def mute_user(client: app, message: Message):  # type: ignore
     target_user = None
     reason = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            reason = args[1]  # Use the second argument as the title
+            reason = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
         if len(args) > 2:
-            reason = args[2]  # Use the third argument as the title
+            reason = args[2]
 
 
 
@@ -669,10 +669,10 @@ async def mute_user(client: app, message: Message):  # type: ignore
         return
 
 
-    # Promote the user with the provided title
+
     try:
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -698,7 +698,7 @@ async def mute_user(client: app, message: Message):  # type: ignore
             permissions=MUTE
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖬𝗎𝗍𝖾 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -708,7 +708,7 @@ async def mute_user(client: app, message: Message):  # type: ignore
         if reason :
             promotion_message += f"📝 **𝖱𝖾𝖺𝗌𝗈𝗇** : {reason}"
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖴𝗇𝗆𝗎𝗍𝖾", callback_data=f"unmute:{target_user.id}")],
@@ -717,7 +717,7 @@ async def mute_user(client: app, message: Message):  # type: ignore
         )
         await message.reply(promotion_message, reply_markup=buttons)
 
-        # Log the mute action
+
         log_message = await format_log(
             tag="MUTE",
             chat=message.chat.title,
@@ -738,7 +738,7 @@ async def mute_user(client: app, message: Message):  # type: ignore
 @can_restrict_members
 @error
 @save
-async def unmute_user(client: app, message: Message):  # type: ignore
+async def unmute_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -746,16 +746,16 @@ async def unmute_user(client: app, message: Message):  # type: ignore
 
     target_user = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
 
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
 
 
@@ -767,10 +767,10 @@ async def unmute_user(client: app, message: Message):  # type: ignore
         return
 
 
-    # Promote the user with the provided title
+
     try:
 
-        # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -791,7 +791,7 @@ async def unmute_user(client: app, message: Message):  # type: ignore
             permissions=UNMUTE
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖴𝗇𝗆𝗎𝗍𝖾 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -800,7 +800,7 @@ async def unmute_user(client: app, message: Message):  # type: ignore
 
         await message.reply(promotion_message)
 
-        # Log the unmute action
+
         log_message = await format_log(
             tag="UNMUTE",
             chat=message.chat.title,
@@ -821,7 +821,7 @@ async def unmute_user(client: app, message: Message):  # type: ignore
 @app.on_callback_query(filters.regex("^unmute:(\d+)$"))
 @can_restrict_members
 @error
-async def demote_user(client: app, callback_query: CallbackQuery): # type: ignore
+async def demote_user(client: app, callback_query: CallbackQuery):
     if not callback_query.from_user:
         return
 
@@ -837,7 +837,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
 
 
     try:
-        # Demote the user
+
         await app.restrict_chat_member(
             chat_id=chat_id,
             user_id=user_id,
@@ -846,7 +846,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
         await callback_query.answer("𝖴𝗌𝖾𝗋 𝖴𝗇𝗆𝗎𝗍𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒.")
         await callback_query.message.edit_text(f"{d_user.mention()} 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 𝖴𝗇𝗆𝗎𝗍𝖾𝖽 𝖻𝗒 {callback_query.from_user.mention()}")
 
-        # Log the unmute action
+
         log_message = await format_log(
             tag="UNMUTE",
             chat=callback_query.message.chat.title,
@@ -865,7 +865,7 @@ async def demote_user(client: app, callback_query: CallbackQuery): # type: ignor
 @can_restrict_members
 @error
 @save
-async def silently_mute_user(client: app, message: Message):  # type: ignore
+async def silently_mute_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -873,27 +873,27 @@ async def silently_mute_user(client: app, message: Message):  # type: ignore
 
     target_user = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
 
-    # Case 2: Command with username/ID
+
     else:
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
             target_user = await resolve_user(client, message)
 
     if not target_user:
-        # Delete the command silently if no user was found
+
         await message.delete()
         return
 
-    # Check the user's current status in the chat
+
     try:
         x = await app.get_chat_member(chat_id, target_user.id)
 
         if x.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
-            # Owner/Admin can't be muted, delete the command silently
+
             await message.delete()
             return
 
@@ -906,19 +906,19 @@ async def silently_mute_user(client: app, message: Message):  # type: ignore
         if target_user.id in privileged_users:
             return
         
-        # Ban the user
+
         await app.restrict_chat_member(
             chat_id=chat_id,
             user_id=target_user.id,
             permissions=MUTE
         )
 
-        # Delete the command and the replied message (if applicable)
+
         await message.delete()
         if message.reply_to_message:
             await message.reply_to_message.delete()
 
-        # Log the mute event
+
         log_message = await format_log(
             tag="MUTE",
             chat=message.chat.title,
@@ -928,20 +928,20 @@ async def silently_mute_user(client: app, message: Message):  # type: ignore
         await send_log(chat_id, log_message)
 
     except ChatAdminRequired:
-        # Silently handle if the bot lacks admin rights
+
         await message.delete()
 
     except UserNotParticipant:
         await message.delete()
     except Exception:
-        # Silently handle other errors
+
         await message.delete()
 
 @app.on_message(filters.command("tmute", prefixes=c.COMMAND_PREFIXES) & filters.group)
 @can_restrict_members
 @error
 @save
-async def temporary_mute_user(client: app, message: Message):  # type: ignore
+async def temporary_mute_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -951,14 +951,14 @@ async def temporary_mute_user(client: app, message: Message):  # type: ignore
     duration = None
     reason = None
 
-    # Parse the command arguments
+
     args = message.text.split(maxsplit=1)
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = message.reply_to_message.from_user
         if len(args) > 1:
-            # Extract duration and optional reason
+
             try:
                 duration_and_reason = args[1].split(maxsplit=1)
                 duration = int(duration_and_reason[0])
@@ -968,7 +968,7 @@ async def temporary_mute_user(client: app, message: Message):  # type: ignore
                 await message.reply("𝖴𝗌𝖺𝗀𝖾: /𝗍𝗆𝗎𝗍𝖾 [𝗎𝗌𝖾𝗋] [𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 𝗂𝗇 𝗆𝗂𝗇𝗎𝗍𝖾𝗌] [𝗋𝖾𝖺𝗌𝗈𝗇 (𝗈𝗉𝗍𝗂𝗈𝗇𝖺𝗅)]")
                 return
 
-    # Case 2: Command with username/ID and duration
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
@@ -987,7 +987,7 @@ async def temporary_mute_user(client: app, message: Message):  # type: ignore
         await message.reply("𝖴𝗌𝖺𝗀𝖾: /𝗍𝗆𝗎𝗍𝖾 [𝗎𝗌𝖾𝗋] [𝖽𝗎𝗋𝖺𝗍𝗂𝗈𝗇 𝗂𝗇 𝗆𝗂𝗇𝗎𝗍𝖾𝗌] [𝗋𝖾𝖺𝗌𝗈𝗇 (𝗈𝗉𝗍𝗂𝗈𝗇𝖺𝗅)]")
         return
 
-    # Check the user's current status in the chat
+
     try:
         x = await app.get_chat_member(chat_id, target_user.id)
 
@@ -1008,7 +1008,7 @@ async def temporary_mute_user(client: app, message: Message):  # type: ignore
         if target_user.id in privileged_users:
             return
 
-        # Ban the user temporarily
+
         until_date = datetime.utcnow() + timedelta(minutes=duration)
         await app.restrict_chat_member(
             chat_id=chat_id,
@@ -1017,7 +1017,7 @@ async def temporary_mute_user(client: app, message: Message):  # type: ignore
             permissions=MUTE
         )
 
-        # Send promotion message with inline buttons
+
         buttons = InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("𝖴𝗇𝗆𝗎𝗍𝖾", callback_data=f"unmute:{target_user.id}")],
@@ -1033,7 +1033,7 @@ async def temporary_mute_user(client: app, message: Message):  # type: ignore
             h += f"📝 **𝖱𝖾𝖺𝗌𝗈𝗇:** {reason}"
         await message.reply(h, reply_markup=buttons)
 
-        # Log the temporary mute event
+
         log_message = await format_log(
             tag="TMUTE",
             chat=message.chat.title,
@@ -1055,7 +1055,7 @@ async def temporary_mute_user(client: app, message: Message):  # type: ignore
 @can_restrict_members
 @error
 @save
-async def ban_user(client: app, message: Message):  # type: ignore
+async def ban_user(client: app, message: Message):
     chat_id = message.chat.id
 
     if not message.from_user:
@@ -1065,21 +1065,21 @@ async def ban_user(client: app, message: Message):  # type: ignore
 
     reason = None
 
-    # Case 1: Command is a reply
+
     if message.reply_to_message:
         target_user = await resolve_user(client, message)
         args = message.text.split(maxsplit=1)
         if len(args) > 1:
-            reason = args[1]  # Use the second argument as the title
+            reason = args[1]
 
-    # Case 2: Command with username/ID and title
+
     else:
         args = message.text.split(maxsplit=2)
         if len(args) > 1:
-            # Resolve the username or user ID
+
             target_user = await resolve_user(client, message)
         if len(args) > 2:
-            reason = args[2]  # Use the third argument as the title
+            reason = args[2]
 
 
     if not target_user:
@@ -1088,9 +1088,9 @@ async def ban_user(client: app, message: Message):  # type: ignore
         )
         return
 
-    # Ban the user with the provided title
+
     try:
-            # Check the user's current status in the chat
+
         x = await app.get_chat_member(chat_id, target_user.id)
     
         if x.status == ChatMemberStatus.OWNER:
@@ -1115,7 +1115,7 @@ async def ban_user(client: app, message: Message):  # type: ignore
             user_id=target_user.id,
         )
 
-        # Construct promotion message
+
         promotion_message = (
             f"✪ **𝖪𝗂𝖼𝗄 𝖤𝖵𝖤𝖭𝖳**\n\n"
             f"👤 **𝖴𝗌𝖾𝗋:** {target_user.mention()} (`{target_user.id}`)\n"
@@ -1127,13 +1127,13 @@ async def ban_user(client: app, message: Message):  # type: ignore
 
         await message.reply(promotion_message)
 
-        # Log the action
+
         log_message = await format_log(
             tag="KICK",
             chat=message.chat.title,
             admin=message.from_user.mention(),
             user=target_user.mention(),
-            message_link=None  # Optional, no relevant link here
+            message_link=None
         )
         await send_log(chat_id, log_message)
 
